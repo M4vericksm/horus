@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atlas — Administração</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
+    function toggleAtlasTheme() {
+      const html = document.documentElement;
+      if (html.classList.contains('light')) {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        localStorage.setItem('atlas-theme', 'dark');
+      } else {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        localStorage.setItem('atlas-theme', 'light');
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles/colors_and_type.css"/>
+  <link rel="stylesheet" href="styles/components.css"/>
+  <link rel="stylesheet" href="styles/atmosphere.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&family=League+Spartan:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    aside.sidebar { width:220px; flex-shrink:0; background:var(--bg-deep); border-right:1px solid var(--line); height:100vh; position:sticky; top:0; display:flex; flex-direction:column; z-index:50; }
+    * { font-family: 'Space Grotesk', 'Inter', sans-serif; }
+    .font-sora { font-family: 'Space Grotesk', sans-serif; }
+    .font-spartan { font-family: 'League Spartan', sans-serif; }
+    body { background: var(--bg-void); color: var(--text-primary); }
+    .atlas-sidebar { background: var(--bg-deep); border-right: 1px solid var(--line); }
+    .nav-item { color: var(--text-muted); transition: all 0.18s; }
+    .nav-item:hover { color: var(--text-primary); background: var(--bg-hover); }
+    .nav-item.active { color: var(--text-primary); background: var(--bg-hover); border: 1px solid var(--line-strong); }
+    .nav-item.active i { color: var(--cyan); }
+    .atlas-surface  { background: var(--bg-surface); border: 1px solid var(--line); }
+    .atlas-card     { background: var(--bg-surface); border: 1px solid var(--line); transition: all 0.2s; }
+    .atlas-card:hover { border-color: var(--cyan-dim); }
+    .atlas-header   { background: var(--bg-deep); border-bottom: 1px solid var(--line); padding:20px 28px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:30; backdrop-filter:blur(12px); }
+    .module-tag { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--cyan); font-weight:600; letter-spacing:0.05em; margin-bottom:4px; }
+    
+    /* Theme toggle — light overrides handled by colors_and_type.css vars */
+    html.light .atlas-header { background: var(--bg-deep); border-bottom: 1px solid var(--line); }
+    
+    /* Text transition */
+    html.light h1, html.light h2, html.light h3, html.light h4, html.light h4.text-white, html.light p.text-white, html.light i.text-white, html.light td.text-white { color: #0F172A !important; }
+    html.light .text-slate-300 { color: #475569 !important; }
+    html.light .text-slate-400 { color: #64748B !important; }
+    
+    html.light .atlas-input { background: #FFFFFF; border-color: rgba(0,0,0,0.1); color: #0F172A; }
+    html.light .atlas-input option { background: #FFFFFF; color: #0F172A; }
+    html.light .atlas-tr { border-bottom-color: rgba(0,0,0,0.06) !important; color: #334155 !important; }
+    html.light .atlas-table-head { background: #E2E8F0 !important; color: #475569 !important; }
+    html.light .atlas-surface { background: #FFFFFF; border-color: #E2E8F0; }
+    html.light .atlas-card { background: #FFFFFF !important; border-color: #E2E8F0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    html.light .atlas-card:hover { border-color: #93C5FD !important; box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
+    html.light .user-icon-bg { background: rgba(0,0,0,0.05) !important; }
+    
+    html.light .atlas-btn-ghost { background: transparent; color: #475569; border-color: #E2E8F0; }
+    html.light .atlas-btn-ghost:hover { background: #F1F5F9; color: #0F172A; }
+    html.light .atlas-btn-indigo { background: #EEF2FF; color: #4338CA; border-color: #C7D2FE; box-shadow:none; }
+    html.light .atlas-btn-indigo:hover { background: #E0E7FF; }
+    
+    .atlas-input[disabled], .atlas-input[readonly] { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); color: #8FA4C2; cursor: not-allowed; }
+    html.light .atlas-input[disabled], html.light .atlas-input[readonly] { background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #94A3B8 !important; }
+    
+    .empty-state { color: #8FA4C2; border: 1px dashed rgba(255,255,255,0.08); }
+    html.light .empty-state { color: #64748B; border-color: #CBD5E1; }
+    
+    .alert-danger { background: rgba(239,68,68,0.1); color: #F87171; border: 1px solid rgba(239,68,68,0.2); }
+    html.light .alert-danger { background: #FEF2F2 !important; color: #DC2626 !important; border-color: #FECACA !important; }
+    
+    .atlas-bc-link-item { background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.15); }
+    html.light .atlas-bc-link-item { background: #EEF2FF !important; border-color: #C7D2FE !important; }
+    
+    .icon-blue-bg { background: rgba(37,99,235,0.12); color: #93C5FD; }
+    html.light .icon-blue-bg { background: #EFF6FF !important; color: #3B82F6 !important; }
+    .icon-indigo-bg { background: rgba(99,102,241,0.12); color: #A5B4FC; }
+    html.light .icon-indigo-bg { background: #EEF2FF !important; color: #4F46E5 !important; }
+    
+    .atlas-card-divider { border-top: 1px solid rgba(255,255,255,0.06); }
+    html.light .atlas-card-divider { border-top-color: rgba(0,0,0,0.06) !important; }
+    
+    .atlas-table-head { background: var(--bg-elev); color: var(--text-muted); }
+    
+    /* Stat chips */
+    .chip-blue   { background: rgba(37,99,235,0.12);  color: #93C5FD; border: 1px solid rgba(37,99,235,0.2); }
+    .chip-purple { background: rgba(139,92,246,0.12); color: #C4B5FD; border: 1px solid rgba(139,92,246,0.2); }
+    .chip-teal   { background: rgba(20,184,166,0.12); color: #5EEAD4; border: 1px solid rgba(20,184,166,0.2); }
+    .chip-indigo { background: rgba(99,102,241,0.12); color: #A5B4FC; border: 1px solid rgba(99,102,241,0.2); }
+    .chip-slate  { background: rgba(100,116,139,0.1); color: #94A3B8; border: 1px solid rgba(100,116,139,0.2); }
+    
+    html.light .chip-blue   { color: #1D4ED8; background: rgba(37,99,235,0.1); border-color: rgba(37,99,235,0.3); }
+    html.light .chip-purple { color: #5B21B6; background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.3); }
+    html.light .chip-teal   { color: #0F766E; background: rgba(20,184,166,0.1); border-color: rgba(20,184,166,0.3); }
+    html.light .chip-indigo { color: #4338CA; background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3); }
+    html.light .chip-slate  { color: #334155; background: rgba(100,116,139,0.1); border-color: rgba(100,116,139,0.3); }
+    
+    .chip-emerald { background: rgba(52,211,153,0.1); color: #34D399; border: 1px solid rgba(52,211,153,0.2); }
+    html.light .chip-emerald { background: #ECFDF5; color: #059669; border-color: #6EE7B7; }
+    .chip-rose { background: rgba(244,63,94,0.1); color: #FDA4AF; border: 1px solid rgba(244,63,94,0.22); }
+    html.light .chip-rose { background: #FFF1F2; color: #BE123C; border-color: #FDA4AF; }
+    .chip-red { background: rgba(239,68,68,0.12); color: #F87171; border: 1px solid rgba(239,68,68,0.2); }
+    html.light .chip-red { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+    
+    .atlas-modal    { background: var(--bg-elev); border: 1px solid var(--line-strong); }
+    .atlas-input {
+      background: var(--bg-surface);
+      border: 1px solid var(--line-strong);
+      color: var(--text-primary);
+      transition: border-color 0.2s;
+    }
+    .atlas-input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(94,180,199,0.15); }
+    .atlas-input::placeholder { color: var(--text-muted); }
+    .atlas-input option { background: var(--bg-elev); color: var(--text-primary); }
+    .atlas-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #8FA4C2; display: block; margin-bottom: 5px; }
+    .atlas-btn-primary { background: linear-gradient(135deg,#2563EB,#1D4ED8); color: white; border: 1px solid rgba(37,99,235,0.5); transition: all 0.2s; box-shadow: 0 4px 14px rgba(37,99,235,0.25); }
+    .atlas-btn-primary:hover { box-shadow: 0 6px 20px rgba(37,99,235,0.4); transform: translateY(-1px); }
+    .atlas-btn-ghost { background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; }
+    .atlas-btn-ghost:hover { background: rgba(255,255,255,0.09); color: white; }
+    .atlas-btn-danger { background: rgba(239,68,68,0.1); color: #F87171; border: 1px solid rgba(239,68,68,0.2); transition: all 0.2s; }
+    .atlas-btn-danger:hover { background: rgba(239,68,68,0.2); }
+    .atlas-btn-indigo { background: rgba(99,102,241,0.12); color: #A5B4FC; border: 1px solid rgba(99,102,241,0.25); transition: all 0.2s; }
+    .atlas-btn-indigo:hover { background: rgba(99,102,241,0.2); }
+    .modal-enter { animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
+    @keyframes slideInToast { from { opacity:0; transform:translateX(24px); } to { opacity:1; transform:translateX(0); } }
+    /* Toggle switch */
+    .toggle-checkbox:checked { right: 0; border-color: #2563EB; }
+    .toggle-checkbox:checked + .toggle-label { background-color: #2563EB; }
+    .toggle-checkbox { top: 0; }
+    /* Tab styles */
+    .atlas-tab { color: #8FA4C2; border-bottom: 2px solid transparent; padding: 10px 0; font-size: 13px; font-weight: 600; transition: all 0.18s; cursor: pointer; background: none; }
+    .atlas-tab:hover { color: #CBD5E1; }
+    .atlas-tab.active { color: #60A5FA; border-bottom-color: #2563EB; }
+    .atlas-embed { width: 100%; height: calc(100vh - 180px); min-height: 660px; border: 0; border-radius: 16px; background: var(--bg-deep); display: block; }
+    .network-jump-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    @media (max-width: 900px) { .network-jump-grid { grid-template-columns:1fr; } }
+    .network-jump-card {
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+      width:100%; padding:14px 16px; border-radius:14px; cursor:pointer; text-align:left;
+      background:rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.08);
+      color:var(--text-primary); transition:all .18s;
+    }
+    .network-jump-card:hover { border-color:var(--cyan); background:rgba(34,211,238,0.07); transform:translateY(-1px); }
+    html.light .network-jump-card { background:#F8FAFC; border-color:#E2E8F0; }
+    html.light .network-jump-card:hover { border-color:#93C5FD; background:#EFF6FF; }
+    /* Table row hover */
+    .atlas-tr:hover { background: rgba(37,99,235,0.05); }
+    /* Logo nodes */
+    @keyframes nodePulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+    .np { animation: nodePulse 2.4s ease-in-out infinite; }
+    .np:nth-child(2) { animation-delay:0.4s; }
+    .np:nth-child(3) { animation-delay:0.8s; }
+    @keyframes blink { 0%,94%,100% { transform:scaleY(1); } 96% { transform:scaleY(0.1); } }
+    .eye-b  { animation: blink 5s ease-in-out infinite; transform-origin: center; }
+    .eye-b2 { animation: blink 5s ease-in-out infinite 0.12s; transform-origin: center; }
+  </style>
+</head>
+<body style="display:flex;min-height:100vh;overflow:hidden;">
+
+  <!-- ── SIDEBAR ──────────────────────────────── -->
+  <aside class="sidebar">
+    <div style="display:flex;align-items:center;gap:10px;padding:22px 20px;border-bottom:1px solid var(--line);">
+      <img src="assets/atlas-logo.png" width="36" height="36" alt="Atlas" class="octo-idle"/>
+      <span class="brand" style="font-size:28px;color:var(--text-primary);line-height:1;">Atlas</span>
+    </div>
+    <nav style="flex:1;padding:14px 0;">
+      <a href="dashboard.html" class="nav-btn">
+        <i data-lucide="layout-dashboard" style="width:15px;height:15px;"></i>
+        <span>Visão geral</span>
+      </a>
+      <a href="logs.html" class="nav-btn">
+        <i data-lucide="activity" style="width:15px;height:15px;"></i>
+        <span>Atividade</span>
+      </a>
+      <a onclick="showListView()" class="nav-btn active" data-navkey="clients" style="cursor:pointer;">
+        <i data-lucide="folder-tree" style="width:15px;height:15px;"></i>
+        <span>Grupos e ativos</span>
+      </a>
+      <a href="vlans.html" class="nav-btn" data-navkey="vlans">
+        <i data-lucide="layers-3" style="width:15px;height:15px;"></i>
+        <span>VLANs</span>
+      </a>
+      <a href="topologia.html" class="nav-btn" data-navkey="topo">
+        <i data-lucide="share-2" style="width:15px;height:15px;"></i>
+        <span>Topologia</span>
+      </a>
+      <a href="ips.html" class="nav-btn" data-navkey="ips">
+        <i data-lucide="globe" style="width:15px;height:15px;"></i>
+        <span>IPs</span>
+      </a>
+    </nav>
+    <div style="padding:12px 14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;">
+      <div style="flex:1;">
+        <p style="font:600 11px 'Space Grotesk';color:var(--text-secondary);margin:0;">Sistema</p>
+      </div>
+      <button onclick="toggleAtlasTheme()" class="icon-btn" title="Alternar tema">
+        <i data-lucide="sun-moon" style="width:15px;height:15px;"></i>
+      </button>
+      <button onclick="AtlasAPI.logout()" class="icon-btn" title="Sair">
+        <i data-lucide="log-out" style="width:15px;height:15px;"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ──────────────────────────────────── -->
+  <main style="flex:1;display:flex;flex-direction:column;height:100vh;overflow-y:auto;width:100%;position:relative;background:var(--bg-void)">
+
+    <!-- VIEW 1: Lista -->
+    <div id="view-list" class="block">
+      <header class="atlas-header">
+        <div>
+          <div class="module-tag">// admin_clients</div>
+          <h1 class="t-h1">Grupos e ativos</h1>
+          <p style="font:400 12px 'Space Grotesk';color:var(--text-muted);margin-top:4px;">Configure servidores e grupos monitorados</p>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="openBCServerModal()"
+            class="atlas-btn-ghost flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold">
+            <i data-lucide="server" class="w-4 h-4"></i> Conectar API
+          </button>
+          <button onclick="openManualClientModal()"
+            class="atlas-btn-primary flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold">
+            <i data-lucide="plus" class="w-4 h-4"></i> Novo Grupo
+          </button>
+        </div>
+      </header>
+
+      <div class="p-7 max-w-7xl mx-auto space-y-10">
+        <!-- Conectores -->
+        <section>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-slate-400">
+              <i data-lucide="cloud-lightning" class="w-4 h-4"></i> Conectores Ativos
+            </h2>
+            <button onclick="runGlobalDiscovery(this)"
+              class="atlas-btn-indigo text-xs font-semibold px-3 py-1.5 rounded-xl">
+              Sincronizar Todos os Grupos
+            </button>
+          </div>
+          <div id="bcServersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <div style="border-top:1px solid rgba(255,255,255,0.06);"></div>
+
+        <!-- Grupos -->
+        <section>
+          <h2 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2 mb-4 text-slate-400">
+            <i data-lucide="folder-tree" class="w-4 h-4"></i> Grupos no Painel
+          </h2>
+          <div class="atlas-surface rounded-2xl overflow-hidden">
+            <table class="w-full text-left text-sm">
+              <thead class="atlas-table-head text-xs font-semibold uppercase tracking-wide">
+                <tr>
+                  <th class="px-6 py-4">Nome do Grupo</th>
+                  <th class="px-6 py-4">Origem</th>
+                  <th class="px-6 py-4 text-center">Ativos</th>
+                  <th class="px-6 py-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTable" style="border-top:1px solid rgba(255,255,255,0.05);"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- VIEW 2: Configuração do Grupo -->
+    <div id="view-config" class="hidden pb-24">
+      <header class="atlas-header">
+        <div class="flex items-center gap-4">
+          <button onclick="showListView()" class="icon-btn" style="color:var(--cyan);">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <h1 class="font-sora font-semibold text-white text-xl" id="titleGroupName">...</h1>
+            <div id="badgeGroupStatus" class="flex gap-2 mt-1"></div>
+          </div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <select id="wsProviderSel" onchange="switchProviderWorkspace(this.value)" title="Trocar de provedor"
+            class="atlas-input rounded-xl text-sm font-medium px-3" style="min-width:210px;height:42px;cursor:pointer;"></select>
+          <button id="btnSyncIPAM" onclick="runIPAMSync(this)"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition"
+            style="background:linear-gradient(135deg,var(--cyan),var(--cyan-dim));box-shadow:0 4px 14px color-mix(in oklab, var(--cyan) 30%, transparent);color:#04121a;">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i> <span id="btnSyncIPAMLabel">Enviar ao IPAM</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="p-7 max-w-7xl mx-auto">
+        <!-- Tabs -->
+        <div class="flex gap-6 mb-8" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+          <button onclick="switchTab('tab-config')" id="btn-tab-config" class="atlas-tab active">Configuração e Vínculos</button>
+          <button onclick="switchTab('tab-assets')" id="btn-tab-assets" class="atlas-tab">Gerenciar Ativos</button>
+          <button id="btn-tab-vlans" onclick="openClientNetwork('vlans')" class="atlas-tab">VLANs</button>
+          <button id="btn-tab-topo" onclick="openClientNetwork('topo')" class="atlas-tab">Topologia</button>
+          <button id="btn-tab-ips" onclick="openClientNetwork('ips')" class="atlas-tab">IPs</button>
+          <button onclick="switchTab('tab-logs'); loadInlineLogs()" id="btn-tab-logs" class="atlas-tab">Logs</button>
+        </div>
+
+        <!-- Tab: Configuração -->
+        <div id="tab-config" class="tab-content block grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Col 1: phpIPAM config -->
+          <div class="atlas-surface rounded-2xl p-6">
+            <div class="flex justify-between items-center mb-5">
+              <h3 class="font-semibold flex items-center gap-2" style="color:#93C5FD;">
+                <i data-lucide="database" class="w-4 h-4"></i> <span id="ipam_card_title">Local & phpIPAM</span>
+              </h3>
+              <button type="button" onclick="fetchRemoteIPAMData()"
+                class="text-xs font-semibold flex items-center gap-1 transition" style="color:#8FA4C2;">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i> Recarregar listas
+              </button>
+            </div>
+            <form onsubmit="saveClientConfig(event)" class="space-y-4">
+              <div>
+                <label class="atlas-label">Sistema IPAM</label>
+                <select id="c_system" onchange="onSystemChange()" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+                  <option value="phpIPAM">phpIPAM</option>
+                  <option value="netbox">NetBox</option>
+                </select>
+              </div>
+              <div>
+                <label class="atlas-label">Nome do Grupo</label>
+                <input type="text" id="c_name" placeholder="Nome do Grupo" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+              </div>
+              <div>
+                <label class="atlas-label" id="lbl_ip">URL phpIPAM</label>
+                <input type="text" id="c_ip" placeholder="https://phpipam.minharede.com" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+                <p class="text-xs mt-1.5" id="ssl_hint_ip" style="color:#4A5F7A;">⚠️ phpIPAM geralmente exige HTTPS com certificado SSL válido.</p>
+              </div>
+              <div id="row_token_name">
+                <label class="atlas-label">App ID</label>
+                <input type="text" id="c_token_name" placeholder="App ID" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+              </div>
+              <div>
+                <label class="atlas-label">Token</label>
+                <div class="flex gap-2 items-center" style="overflow:hidden;">
+                  <input type="password" id="c_token" placeholder="Token" class="atlas-input flex-1 px-3 py-2.5 rounded-xl text-sm" style="min-width:0;"/>
+                  <button type="button" id="btn_probe" onclick="probeIPAM()" class="text-xs font-semibold px-3 py-2.5 rounded-xl transition flex-shrink-0" style="background:rgba(37,99,235,0.15);color:#93C5FD;border:1px solid rgba(37,99,235,0.3);cursor:pointer;">Testar</button>
+                </div>
+                <p id="nb_token_hint" class="text-xs mt-1" style="color:#4A5F7A; display:none;">Token v2: <code>nbt_key.secret</code> — Token v1: string de 40 caracteres</p>
+              </div>
+              <!-- Credenciais para re-autenticação automática -->
+              <div id="row_phpipam_creds">
+              <details>
+                <summary class="flex items-center gap-2 cursor-pointer select-none text-sm font-semibold" style="color:#A5B4FC;">
+                  <i data-lucide="lock" class="w-4 h-4"></i>
+                  Credenciais phpIPAM (re-autenticação automática)
+                  <i data-lucide="chevron-down" class="w-3 h-3 ml-auto opacity-50"></i>
+                </summary>
+                <div class="mt-3 space-y-2">
+                  <p class="text-xs" style="color:#8FA4C2;">Usuário e senha para renovar o token antes de cada sync.</p>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="atlas-label">Usuário phpIPAM</label>
+                      <input type="text" id="c_phpipam_user" placeholder="admin" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                    </div>
+                    <div>
+                      <label class="atlas-label">Senha phpIPAM</label>
+                      <input type="password" id="c_phpipam_pass" placeholder="••••••••" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              </div>
+              <div class="grid grid-cols-2 gap-4 pt-3" style="border-top:1px solid rgba(255,255,255,0.07);">
+                <div>
+                  <label class="atlas-label" id="lbl_l2">L2 Domain (VLANs)</label>
+                  <div class="flex gap-2 items-center">
+                    <select id="c_l2_domain" class="atlas-input flex-1 px-3 py-2.5 rounded-xl text-sm">
+                      <option value="1">Padrão (ID: 1)</option>
+                    </select>
+                    <button type="button" onclick="onCreateIPAMGroup()" class="text-xs font-semibold px-2.5 py-2.5 rounded-xl transition flex-shrink-0" style="background:rgba(37,99,235,0.15);color:#93C5FD;border:1px solid rgba(37,99,235,0.3);cursor:pointer;" title="Criar novo grupo">+</button>
+                  </div>
+                  <!-- Banner: phpIPAM virgem -->
+                  <div id="l2_virgin_banner" style="display:none;margin-top:8px;padding:10px 14px;background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.22);border-radius:10px;">
+                    <p style="font-size:11.5px;color:#22D3EE;font-weight:600;margin-bottom:4px;">phpIPAM virgem detectado</p>
+                    <p style="font-size:11px;color:#8FA4C2;margin-bottom:10px;">Apenas o domain "default" existe. Criar um L2 Domain com o nome do provedor?</p>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                      <button type="button" id="l2_create_btn" onclick="createL2DomainForClient()" style="font-size:11.5px;padding:5px 12px;background:#22D3EE;color:#0B1220;border:none;border-radius:6px;cursor:pointer;font-weight:700;">Criar "<span id="l2_suggested_name"></span>"</button>
+                      <button type="button" onclick="dismissVirginBanner()" style="font-size:11.5px;padding:5px 10px;background:none;border:1px solid rgba(143,164,194,0.3);color:#8FA4C2;border-radius:6px;cursor:pointer;">Usar padrão</button>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="atlas-label" id="lbl_section">Section (Subnets)</label>
+                  <select id="c_section_id" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+                    <option value="1">Padrão (ID: 1)</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="atlas-label">Prefixo de VLAN</label>
+                <input type="text" id="c_vlan_prefix" placeholder="Ex: [Provedor X]" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+                <p class="text-xs mt-1" style="color:#4A5F7A;">Adicionado no início da descrição de VLANs e Subnets.</p>
+              </div>
+              <!-- Banner de erro phpIPAM -->
+              <div id="phpipam_cfg_error" class="hidden rounded-xl p-3 text-xs" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#FCA5A5;">
+                <div class="flex items-start gap-2">
+                  <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 mt-0.5" style="color:#F87171;"></i>
+                  <div>
+                    <p id="phpipam_cfg_error_msg" class="font-semibold"></p>
+                    <p id="phpipam_cfg_ssl_hint" class="hidden mt-1 text-xs" style="color:#FCD34D;">💡 Dica: phpIPAM geralmente exige HTTPS com certificado SSL válido (não auto-assinado).</p>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" id="phpipam_cfg_submit_btn" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Salvar Informações</button>
+            </form>
+
+            <!-- VPN / Jump Host -->
+            <div class="mt-5 pt-5" style="border-top:1px solid rgba(255,255,255,0.07);">
+              <details>
+                <summary class="flex items-center gap-2 cursor-pointer select-none" style="color:#A5B4FC;">
+                  <i data-lucide="shield" class="w-4 h-4"></i>
+                  <span class="text-sm font-semibold">VPN / Jump Host (global)</span>
+                  <i data-lucide="chevron-down" class="w-3 h-3 ml-auto opacity-50"></i>
+                </summary>
+                <div class="mt-4 space-y-3">
+                  <p class="text-xs" style="color:#8FA4C2;">Servidor proxy/bastion para alcançar equipamentos via SSH. Se configurado, a extração SSH passará por este jump host.</p>
+                  <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-2">
+                      <label class="atlas-label">Host VPN</label>
+                      <input type="text" id="c_vpn_host" placeholder="192.168.1.1" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+                    </div>
+                    <div>
+                      <label class="atlas-label">Porta</label>
+                      <input type="number" id="c_vpn_port" value="22" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="atlas-label">Usuário VPN</label>
+                      <input type="text" id="c_vpn_user" placeholder="admin" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                    </div>
+                    <div>
+                      <label class="atlas-label">Senha VPN</label>
+                      <input type="password" id="c_vpn_pass" placeholder="••••••••" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <!-- Col 2: BC Links -->
+          <div class="atlas-surface rounded-2xl p-6 flex flex-col gap-5">
+            <div>
+              <h3 class="font-semibold mb-1 flex items-center gap-2" style="color:#A5B4FC;">
+                <i data-lucide="cloud" class="w-4 h-4"></i> Origens BackupCenter
+              </h3>
+            </div>
+            <div id="bcLinksContainer" class="space-y-2">
+              <p class="text-xs italic" style="color:#8FA4C2;">Carregando vínculos...</p>
+            </div>
+            <div class="space-y-3 pt-4" style="border-top:1px solid rgba(255,255,255,0.07);">
+              <p class="atlas-label">Adicionar vínculo</p>
+              <div>
+                <label class="atlas-label">Servidor BC</label>
+                <select id="c_bc_server" onchange="loadBCGroupsForSelect(this.value)" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+                  <option value="">-- Selecione o Servidor --</option>
+                </select>
+              </div>
+              <div>
+                <label class="atlas-label">Grupo no Servidor</label>
+                <select id="c_external_group" onchange="syncGroupInput(this.value)" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+                  <option value="">-- Selecione o Grupo --</option>
+                </select>
+                <input type="text" id="c_external_group_manual" placeholder="Ou insira o ID do grupo manualmente"
+                  class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono mt-2"/>
+              </div>
+              <div>
+                <label class="atlas-label">Rótulo (opcional)</label>
+                <input type="text" id="c_bc_label" placeholder="Ex: Rede POP, Rede Core..."
+                  class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+              </div>
+              <button onclick="addBCLink()" class="atlas-btn-indigo w-full py-2 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Vínculo
+              </button>
+            </div>
+            <button id="btn-discover-bc-tab1" onclick="runAction('discover-assets', this)"
+              class="atlas-btn-primary w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
+              <i data-lucide="search" class="w-4 h-4"></i> Descobrir via BackupCenter (todos)
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab: Ativos -->
+        <div id="tab-assets" class="tab-content hidden space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button id="btn-extract-bc" onclick="runAction('extract-configs-bc', this)"
+              class="p-5 rounded-2xl font-medium text-sm flex items-center gap-4 transition"
+              style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.2);color:#FCD34D;">
+              <i data-lucide="cloud-download" class="w-5 h-5 flex-shrink-0"></i>
+              <div class="text-left">
+                <p class="font-semibold">Extração via BackupCenter</p>
+                <p class="text-xs opacity-70 mt-0.5">Baixa configs e extrai VLANs/Subnets</p>
+              </div>
+            </button>
+            <button onclick="runAction('extract-configs-manual', this)"
+              class="atlas-btn-ghost p-5 rounded-2xl font-medium text-sm flex items-center gap-4">
+              <i data-lucide="terminal" class="w-5 h-5 flex-shrink-0"></i>
+              <div class="text-left">
+                <p class="font-semibold">Extração via SSH Direto</p>
+                <p class="text-xs opacity-70 mt-0.5">Conecta nos equipamentos via SSH</p>
+              </div>
+            </button>
+          </div>
+          <div class="flex justify-between items-center pt-4" style="border-top:1px solid rgba(255,255,255,0.06);">
+            <h2 class="font-semibold text-white">Equipamentos Ativos</h2>
+            <button onclick="openManualAssetModal()"
+              class="text-xs font-semibold px-4 py-2 rounded-xl transition"
+              style="background:rgba(52,211,153,0.1);color:#34D399;border:1px solid rgba(52,211,153,0.2);">+ Adicionar Manual</button>
+          </div>
+          <div id="managedAssetsContainer" class="space-y-3"></div>
+        </div>
+
+        <!-- Tab: Logs inline -->
+        <div id="tab-logs" class="tab-content hidden space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-white">Últimas execuções</h2>
+            <a href="logs.html" class="text-xs font-semibold flex items-center gap-1 atlas-link">
+              <i data-lucide="external-link" class="w-3 h-3"></i> Ver todos os logs
+            </a>
+          </div>
+          <div class="atlas-surface rounded-2xl overflow-hidden">
+            <table class="w-full text-left text-sm">
+              <thead class="atlas-table-head text-xs font-semibold uppercase tracking-wide">
+                <tr>
+                  <th class="px-5 py-3">Data/Hora</th>
+                  <th class="px-5 py-3">Operação</th>
+                  <th class="px-5 py-3">Status</th>
+                  <th class="px-5 py-3">Mensagem</th>
+                  <th class="px-5 py-3 text-right">Duração</th>
+                </tr>
+              </thead>
+              <tbody id="inlineLogsTable">
+                <tr><td colspan="5" class="px-5 py-8 text-center text-xs text-slate-400">Clique na aba para carregar.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab: VLANs (embutido) -->
+        <div id="tab-vlans" class="tab-content hidden">
+          <iframe id="frame-vlans" class="atlas-embed" title="VLANs do provedor"></iframe>
+        </div>
+        <!-- Tab: Topologia (embutido) -->
+        <div id="tab-topo" class="tab-content hidden">
+          <iframe id="frame-topo" class="atlas-embed" title="Topologia do provedor"></iframe>
+        </div>
+        <!-- Tab: IPs (embutido) -->
+        <div id="tab-ips" class="tab-content hidden">
+          <iframe id="frame-ips" class="atlas-embed" title="IPs do provedor"></iframe>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── MODALS ──────────────────────────────── -->
+  <!-- Modal: BC Server -->
+  <div id="bcServerModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="atlas-modal rounded-2xl w-full max-w-md shadow-2xl modal-enter">
+      <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+        <h3 class="font-sora font-semibold flex items-center gap-2" style="color:#A5B4FC;"><i data-lucide="server" class="w-4 h-4"></i> Nova API BackupCenter</h3>
+        <button onclick="closeBCServerModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="saveBCServer(event)" class="p-6 space-y-4">
+        <div><label class="atlas-label">Nome do Servidor</label><input type="text" id="bc_s_name" placeholder="Ex: Servidor Principal" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+        <div>
+          <label class="atlas-label">URL da API</label>
+          <input type="url" id="bc_s_url" placeholder="http://host:8050/api/v1/external" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+          <p class="text-xs mt-1.5" style="color:#4A5F7A;">⚠️ A maioria das APIs BackupCenter e phpIPAM exige HTTPS com certificado SSL válido.</p>
+        </div>
+        <div><label class="atlas-label">Token</label><input type="password" id="bc_s_token" placeholder="Token de autenticação" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/></div>
+        <!-- Banner de erro de conectividade -->
+        <div id="bc_create_error" class="hidden rounded-xl p-3 text-xs" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#FCA5A5;">
+          <div class="flex items-start gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 mt-0.5" style="color:#F87171;"></i>
+            <div>
+              <p id="bc_create_error_msg" class="font-semibold"></p>
+              <p id="bc_create_ssl_hint" class="hidden mt-1 text-xs" style="color:#FCD34D;">💡 Dica: certifique-se de que o servidor usa um certificado SSL confiável (não auto-assinado). Se necessário, configure a exceção no servidor ou use um proxy reverso com certificado válido.</p>
+            </div>
+          </div>
+        </div>
+        <button type="submit" id="bc_s_submit_btn" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Cadastrar Servidor</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Novo Grupo Manual -->
+  <div id="manualClientModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="atlas-modal rounded-2xl w-full max-w-md shadow-2xl modal-enter">
+      <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+        <h3 class="font-sora font-semibold flex items-center gap-2 text-white"><i data-lucide="folder-plus" class="w-4 h-4" style="color:#60A5FA;"></i> Novo Grupo Manual</h3>
+        <button onclick="closeManualClientModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="createClientManual(event)" class="p-6 space-y-4">
+        <div><label class="atlas-label">Nome do Grupo</label><input type="text" id="m_name" placeholder="Ex: Provedor X - POP" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+        <button type="submit" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Criar Grupo</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Novo Ativo Manual -->
+  <div id="manualAssetModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="atlas-modal rounded-2xl w-full max-w-lg shadow-2xl modal-enter">
+      <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+        <h3 class="font-sora font-semibold flex items-center gap-2 text-white"><i data-lucide="router" class="w-4 h-4" style="color:#60A5FA;"></i> Novo Equipamento</h3>
+        <button onclick="closeManualAssetModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="createAssetManual(event)" class="p-6 space-y-4">
+        <div><label class="atlas-label">Hostname</label><input type="text" id="ma_hostname" placeholder="switch-core-01" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-bold"/></div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="atlas-label">Vendor</label>
+            <select id="ma_vendor" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+              <option value="cisco">Cisco</option>
+              <option value="datacom">Datacom</option>
+              <option value="huawei">Huawei</option>
+              <option value="mikrotik">MikroTik</option>
+            </select>
+          </div>
+          <div>
+            <label class="atlas-label">Categoria</label>
+            <select id="ma_category" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+              <option value="acesso">Switch de Acesso</option>
+              <option value="autenticador">Autenticador</option>
+              <option value="borda">Roteador de Borda</option>
+              <option value="core">Switch Core</option>
+              <option value="olt">OLT</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="col-span-2"><label class="atlas-label">IP de Acesso</label><input type="text" id="ma_ip" placeholder="192.168.1.1" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/></div>
+          <div><label class="atlas-label">Porta</label><input type="number" id="ma_port" value="22" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+        </div>
+        <div><label class="atlas-label">Autoridade na Categoria (1-10)</label><input type="number" id="ma_authority" min="1" max="10" value="5" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+        <button type="submit" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Salvar Ativo</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Editar BC Server -->
+  <div id="editBCServerModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="atlas-modal rounded-2xl w-full max-w-md shadow-2xl modal-enter">
+      <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+        <h3 class="font-sora font-semibold flex items-center gap-2 text-white"><i data-lucide="pencil" class="w-4 h-4" style="color:#60A5FA;"></i> Editar Conector BC</h3>
+        <button onclick="closeEditBCServerModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="saveEditBCServer(event)" class="p-6 space-y-4">
+        <input type="hidden" id="edit_bc_s_id"/>
+        <div><label class="atlas-label">Nome do Servidor</label><input type="text" id="edit_bc_s_name" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+        <div>
+          <label class="atlas-label">URL da API</label>
+          <input type="url" id="edit_bc_s_url" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+          <p class="text-xs mt-1.5" style="color:#4A5F7A;">⚠️ A maioria das APIs BackupCenter e phpIPAM exige HTTPS com certificado SSL válido.</p>
+        </div>
+        <div>
+          <label class="atlas-label">Token <span class="font-normal" style="color:#4A5F7A;">(obrigatório para validar)</span></label>
+          <input type="password" id="edit_bc_s_token" placeholder="••••••••" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+        </div>
+        <!-- Banner de erro de conectividade -->
+        <div id="bc_edit_error" class="hidden rounded-xl p-3 text-xs" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#FCA5A5;">
+          <div class="flex items-start gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 mt-0.5" style="color:#F87171;"></i>
+            <div>
+              <p id="bc_edit_error_msg" class="font-semibold"></p>
+              <p id="bc_edit_ssl_hint" class="hidden mt-1 text-xs" style="color:#FCD34D;">💡 Dica: certifique-se de que o servidor usa um certificado SSL confiável (não auto-assinado). Se necessário, configure a exceção no servidor ou use um proxy reverso com certificado válido.</p>
+            </div>
+          </div>
+        </div>
+        <button type="submit" id="bc_edit_submit_btn" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Detalhe de Erro Inline -->
+  <div id="inlineDetailModal" class="fixed inset-0 bg-black/70 hidden z-[150] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="atlas-modal rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden modal-enter">
+      <div class="px-5 py-4 flex justify-between items-center" style="background:rgba(239,68,68,0.08);border-bottom:1px solid rgba(239,68,68,0.15);">
+        <h3 class="font-semibold flex items-center gap-2 text-sm" style="color:#F87171;"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Detalhe do Erro</h3>
+        <button onclick="closeInlineDetail()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <pre id="inlineDetailContent" class="p-6 text-xs overflow-auto max-h-96 whitespace-pre-wrap font-mono" style="color:#94A3B8;background:#0B1220;"></pre>
+    </div>
+  </div>
+
+  <!-- Modal: Configurações -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/60 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="atlas-modal rounded-2xl shadow-2xl w-full max-w-sm modal-enter">
+      <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+        <h3 class="font-sora font-semibold text-white">Configurações</h3>
+        <button onclick="closeSettingsModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-6 space-y-5">
+        <div class="p-4 rounded-xl text-sm" style="background:rgba(255,255,255,0.04); color:#8FA4C2; border:1px solid rgba(255,255,255,0.06);">
+          Mais opções de usuário estarão disponíveis na próxima atualização do Atlas. O tema agora pode ser alterado no painel rápido.
+        </div>
+      </div>
+      <div class="px-6 pb-5 flex justify-end">
+        <button onclick="closeSettingsModal()" class="text-xs font-medium px-4 py-2 rounded-lg" style="color:#8FA4C2;background:rgba(255,255,255,0.06);">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Conflitos de VLAN -->
+  <div id="vlanConflictModal" class="fixed inset-0 bg-black/70 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="atlas-modal rounded-2xl w-full max-w-3xl shadow-2xl modal-enter" style="max-height:90vh; display:flex; flex-direction:column;">
+      <div class="px-6 py-5 flex justify-between items-center flex-shrink-0" style="background:rgba(245,158,11,0.08); border-bottom:1px solid rgba(245,158,11,0.2);">
+        <div>
+          <h3 class="font-sora font-semibold flex items-center gap-2" style="color:#FCD34D;">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i> Conflitos de VLAN Detectados
+          </h3>
+          <p class="text-xs mt-1" style="color:#FCA5A5;">VLANs com mesmo número mas nomes diferentes foram encontradas no mesmo L2 Domain.</p>
+        </div>
+        <button onclick="closeVlanConflictModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-6 space-y-4 overflow-y-auto flex-1" id="conflictsList"></div>
+      <div class="px-6 pb-5 pt-3 flex justify-between items-center flex-shrink-0" style="border-top:1px solid rgba(255,255,255,0.07);">
+        <p class="text-xs" style="color:#8FA4C2;">Escolha a ação para cada conflito antes de aplicar.</p>
+        <button onclick="applyConflictResolutions()" class="atlas-btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2">
+          <i data-lucide="check" class="w-4 h-4"></i> Aplicar Resoluções
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin-nav.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    lucide.createIcons();
+    const API_BASE = `http://${window.location.hostname}:${window.API_PORT || '8000'}/api`;
+    AtlasAPI.requireSession();
+    AtlasAPI.installAuthFetch();
+
+    // Escapa dados externos (nomes de grupo/ativo, hostnames de equipamento,
+    // URLs e nomes de phpIPAM/NetBox) antes de ir para innerHTML — evita XSS
+    // armazenado. Em contexto de string JS (onclick) use esc(JSON.stringify(x)).
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    let activeClientId = null;
+    let activeClientConfig = null;
+    let bcAssetsRef = [];
+    let globalL2Domains = [];
+    let globalSections = [];
+    const OP_LABELS = {
+      sync_assets: 'Descoberta', discover_assets: 'Descoberta (link)',
+      extract_bc: 'Extração BC', extract_manual: 'Extração manual',
+      extract_all: 'Extração global', extract_ssh: 'Extração SSH',
+      sync_phpipam: 'Sync phpIPAM', sync_netbox: 'Sync NetBox',
+      daily_sync: 'Sync diário',
+    };
+    // Duração legível: segundos até 1 min; acima, "Xm Ys".
+    function fmtDur(ms) {
+      if (ms == null) return '—';
+      const s = ms / 1000;
+      if (s < 60) return s.toFixed(1) + 's';
+      const m = Math.floor(s / 60), r = Math.round(s % 60);
+      return r ? `${m}m ${r}s` : `${m}m`;
+    }
+
+    function showListView() {
+      document.getElementById('view-config').classList.add('hidden');
+      document.getElementById('view-list').classList.remove('hidden');
+      setSidebarActive('clients');
+      loadAdminData();
+    }
+
+    async function showConfigView(id) {
+      activeClientId = id;
+      bcAssetsRef = [];
+      document.getElementById('managedAssetsContainer').innerHTML = '';
+      document.getElementById('view-list').classList.add('hidden');
+      document.getElementById('view-config').classList.remove('hidden');
+      loadProviderSwitcher();
+      switchTab('tab-config');
+      await loadGroupConfig();
+    }
+
+    // Seletor de provedor no workspace: troca mantendo a aba atual.
+    async function loadProviderSwitcher() {
+      const sel = document.getElementById('wsProviderSel');
+      if (!sel) return;
+      try {
+        const res = await fetch(`${API_BASE}/clients`);
+        if (!res.ok) return;
+        const clients = (await res.json()).slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' }));
+        sel.innerHTML = clients.map(c => `<option value="${c.id}"${String(c.id) === String(activeClientId) ? ' selected' : ''}>${esc(c.name || '—')}</option>`).join('');
+      } catch (e) { /* silencioso */ }
+    }
+    function switchProviderWorkspace(id) {
+      if (!id || String(id) === String(activeClientId)) return;
+      window.location.href = `admin_clients.html?edit=${encodeURIComponent(id)}&tab=${encodeURIComponent(currentTabId)}`;
+    }
+
+    let currentTabId = 'tab-config';
+    function setSidebarActive(navkey) {
+      document.querySelectorAll('.sidebar a.nav-btn[data-navkey]').forEach(a => {
+        a.classList.toggle('active', a.getAttribute('data-navkey') === navkey);
+      });
+    }
+    const TAB_NAVKEY = { 'tab-vlans': 'vlans', 'tab-topo': 'topo', 'tab-ips': 'ips' };
+    function switchTab(t) {
+      currentTabId = t;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(t).classList.remove('hidden');
+      document.querySelectorAll('[id^="btn-tab-"]').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-' + t).classList.add('active');
+      // Reflete a seção atual na barra lateral (mantém o contexto do provedor).
+      setSidebarActive(TAB_NAVKEY[t] || 'clients');
+      // "Enviar ao IPAM" só aparece em "Gerenciar Ativos" (onde se configuram os ativos).
+      const ipamBtn = document.getElementById('btnSyncIPAM');
+      if (ipamBtn) ipamBtn.style.display = (t === 'tab-assets') ? '' : 'none';
+    }
+
+    function openClientNetwork(section) {
+      if (!activeClientId) return;
+      const map = {
+        vlans: { tab: 'tab-vlans', frame: 'frame-vlans', page: 'vlans.html' },
+        topo:  { tab: 'tab-topo',  frame: 'frame-topo',  page: 'topologia.html' },
+        ips:   { tab: 'tab-ips',   frame: 'frame-ips',   page: 'ips.html' },
+      };
+      const cfg = map[section];
+      if (!cfg) return;
+      const frame = document.getElementById(cfg.frame);
+      // (Re)carrega a página embutida com o provedor atual só quando ele muda.
+      if (frame && frame.dataset.client !== String(activeClientId)) {
+        frame.src = `${cfg.page}?client_id=${encodeURIComponent(activeClientId)}&embed=1`;
+        frame.dataset.client = String(activeClientId);
+      }
+      switchTab(cfg.tab);
+    }
+
+    async function loadAdminData() { loadClientsList(); loadBCServers(); }
+
+    async function loadClientsList() {
+      try {
+        const res = await fetch(`${API_BASE}/clients`);
+        if (!res.ok) throw new Error();
+        const clients = (await res.json()).slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' }));
+        document.getElementById('clientsTable').innerHTML = clients.length ? clients.map(c => `
+          <tr class="atlas-tr" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td class="px-6 py-4 font-semibold text-white text-sm">${esc(c.name)}</td>
+            <td class="px-6 py-4">
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-lg ${(c.external_group_id || c.has_bc_link) ? 'chip-indigo' : 'chip-slate'}">
+                ${(c.external_group_id || c.has_bc_link) ? 'BackupCenter' : 'Manual'}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-center font-mono text-xs" style="color:#8FA4C2;">${c.asset_count || 0}</td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-3">
+                <button onclick="showConfigView(${c.id})" class="text-xs font-semibold transition" style="color:#60A5FA;">Gerenciar</button>
+                <button onclick="deleteClient(${c.id}, ${esc(JSON.stringify(c.name))})" class="p-1.5 rounded-lg transition" style="color:#F87171;background:rgba(239,68,68,0.08);" title="Excluir grupo">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>`) .join('') : `<tr><td colspan="4" class="px-6 py-10 text-center text-sm" style="color:#8FA4C2;">Nenhum grupo cadastrado.</td></tr>`;
+      } catch (e) {
+        document.getElementById('clientsTable').innerHTML = `<tr><td colspan="4" class="p-6 text-center text-sm font-medium" style="color:#F87171;">Erro ao carregar. Backend offline?</td></tr>`;
+      }
+    }
+
+    async function loadBCServers() {
+      try {
+        const res = await fetch(`${API_BASE}/backupcenter/servers`);
+        if (!res.ok) throw new Error();
+        const servers = (await res.json()).slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' }));
+        const grid = document.getElementById('bcServersGrid');
+        if (!servers.length) {
+          grid.innerHTML = `<div class="col-span-full p-6 text-center text-xs rounded-2xl" style="border:2px dashed rgba(255,255,255,0.1);color:#8FA4C2;">Nenhum conector cadastrado. Clique em "Conectar API" para adicionar.</div>`;
+          return;
+        }
+        grid.innerHTML = servers.map(s => `
+          <div class="atlas-card p-4 rounded-2xl flex justify-between items-center group">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center icon-indigo-bg"><i data-lucide="database" class="w-4 h-4"></i></div>
+              <div>
+                <h4 class="font-semibold text-sm text-white">${esc(s.name)}</h4>
+                <p class="text-xs font-mono truncate w-40 text-slate-400">${esc(s.url)}</p>
+              </div>
+            </div>
+            <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+              <button onclick="openEditBCServerModal(${s.id}, ${esc(JSON.stringify(s.name))}, ${esc(JSON.stringify(s.url))}, '')" title="Editar" class="p-1.5 rounded-lg transition hover:bg-white/10" style="color:#8FA4C2;"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+              <button onclick="deleteBCServer(${s.id})" title="Excluir" class="p-1.5 rounded-lg transition hover:bg-white/10 ml-1" style="color:#F87171;"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+          </div>`).join('');
+        lucide.createIcons();
+      } catch (e) {
+        document.getElementById('bcServersGrid').innerHTML = `<div class="col-span-full p-4 rounded-2xl text-xs font-medium" style="background:rgba(239,68,68,0.08);color:#F87171;border:1px solid rgba(239,68,68,0.15);">Erro: Tabela de Servidores não acessível.</div>`;
+      }
+    }
+
+    async function fetchRemoteIPAMData() {
+      if (!activeClientId) return;
+      const sys = document.getElementById('c_system')?.value || 'phpIPAM';
+      const isNB = sys === 'netbox';
+      try {
+        if (isNB) {
+          const url   = document.getElementById('c_ip')?.value?.trim();
+          const token = document.getElementById('c_token')?.value?.trim();
+          if (token === '********') {
+            // Token mascarado (não alterado): consulta o NetBox com as credenciais salvas no backend
+            const [resG, resS] = await Promise.all([
+              fetch(`${API_BASE}/clients/${activeClientId}/remote-vlan-groups`),
+              fetch(`${API_BASE}/clients/${activeClientId}/remote-sites`)
+            ]);
+            if (resG.ok) { const d = await resG.json(); if (Array.isArray(d)) globalVlanGroups = d; }
+            if (resS.ok) { const d = await resS.json(); if (Array.isArray(d)) globalNBSites = d; }
+            const l2Sel  = document.getElementById('c_l2_domain');
+            const secSel = document.getElementById('c_section_id');
+            l2Sel.innerHTML  = '<option value="">Nenhum</option>' + globalVlanGroups.map(g => `<option value="${g.id}">${esc(g.name)} (ID: ${g.id})</option>`).join('');
+            secSel.innerHTML = '<option value="">Nenhum</option>' + globalNBSites.map(s => `<option value="${s.id}">${esc(s.name)} (ID: ${s.id})</option>`).join('');
+          } else if (url && token) {
+            const res  = await fetch(`${API_BASE.replace('/api','')}/api/netbox/probe`, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ip: url, token })
+            });
+            const data = await res.json();
+            if (data.ok) {
+              globalVlanGroups = data.vlan_groups || [];
+              globalNBSites    = data.sites || [];
+              const l2Sel  = document.getElementById('c_l2_domain');
+              const secSel = document.getElementById('c_section_id');
+              l2Sel.innerHTML  = '<option value="">Nenhum</option>' + globalVlanGroups.map(g => `<option value="${g.id}">${esc(g.name)} (ID: ${g.id})</option>`).join('');
+              secSel.innerHTML = '<option value="">Nenhum</option>' + globalNBSites.map(s => `<option value="${s.id}">${esc(s.name)} (ID: ${s.id})</option>`).join('');
+            }
+          }
+        } else {
+          const [resL2, resSec] = await Promise.all([
+            fetch(`${API_BASE}/clients/${activeClientId}/remote-l2-domains`),
+            fetch(`${API_BASE}/clients/${activeClientId}/remote-sections`)
+          ]);
+          if (resL2.ok) { const d = await resL2.json(); if (Array.isArray(d)) globalL2Domains = d; }
+          if (resSec.ok) { const d = await resSec.json(); if (Array.isArray(d)) globalSections = d; }
+          populateIPAMSelects();
+        }
+      } catch (e) { console.warn('Não foi possível carregar dados do IPAM.'); }
+    }
+
+    function populateIPAMSelects(currentL2 = null, currentSec = null) {
+      const l2Sel  = document.getElementById('c_l2_domain');
+      const secSel = document.getElementById('c_section_id');
+      if (globalL2Domains.length) l2Sel.innerHTML  = globalL2Domains.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' })).map(d => `<option value="${d.id}">${esc(d.name)} (ID: ${d.id})</option>`).join('');
+      if (globalSections.length)  secSel.innerHTML = globalSections.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' })).map(s => `<option value="${s.id}">${esc(s.name)} (ID: ${s.id})</option>`).join('');
+      if (currentL2)  l2Sel.value  = currentL2;
+      if (currentSec) secSel.value = currentSec;
+
+      // Detecta phpIPAM virgem: apenas 1 domain e ele é "default"
+      const banner = document.getElementById('l2_virgin_banner');
+      if (banner) {
+        const isVirgin = globalL2Domains.length === 1 &&
+          (globalL2Domains[0].name || '').toLowerCase() === 'default';
+        if (isVirgin) {
+          const clientName = (document.getElementById('c_name')?.value || '').trim();
+          document.getElementById('l2_suggested_name').textContent = clientName;
+          banner.style.display = 'block';
+        } else {
+          banner.style.display = 'none';
+        }
+      }
+    }
+
+    function onSystemChange() {
+      const sys = document.getElementById('c_system')?.value || 'phpIPAM';
+      const isNB = sys === 'netbox';
+      document.getElementById('ipam_card_title').textContent = isNB ? 'Local & NetBox' : 'Local & phpIPAM';
+      document.getElementById('lbl_ip').textContent      = isNB ? 'URL do NetBox' : 'URL phpIPAM';
+      document.getElementById('lbl_l2').textContent      = isNB ? 'VLAN Group (VLANs)' : 'L2 Domain (VLANs)';
+      document.getElementById('lbl_section').textContent = isNB ? 'Site (Prefixos)' : 'Section (Subnets)';
+      document.getElementById('row_token_name').style.display    = isNB ? 'none' : '';
+      document.getElementById('row_phpipam_creds').style.display = isNB ? 'none' : '';
+      document.getElementById('nb_token_hint').style.display     = isNB ? '' : 'none';
+      if (isNB) document.getElementById('l2_virgin_banner').style.display = 'none';
+      updateIPAMSyncButton();
+    }
+
+    async function probeIPAM() {
+      const sys = document.getElementById('c_system')?.value || 'phpIPAM';
+      if (sys === 'netbox') {
+        const url   = document.getElementById('c_ip').value.trim();
+        const token = document.getElementById('c_token').value.trim();
+        if (!url || !token) { UI.showToast('Preencha URL e Token antes de testar.', 'warning'); return; }
+        if (token === '********') { UI.showToast('Token mascarado: reinsira o token para testar a conexão.', 'warning'); return; }
+        const btn = document.getElementById('btn_probe');
+        UI.setLoading(btn, true);
+        try {
+          const res  = await fetch(`${API_BASE.replace('/api','')}/api/netbox/probe`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ip: url, token })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            UI.showToast('Falha: ' + (data.error || 'Verifique URL e token.'), 'error');
+          } else {
+            globalVlanGroups = data.vlan_groups || [];
+            globalNBSites    = data.sites || [];
+            const l2Sel  = document.getElementById('c_l2_domain');
+            const secSel = document.getElementById('c_section_id');
+            l2Sel.innerHTML  = '<option value="">Nenhum</option>' + globalVlanGroups.map(g => `<option value="${g.id}">${esc(g.name)} (ID: ${g.id})</option>`).join('');
+            secSel.innerHTML = '<option value="">Nenhum</option>' + globalNBSites.map(s => `<option value="${s.id}">${esc(s.name)} (ID: ${s.id})</option>`).join('');
+            UI.showToast(`NetBox OK — ${globalVlanGroups.length} VLAN Group(s), ${globalNBSites.length} Site(s).`, 'success');
+          }
+        } catch(e) { UI.showToast('Erro de rede ao testar NetBox.', 'error'); }
+        finally { UI.setLoading(btn, false); }
+      } else {
+        await probePhpIPAM();
+      }
+    }
+
+    async function onCreateIPAMGroup() {
+      const sys = document.getElementById('c_system')?.value || 'phpIPAM';
+      if (sys === 'netbox') await promptCreateVlanGroup();
+      else await promptCreateL2Domain();
+    }
+
+    async function probePhpIPAM() {
+      const ip = document.getElementById('c_ip').value.trim();
+      const token_name = document.getElementById('c_token_name').value.trim();
+      const token = document.getElementById('c_token').value.trim();
+      if (!ip || !token_name || !token) { UI.showToast('Preencha URL, App ID e Token antes de testar.', 'warning'); return; }
+      if (token === '********') { UI.showToast('Token mascarado: reinsira o token para testar a conexão.', 'warning'); return; }
+      const btn = document.getElementById('btn_probe');
+      UI.setLoading(btn, true);
+      try {
+        const res = await fetch(`${API_BASE.replace('/api','')}/api/phpipam/probe`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ip, token_name, token,
+            phpipam_user: document.getElementById('c_phpipam_user').value || null,
+            phpipam_pass: document.getElementById('c_phpipam_pass').value || null
+          })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          UI.showToast('Falha na conexão: ' + (data.error || 'Verifique URL e token.'), 'error');
+        } else {
+          if (Array.isArray(data.l2_domains)) globalL2Domains = data.l2_domains;
+          if (Array.isArray(data.sections))   globalSections  = data.sections;
+          populateIPAMSelects();
+          UI.showToast(`Conexão OK — ${data.l2_domains.length} domain(s), ${data.sections.length} section(s).`, 'success');
+        }
+      } catch(e) { UI.showToast('Erro de rede ao testar conexão.', 'error'); }
+      finally { UI.setLoading(btn, false); }
+    }
+
+    function dismissVirginBanner() {
+      const b = document.getElementById('l2_virgin_banner');
+      if (b) b.style.display = 'none';
+    }
+
+    async function createL2DomainForClient() {
+      const name = document.getElementById('l2_suggested_name').textContent.trim();
+      if (!name) return;
+      const btn = document.getElementById('l2_create_btn');
+      const orig = btn.innerHTML; btn.textContent = 'Criando...'; btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}/create-l2-domain`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (res.ok) { UI.showToast(`Domain "${name}" criado!`, 'success'); dismissVirginBanner(); await fetchRemoteIPAMData(); }
+        else { UI.showToast('Erro: ' + (data.detail || 'Falha'), 'error'); btn.innerHTML = orig; btn.disabled = false; }
+      } catch(e) { UI.showToast('Falha de rede.', 'error'); btn.innerHTML = orig; btn.disabled = false; }
+    }
+
+    async function promptCreateL2Domain() {
+      const suggested = (document.getElementById('c_name')?.value || '').trim();
+      const name = prompt('Nome do novo L2 Domain:', suggested);
+      if (!name) return;
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}/create-l2-domain`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (res.ok) { UI.showToast(`Domain "${name}" criado!`, 'success'); await fetchRemoteIPAMData(); }
+        else UI.showToast('Erro: ' + (data.detail || 'Falha'), 'error');
+      } catch(e) { UI.showToast('Falha de rede.', 'error'); }
+    }
+
+    async function loadGroupConfig() {
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}`);
+        if (!res.ok) return;
+        const c = await res.json();
+        activeClientConfig = c;
+        const hasBC = !!c.external_group_id;
+        updateIPAMSyncButton();
+
+        document.getElementById('titleGroupName').innerText = c.name;
+        document.getElementById('c_name').value = c.name;
+
+        const sys = c.system || 'phpIPAM';
+        const isNB = sys === 'netbox';
+        document.getElementById('c_system').value = sys;
+        document.getElementById('c_ip').value    = isNB ? (c.netbox_url   || '') : (c.ip    || '');
+        document.getElementById('c_token').value = isNB ? (c.netbox_token || '') : (c.token || '');
+        document.getElementById('c_token_name').value = c.token_name || '';
+        document.getElementById('c_vlan_prefix').value = c.vlan_prefix || '';
+        document.getElementById('c_phpipam_user').value = c.phpipam_user || '';
+        document.getElementById('c_phpipam_pass').value = c.phpipam_pass || '';
+        onSystemChange();
+
+        document.getElementById('c_vpn_host').value = c.vpn_host || '';
+        document.getElementById('c_vpn_port').value = c.vpn_port || 22;
+        document.getElementById('c_vpn_user').value = c.vpn_user || '';
+        document.getElementById('c_vpn_pass').value = c.vpn_pass || '';
+        document.getElementById('badgeGroupStatus').innerHTML = `<span class="text-xs font-semibold px-2 py-0.5 rounded-lg ${hasBC ? 'chip-indigo' : 'chip-slate'}">${hasBC ? 'Sincronização BC' : 'Grupo Manual'}</span>`;
+
+        await fetchRemoteIPAMData();
+        populateIPAMSelects(isNB ? c.netbox_vlan_group_id : c.l2_domain_id, isNB ? c.netbox_site_id : c.section_id);
+
+        const resS = await fetch(`${API_BASE}/backupcenter/servers`);
+        const servers = await resS.json();
+        const bcServerSel = document.getElementById('c_bc_server');
+        bcServerSel.innerHTML = `<option value="">-- Selecione o Servidor --</option>` + servers.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' })).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+        if (c.bc_server_id) { bcServerSel.value = c.bc_server_id; await loadBCGroupsForSelect(c.bc_server_id, c.external_group_id); }
+        const existingLinks = await loadBCLinks();
+        const hasAnyBC = (existingLinks && existingLinks.length > 0) || hasBC;
+        const bcBtns = [document.getElementById('btn-discover-bc-tab1'), document.getElementById('btn-extract-bc')];
+        bcBtns.forEach(btn => {
+          if (!hasAnyBC) { btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed'; btn.disabled = true; }
+          else { btn.style.opacity = ''; btn.style.cursor = ''; btn.disabled = false; }
+        });
+        if (hasBC) await fetchBCAssets(c.external_group_id);
+        await fetchAssetsList();
+      } catch (e) { console.error("Falha ao carregar configuração do grupo.", e); }
+    }
+
+    async function loadBCGroupsForSelect(serverId, currentId = null) {
+      if (!serverId) return;
+      try {
+        const res = await fetch(`${API_BASE}/backupcenter/servers/${serverId}/groups`);
+        const groups = await res.json();
+        document.getElementById('c_external_group').innerHTML = `<option value="">-- Selecione o Grupo --</option>` + groups.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' })).map(g => `<option value="${g.id}" ${g.id == currentId ? 'selected' : ''}>${esc(g.name)}</option>`).join('');
+      } catch (e) {}
+    }
+
+    async function loadBCLinks() {
+      const container = document.getElementById('bcLinksContainer');
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}/bc-links`);
+        if (!res.ok) throw new Error();
+        const links = await res.json();
+        if (!links.length) { container.innerHTML = `<p class="text-xs italic py-2 text-slate-400">Nenhum vínculo BC configurado.</p>`; return links; }
+        container.innerHTML = links.map(lnk => `
+          <div class="atlas-bc-link-item flex items-center justify-between rounded-xl px-3 py-2.5 group">
+            <div class="flex items-center gap-2 min-w-0">
+              <i data-lucide="cloud" class="w-4 h-4 flex-shrink-0 text-slate-400"></i>
+              <div class="min-w-0">
+                <p class="text-xs font-semibold truncate text-slate-400">${esc(lnk.label || lnk.bc_server_name || 'Sem rótulo')}</p>
+                <p class="text-[10px] font-mono truncate text-slate-500">${esc(lnk.bc_server_name)} / grupo ${esc(lnk.external_group_id)}</p>
+              </div>
+            </div>
+            <div class="flex gap-1 flex-shrink-0 ml-2">
+              <button onclick="discoverFromLink(${lnk.id}, this)" title="Descobrir" class="p-1.5 rounded-lg transition hover:bg-white/10 text-slate-400">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="removeBCLink(${lnk.id})" title="Remover" class="p-1.5 rounded-lg transition hover:bg-white/10 opacity-0 group-hover:opacity-100" style="color:#F87171;">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>`).join('');
+        lucide.createIcons();
+        return links;
+      } catch (e) { container.innerHTML = `<p class="text-xs" style="color:#F87171;">Erro ao carregar vínculos.</p>`; return []; }
+    }
+
+    function syncGroupInput(val) { document.getElementById('c_external_group_manual').value = val; }
+
+    async function addBCLink() {
+      const serverId = document.getElementById('c_bc_server').value;
+      const groupId  = document.getElementById('c_external_group').value || document.getElementById('c_external_group_manual').value.trim();
+      const label    = document.getElementById('c_bc_label').value;
+      if (!serverId || !groupId) { UI.showToast('Selecione o servidor e informe o grupo BC.', 'warning'); return; }
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}/bc-links`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bc_server_id: parseInt(serverId), external_group_id: groupId, label: label || null }) });
+        if (res.status === 409) { UI.showToast('Este grupo BC já está vinculado.', 'warning'); return; }
+        if (!res.ok) throw new Error();
+        document.getElementById('c_bc_server').value = '';
+        document.getElementById('c_external_group').innerHTML = '<option value="">-- Selecione o Grupo --</option>';
+        document.getElementById('c_external_group_manual').value = '';
+        document.getElementById('c_bc_label').value = '';
+        UI.showToast('Vínculo adicionado!', 'success');
+        await loadBCLinks();
+      } catch (e) { UI.showToast('Erro ao adicionar vínculo.', 'error'); }
+    }
+
+    async function removeBCLink(linkId) {
+      if (!(await UI.showConfirm({ message: 'Remover este vínculo BC?', danger: true, confirmText: 'Remover' }))) return;
+      await fetch(`${API_BASE}/clients/${activeClientId}/bc-links/${linkId}`, { method: 'DELETE' });
+      UI.showToast('Vínculo removido.', 'success');
+      await loadBCLinks();
+    }
+
+    async function discoverFromLink(linkId, btn) {
+      const icon = btn.querySelector('i'); icon.classList.add('animate-spin'); btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}/bc-links/${linkId}/discover`, { method: 'POST' });
+        const d = await res.json();
+        if (!res.ok) { UI.showToast(`❌ ${d.detail || d.message || 'Erro desconhecido.'}`, 'error'); }
+        else { UI.showToast(d.message || 'Descoberta concluída!', 'success'); fetchAssetsList(); }
+      } catch (e) { UI.showToast('Erro de conexão.', 'error'); }
+      finally { icon.classList.remove('animate-spin'); btn.disabled = false; }
+    }
+
+    async function fetchBCAssets(extId) {
+      try { const res = await fetch(`${API_BASE}/backupcenter/groups/${extId}/assets`); bcAssetsRef = await res.json(); }
+      catch (e) { bcAssetsRef = []; }
+    }
+
+    async function fetchAssetsList() {
+      const requestedClientId = activeClientId;
+      try {
+        const res = await fetch(`${API_BASE}/clients/${requestedClientId}/assets`);
+        if (!res.ok) throw new Error();
+        const assets = await res.json();
+        if (requestedClientId !== activeClientId) return;
+
+        const uniqueAssetsMap = new Map();
+        assets.forEach(a => { if (!uniqueAssetsMap.has(a.id)) uniqueAssetsMap.set(a.id, a); });
+        const uniqueAssets = Array.from(uniqueAssetsMap.values());
+
+        const safeBC = Array.isArray(bcAssetsRef)
+          ? bcAssetsRef.slice().sort((x, y) => ((x.device_name || x.hostname || '').localeCompare((y.device_name || y.hostname || ''), 'pt', { sensitivity: 'base' })))
+          : [];
+
+        const renderAssetCard = (a) => {
+          const syncBadge = UI.syncBadge(a.last_sync_status, a.last_sync_error, a.last_sync_at);
+          let bcOpts = `<option value="">-- Vincular a Ativo BC --</option>` + safeBC.map(ba => `<option value="${ba.id}" ${a.backup_id == ba.id ? 'selected' : ''}>${esc(ba.device_name || ba.hostname)}</option>`).join('');
+          return `
+            <div class="atlas-surface rounded-xl p-5">
+              <div class="flex justify-between items-center mb-4">
+                <div class="flex gap-3 items-center">
+                  <div class="w-9 h-9 rounded-xl flex items-center justify-center icon-blue-bg"><i data-lucide="router" class="w-4 h-4"></i></div>
+                  <div>
+                    <h4 class="font-semibold text-white text-sm">${esc(a.hostname)}</h4>
+                    <div class="flex gap-1.5 mt-1">
+                      <span class="text-xs font-semibold px-1.5 py-0.5 rounded chip-blue">${esc(a.category || 'acesso')}</span>
+                      <span class="text-xs font-semibold px-1.5 py-0.5 rounded chip-slate">Aut: ${a.authority_level || 1}</span>
+                      ${syncBadge}
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                      <span class="text-xs text-slate-400">${esc(a.sync_mode)}</span>
+                      <div class="relative inline-block w-8 h-4">
+                        <input type="checkbox" onchange="toggleAMode(${a.id}, this)" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 appearance-none z-10 transition-all cursor-pointer" ${a.sync_mode === 'auto' ? 'checked' : ''}/>
+                        <label class="toggle-label block overflow-hidden h-4 rounded-full cursor-pointer bg-slate-700"></label>
+                      </div>
+                    </div>
+              </div>
+              <form onsubmit="updateAssetFull(event, ${a.id})" class="pt-4 space-y-3 atlas-card-divider">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div>
+                    <label class="atlas-label flex items-center gap-1">IP SSH <i data-lucide="lock" class="w-3 h-3"></i></label>
+                    <input type="text" id="ip_${a.id}" value="${esc(a.ip_address || 'Extraindo...')}" readonly tabindex="-1"
+                      class="atlas-input w-full px-3 py-2 rounded-xl text-xs font-mono" disabled />
+                  </div>
+                  <div>
+                    <label class="atlas-label flex items-center gap-1">Porta SSH <i data-lucide="lock" class="w-3 h-3"></i></label>
+                    <input type="number" id="port_${a.id}" value="${a.port || 22}" readonly tabindex="-1"
+                      class="atlas-input w-full px-3 py-2 rounded-xl text-xs" disabled />
+                  </div>
+                  <div id="div_bc_${a.id}" style="display:${a.sync_mode === 'auto' ? 'block' : 'none'}">
+                    <label class="atlas-label">Vínculo BC</label>
+                    <select id="bc_id_${a.id}" class="atlas-input w-full px-3 py-2 rounded-xl text-xs">${bcOpts}</select>
+                  </div>
+                  <div>
+                    <label class="atlas-label">L2 Domain (override)</label>
+                    <select id="l2_${a.id}" class="atlas-input w-full px-3 py-2 rounded-xl text-xs">
+                      <option value="">Usar padrão do grupo</option>
+                      ${globalL2Domains.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '', 'pt', { sensitivity: 'base' })).map(d => `<option value="${d.id}" ${a.override_l2_domain_id == d.id ? 'selected' : ''}>${esc(d.name)} (${d.id})</option>`).join('')}
+                    </select>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-xl" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.12);">
+                  <div class="flex items-center gap-2">
+                    <div class="relative inline-block w-8 h-4">
+                      <input type="checkbox" id="ivc_${a.id}" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 appearance-none z-10 transition-all cursor-pointer" ${a.ignore_vlan_conflict ? 'checked' : ''}/>
+                      <label for="ivc_${a.id}" class="toggle-label block overflow-hidden h-4 rounded-full cursor-pointer" style="background:#334155;"></label>
+                    </div>
+                    <span class="text-xs" style="color:#FCD34D;">Mesma sub-rede (ignorar conflitos de VLAN)</span>
+                  </div>
+                  <span class="text-[10px]" style="color:#8FA4C2;">Atualiza nomes automaticamente</span>
+                </div>
+                <details class="mt-3">
+                  <summary class="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold" style="color:#A5B4FC;">
+                    <i data-lucide="terminal" class="w-3 h-3"></i> Credenciais SSH & VPN Override
+                  </summary>
+                  <div class="mt-3 space-y-2">
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="atlas-label">SSH Usuário</label>
+                        <input type="text" id="ssh_user_${a.id}" value="${esc(a.ssh_user || '')}" placeholder="admin" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                      </div>
+                      <div>
+                        <label class="atlas-label">SSH Senha</label>
+                        <input type="password" id="ssh_pass_${a.id}" value="${esc(a.ssh_pass || '')}" placeholder="••••••" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                      <div class="col-span-2">
+                        <label class="atlas-label">VPN Host (override)</label>
+                        <input type="text" id="ovpn_host_${a.id}" value="${esc(a.override_vpn_host || '')}" placeholder="Usar global do grupo" class="atlas-input w-full px-3 py-2 rounded-xl text-xs font-mono"/>
+                      </div>
+                      <div>
+                        <label class="atlas-label">Porta VPN</label>
+                        <input type="number" id="ovpn_port_${a.id}" value="${esc(a.override_vpn_port || '')}" placeholder="22" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="atlas-label">VPN Usuário (override)</label>
+                        <input type="text" id="ovpn_user_${a.id}" value="${esc(a.override_vpn_user || '')}" placeholder="Usar global" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                      </div>
+                      <div>
+                        <label class="atlas-label">VPN Senha (override)</label>
+                        <input type="password" id="ovpn_pass_${a.id}" value="${esc(a.override_vpn_pass || '')}" placeholder="Usar global" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                      </div>
+                    </div>
+                  </div>
+                </details>
+                <div class="flex items-center justify-between">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <div class="relative inline-block w-8 h-4">
+                      <input type="checkbox" id="edge_${a.id}" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 appearance-none z-10 transition-all cursor-pointer" ${a.is_edge_router ? 'checked' : ''}/>
+                      <label for="edge_${a.id}" class="toggle-label block overflow-hidden h-4 rounded-full cursor-pointer" style="background:#334155;"></label>
+                    </div>
+                    <span class="text-xs text-slate-400">Prioridade máxima (Borda/Core)</span>
+                  </label>
+                  <div class="flex gap-2">
+                    ${a.bc_device_id ? '' : `<button type="button" onclick="deleteAsset(${a.id}, ${JSON.stringify(a.hostname || '')}, event)"
+                            class="atlas-btn-ghost px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap"
+                            style="color:var(--rose,#ef4444);border-color:color-mix(in oklab,var(--rose,#ef4444) 35%,transparent);"
+                            title="Excluir este ativo cadastrado manualmente">Excluir</button>`}
+                    <button type="button" onclick="testAssetSSH(${a.id}, event)"
+                            class="atlas-btn-ghost px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap">Testar SSH</button>
+                    <button type="submit" class="atlas-btn-ghost px-4 py-2 rounded-xl text-xs font-semibold">Atualizar</button>
+                  </div>
+                </div>
+              </form>
+            </div>`;
+        };
+
+        const sorted = uniqueAssets.slice().sort((a, b) => (a.hostname || '').localeCompare(b.hostname || '', 'pt', { sensitivity: 'base' }));
+        document.getElementById('managedAssetsContainer').innerHTML = sorted.length
+          ? sorted.map(a => renderAssetCard(a)).join('')
+          : '<p class="empty-state text-xs italic text-center p-8 rounded-2xl">Nenhum ativo configurado.</p>';
+        lucide.createIcons();
+      } catch (e) { console.error("Erro renderizando os ativos.", e); }
+    }
+
+    function toggleAMode(id, el) { document.getElementById(`div_bc_${id}`).style.display = el.checked ? 'block' : 'none'; }
+
+    async function updateAssetFull(e, id) {
+      e.preventDefault();
+      const syncModeEl = document.querySelector(`input[onchange*="toggleAMode(${id}"]`);
+      const l2El   = document.getElementById(`l2_${id}`);
+      const edgeEl = document.getElementById(`edge_${id}`);
+      const p = {
+        ip_address: document.getElementById(`ip_${id}`).value,
+        port: parseInt(document.getElementById(`port_${id}`).value),
+        sync_mode: syncModeEl && syncModeEl.checked ? 'auto' : 'manual',
+        backup_id: document.getElementById(`bc_id_${id}`) ? document.getElementById(`bc_id_${id}`).value : null,
+        override_l2_domain_id: l2El && l2El.value ? parseInt(l2El.value) : null,
+        is_edge_router: edgeEl ? edgeEl.checked : false,
+        ignore_vlan_conflict: document.getElementById(`ivc_${id}`) ? document.getElementById(`ivc_${id}`).checked : false,
+        ssh_user: document.getElementById(`ssh_user_${id}`) ? document.getElementById(`ssh_user_${id}`).value || null : null,
+        ssh_pass: document.getElementById(`ssh_pass_${id}`) ? document.getElementById(`ssh_pass_${id}`).value || null : null,
+        override_vpn_host: document.getElementById(`ovpn_host_${id}`) ? document.getElementById(`ovpn_host_${id}`).value || null : null,
+        override_vpn_port: document.getElementById(`ovpn_port_${id}`) && document.getElementById(`ovpn_port_${id}`).value ? parseInt(document.getElementById(`ovpn_port_${id}`).value) : null,
+        override_vpn_user: document.getElementById(`ovpn_user_${id}`) ? document.getElementById(`ovpn_user_${id}`).value || null : null,
+        override_vpn_pass: document.getElementById(`ovpn_pass_${id}`) ? document.getElementById(`ovpn_pass_${id}`).value || null : null
+      };
+      await fetch(`${API_BASE}/assets/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      UI.showToast('Ativo atualizado!', 'success');
+      fetchAssetsList();
+    }
+
+    /** Exclui um ativo cadastrado manualmente. Ativos vindos do BackupCenter não
+     *  expõem este botão — o backend também recusa, porque o próximo discover os
+     *  recriaria e a remoção só destruiria o histórico no intervalo. */
+    async function deleteAsset(id, hostname, evt) {
+      const ok = await UI.showConfirm({
+        title: 'Excluir ativo',
+        message: `Remover "${hostname || 'ativo'}"? As VLANs, sub-redes e interfaces `
+               + `extraídas dele serão apagadas junto. Esta ação não pode ser desfeita.`,
+        confirmText: 'Excluir', cancelText: 'Cancelar', danger: true,
+      });
+      if (!ok) return;
+
+      const btn = evt.currentTarget;
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/assets/${id}`, { method: 'DELETE' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const d = data.detail || {};
+          UI.showToast(d.message || 'Não foi possível excluir o ativo.', 'error');
+          return;
+        }
+        const extras = [];
+        if (data.vlans_removidas) extras.push(`${data.vlans_removidas} VLAN(s)`);
+        if (data.subnets_removidas) extras.push(`${data.subnets_removidas} sub-rede(s)`);
+        UI.showToast(`Ativo removido${extras.length ? ' — junto com ' + extras.join(' e ') : ''}.`, 'success');
+        fetchAssetsList();
+      } catch (e) {
+        UI.showToast('Falha de rede ao excluir o ativo.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /** Testa o SSH do ativo (direto ou via jump host, conforme o cadastro).
+     *  Salva antes, para que o backend teste o que está na tela — o endpoint lê
+     *  as credenciais do banco, não do formulário. */
+    async function testAssetSSH(id, evt) {
+      const btn = evt.currentTarget;
+      const original = btn.innerHTML;
+      btn.innerHTML = 'Testando...';
+      btn.disabled = true;
+      try {
+        const form = btn.closest('form');
+        if (form) await updateAssetFull({ preventDefault(){} }, id);
+
+        const clientId = new URLSearchParams(location.search).get('edit')
+                      || document.getElementById('wsProviderSel')?.value;
+        if (!clientId) { UI.showToast('Selecione o provedor antes de testar.', 'warning'); return; }
+
+        const res = await fetch(`${API_BASE}/clients/${clientId}/ssh-test`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ asset_id: id })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          UI.showToast(`SSH OK (${data.latency_ms} ms)`, 'success');
+        } else {
+          const hint = data.hint ? ` — ${data.hint}` : '';
+          UI.showToast(`Falha SSH: ${data.message || data.error_code || 'verifique as credenciais.'}${hint}`, 'error');
+        }
+      } catch (e) {
+        UI.showToast('Falha de rede ao testar SSH.', 'error');
+      } finally {
+        btn.innerHTML = original;
+        btn.disabled = false;
+      }
+    }
+
+    async function saveClientConfig(e) {
+      e.preventDefault();
+      _clearConnError('phpipam_cfg_error');
+      const sys   = document.getElementById('c_system').value;
+      const isNB  = sys === 'netbox';
+      const ipamUrl   = document.getElementById('c_ip').value.trim();
+      const tokenName = document.getElementById('c_token_name').value.trim();
+      const token     = document.getElementById('c_token').value.trim();
+      // Testa phpIPAM apenas se não for NetBox e os 3 campos estiverem preenchidos.
+      // Token mascarado ('********') = não alterado: pula o teste (backend mantém o valor salvo).
+      if (!isNB && ipamUrl && tokenName && token && token !== '********') {
+        _setBtnLoading('phpipam_cfg_submit_btn', 'Testando phpIPAM...');
+        try {
+          const testRes = await fetch(`${API_BASE}/phpipam/test`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              url: ipamUrl,
+              token_name: tokenName,
+              token,
+              phpipam_user: document.getElementById('c_phpipam_user').value || null,
+              phpipam_pass: document.getElementById('c_phpipam_pass').value || null
+            })
+          });
+          const testData = await testRes.json();
+          if (!testData.ok) {
+            _showConnError('phpipam_cfg_error', 'phpipam_cfg_error_msg', 'phpipam_cfg_ssl_hint', 'phpipam_cfg_submit_btn', testData.message, testData.ssl_error);
+            return;
+          }
+        } catch (err) {
+          _showConnError('phpipam_cfg_error', 'phpipam_cfg_error_msg', 'phpipam_cfg_ssl_hint', 'phpipam_cfg_submit_btn', 'Não foi possível testar a conexão com o phpIPAM. Verifique se o backend está online.', false);
+          return;
+        }
+      }
+      // Teste OK (ou NetBox / campos vazios) — salvar
+      const btn = document.getElementById('phpipam_cfg_submit_btn');
+      btn.disabled = true;
+      const p = {
+        name:                 document.getElementById('c_name').value,
+        system:               sys,
+        ip:                   isNB ? null : ipamUrl,
+        token_name:           isNB ? null : tokenName,
+        token:                isNB ? null : token,
+        phpipam_user:         document.getElementById('c_phpipam_user').value || null,
+        phpipam_pass:         document.getElementById('c_phpipam_pass').value || null,
+        netbox_url:           isNB ? ipamUrl || null : null,
+        netbox_token:         isNB ? token || null : null,
+        netbox_vlan_group_id: isNB ? parseInt(document.getElementById('c_l2_domain').value) || null : null,
+        netbox_site_id:       isNB ? parseInt(document.getElementById('c_section_id').value) || null : null,
+        l2_domain_id:         isNB ? null : parseInt(document.getElementById('c_l2_domain').value) || 1,
+        section_id:           isNB ? null : parseInt(document.getElementById('c_section_id').value) || 1,
+        bc_server_id:         document.getElementById('c_bc_server').value || null,
+        external_group_id:    document.getElementById('c_external_group').value || null,
+        vlan_prefix:          document.getElementById('c_vlan_prefix').value || null,
+        vpn_host:             document.getElementById('c_vpn_host').value || null,
+        vpn_port:             parseInt(document.getElementById('c_vpn_port').value) || 22,
+        vpn_user:             document.getElementById('c_vpn_user').value || null,
+        vpn_pass:             document.getElementById('c_vpn_pass').value || null
+      };
+      await fetch(`${API_BASE}/clients/${activeClientId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      activeClientConfig = { ...(activeClientConfig || {}), ...p };
+      updateIPAMSyncButton();
+      btn.disabled = false;
+      btn.textContent = 'Salvar Informações';
+      UI.showToast('Configurações salvas com sucesso!', 'success');
+      loadGroupConfig();
+    }
+
+    // ── NetBox ──
+    let globalVlanGroups = [];
+    let globalNBSites = [];
+
+    async function probeNetBox() {
+      const url = document.getElementById('nb_url').value.trim();
+      const token = document.getElementById('nb_token').value.trim();
+      if (!url || !token) { UI.showToast('Preencha URL e Token do NetBox antes de testar.', 'warning'); return; }
+      UI.showToast('Testando conexão NetBox...', 'info');
+      try {
+        const res = await fetch(`${API_BASE.replace('/api','')}/api/netbox/probe`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip: url, token })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          UI.showToast('Falha: ' + (data.error || 'Verifique URL e token.'), 'error');
+        } else {
+          globalVlanGroups = data.vlan_groups || [];
+          globalNBSites = data.sites || [];
+          populateNBSelects();
+          UI.showToast(`NetBox OK — ${globalVlanGroups.length} VLAN Group(s), ${globalNBSites.length} Site(s).`, 'success');
+        }
+      } catch(e) { UI.showToast('Erro de rede ao testar NetBox.', 'error'); }
+    }
+
+    function populateNBSelects() {
+      const vgSelect = document.getElementById('nb_vlan_group');
+      const siteSelect = document.getElementById('nb_site');
+      if (!vgSelect || !siteSelect) return;
+      vgSelect.innerHTML = '<option value="">Nenhum</option>' +
+        globalVlanGroups.map(g => `<option value="${g.id}">${esc(g.name)} (ID: ${g.id})</option>`).join('');
+      siteSelect.innerHTML = '<option value="">Nenhum</option>' +
+        globalNBSites.map(s => `<option value="${s.id}">${esc(s.name)} (ID: ${s.id})</option>`).join('');
+    }
+
+    async function saveNetBoxConfig(e) {
+      e.preventDefault();
+      const p = {
+        name: document.getElementById('c_name').value,
+        system: 'netbox',
+        netbox_url: document.getElementById('nb_url').value || null,
+        netbox_token: document.getElementById('nb_token').value || null,
+        netbox_vlan_group_id: parseInt(document.getElementById('nb_vlan_group').value) || null,
+        netbox_site_id: parseInt(document.getElementById('nb_site').value) || null
+      };
+      const res = await fetch(`${API_BASE}/clients/${activeClientId}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p)
+      });
+      if (res.ok) {
+        activeClientConfig = { ...(activeClientConfig || {}), ...p };
+        updateIPAMSyncButton();
+        UI.showToast('Configuração NetBox salva!', 'success');
+      } else {
+        UI.showToast('Erro ao salvar NetBox.', 'error');
+      }
+    }
+
+    async function promptCreateVlanGroup() {
+      const name = prompt('Nome do novo VLAN Group:', document.getElementById('c_name').value || '');
+      if (!name) return;
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}/create-vlan-group`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          UI.showToast(`VLAN Group "${name}" criado!`, 'success');
+          await probeNetBox();
+        } else {
+          UI.showToast('Erro: ' + (data.detail || 'Falha ao criar'), 'error');
+        }
+      } catch(e) { UI.showToast('Falha de rede.', 'error'); }
+    }
+
+    async function runAction(endpoint, btn) {
+      const old = btn.innerHTML;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin inline mr-1"></i> Executando...`;
+      lucide.createIcons();
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}/${endpoint}`, { method: 'POST' });
+        const d = await res.json();
+        if (!res.ok) { UI.showToast(`❌ ${d.detail || d.message || 'Erro desconhecido.'}`, 'error'); }
+        else {
+          UI.showToast(d.message || 'Concluído!', 'success');
+          // Verificar se há conflitos de VLAN pendentes
+          if (d.has_conflicts && d.conflicts && d.conflicts.length > 0) {
+            showVlanConflictModal(d.conflicts);
+          }
+          fetchAssetsList();
+        }
+      } catch (e) { UI.showToast('Falha de conexão com o servidor.', 'error'); }
+      finally { btn.innerHTML = old; lucide.createIcons(); }
+    }
+
+    function getActiveIPAMSystem() {
+      const sel = document.getElementById('c_system');
+      if (sel) return sel.value === 'netbox' ? 'netbox' : 'phpipam';
+      const hasNetBox = activeClientConfig && (activeClientConfig.system === 'netbox' || activeClientConfig.netbox_url);
+      return hasNetBox ? 'netbox' : 'phpipam';
+    }
+
+    function updateIPAMSyncButton() {
+      const label = document.getElementById('btnSyncIPAMLabel');
+      const btn = document.getElementById('btnSyncIPAM');
+      if (!label || !btn) return;
+      const isNetBox = getActiveIPAMSystem() === 'netbox';
+      label.textContent = isNetBox ? 'Enviar ao NetBox' : 'Enviar ao phpIPAM';
+      btn.style.background = isNetBox ? 'linear-gradient(135deg,#6366f1,#4338ca)' : 'linear-gradient(135deg,#059669,#047857)';
+      btn.style.boxShadow = isNetBox ? '0 4px 14px rgba(99,102,241,0.3)' : '0 4px 14px rgba(5,150,105,0.3)';
+    }
+
+    async function runIPAMSync(btn) {
+      const endpoint = getActiveIPAMSystem() === 'netbox' ? 'sync-netbox' : 'sync-phpipam';
+      return runAction(endpoint, btn);
+    }
+
+    async function runGlobalDiscovery(btn) {
+      const old = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = 'Sincronizando...';
+      try {
+        const res = await fetch(`${API_BASE}/backupcenter/discover-all-groups`, { method: 'POST' });
+        const d = await res.json();
+        if (!res.ok) {
+          UI.showToast(d.message || d.detail || 'Falha ao sincronizar grupos e ativos.', 'error');
+        } else {
+          const type = d.status === 'partial' ? 'warning' : 'success';
+          UI.showToast(d.message || 'Grupos e ativos sincronizados.', type);
+        }
+        loadClientsList();
+      } catch (e) {
+        UI.showToast('Falha de conexão ao sincronizar grupos e ativos.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = old;
+        lucide.createIcons();
+      }
+    }
+
+    async function loadInlineLogs() {
+      const tb = document.getElementById('inlineLogsTable');
+      tb.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-xs text-slate-400">Carregando...</td></tr>`;
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}/logs?page=1&limit=10`);
+        if (!res.ok) throw new Error();
+        const logs = await res.json();
+        if (!logs.length) { tb.innerHTML = `<tr><td colspan="5" class="px-5 py-8 text-center text-xs italic text-slate-400">Nenhuma execução registrada ainda.</td></tr>`; return; }
+        tb.innerHTML = logs.map(l => {
+          const isError  = l.status === 'error';
+          const opLabel  = OP_LABELS[l.operation] || l.operation || '—';
+          const dt       = l.created_at ? new Date(l.created_at + 'Z').toLocaleString('pt-BR', {timeZone: 'America/Recife'}) : '—';
+          const dur      = fmtDur(l.duration_ms);
+          const badge    = isError
+            ? `<span class="px-2 py-0.5 rounded-lg text-xs font-bold chip-red">ERRO</span>`
+            : `<span class="px-2 py-0.5 rounded-lg text-xs font-bold chip-emerald">OK</span>`;
+          const detailBtn = isError && l.detail ? `<button type="button" class="inline-detail-btn ml-1 text-[10px] font-medium hover:underline text-red-500" data-detail="${encodeURIComponent(l.detail)}">ver detalhe</button>` : '';
+          return `<tr class="atlas-tr">
+            <td class="px-5 py-3 text-xs font-mono text-slate-400">${dt}</td>
+            <td class="px-5 py-3 text-xs text-slate-300 pointer-events-none">${opLabel}</td>
+            <td class="px-5 py-3">${badge}</td>
+            <td class="px-5 py-3 text-xs truncate max-w-xs text-slate-400">${esc(l.message || '—')}${detailBtn}</td>
+            <td class="px-5 py-3 text-right text-xs font-mono text-slate-400">${dur}</td>
+          </tr>`;
+        }).join('');
+        lucide.createIcons();
+      } catch (e) { tb.innerHTML = `<tr><td colspan="5" class="px-5 py-6 text-center text-xs font-medium text-red-400">Erro ao buscar logs.</td></tr>`; }
+    }
+
+    function _showConnError(errorDivId, msgId, sslHintId, submitBtnId, msg, isSSL) {
+      const errorDiv = document.getElementById(errorDivId);
+      document.getElementById(msgId).textContent = msg;
+      const sslHint = document.getElementById(sslHintId);
+      if (isSSL) sslHint.classList.remove('hidden'); else sslHint.classList.add('hidden');
+      errorDiv.classList.remove('hidden');
+      lucide.createIcons();
+      const btn = document.getElementById(submitBtnId);
+      btn.disabled = false;
+      btn.textContent = btn.dataset.originalText || 'Salvar';
+    }
+    function _clearConnError(errorDivId) {
+      document.getElementById(errorDivId).classList.add('hidden');
+    }
+    function _setBtnLoading(btnId, text) {
+      const btn = document.getElementById(btnId);
+      btn.dataset.originalText = btn.textContent.trim();
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin inline mr-1"></i> ${text}`;
+      lucide.createIcons();
+    }
+
+    async function saveBCServer(e) {
+      e.preventDefault();
+      _clearConnError('bc_create_error');
+      _setBtnLoading('bc_s_submit_btn', 'Testando conexão...');
+      const url = document.getElementById('bc_s_url').value;
+      const token = document.getElementById('bc_s_token').value;
+      try {
+        const testRes = await fetch(`${API_BASE}/backupcenter/servers/test`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, token })
+        });
+        const testData = await testRes.json();
+        if (!testData.ok) {
+          _showConnError('bc_create_error', 'bc_create_error_msg', 'bc_create_ssl_hint', 'bc_s_submit_btn', testData.message, testData.ssl_error);
+          return;
+        }
+      } catch (err) {
+        _showConnError('bc_create_error', 'bc_create_error_msg', 'bc_create_ssl_hint', 'bc_s_submit_btn', 'Não foi possível testar a conexão. Verifique se o backend está online.', false);
+        return;
+      }
+      // Conexão OK — salvar
+      const p = { name: document.getElementById('bc_s_name').value, url, token };
+      await fetch(`${API_BASE}/backupcenter/servers`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      closeBCServerModal();
+      ['bc_s_name','bc_s_url','bc_s_token'].forEach(id => document.getElementById(id).value = '');
+      loadBCServers();
+      UI.showToast('Servidor cadastrado com sucesso!', 'success');
+    }
+
+    async function deleteClient(id, name) {
+      if (!(await UI.showConfirm({ title: 'Excluir grupo', message: `Excluir o grupo "${name}"?\n\nTodos os ativos, VLANs e subnets vinculados serão removidos.`, danger: true, confirmText: 'Excluir' }))) return;
+      const res = await fetch(`${API_BASE}/clients/${id}`, { method: 'DELETE' });
+      if (res.ok) { UI.showToast('Grupo excluído.', 'success'); loadAdminData(); }
+      else UI.showToast('Erro ao excluir o grupo.', 'error');
+    }
+
+    async function deleteBCServer(id) {
+      if (!(await UI.showConfirm({ message: 'Apagar este servidor do painel?', danger: true, confirmText: 'Apagar' }))) return;
+      await fetch(`${API_BASE}/backupcenter/servers/${id}`, { method: 'DELETE' });
+      loadBCServers();
+    }
+
+    let _editBCServerOriginalToken = '';
+    function openEditBCServerModal(id, name, url, token) {
+      document.getElementById('edit_bc_s_id').value = id;
+      document.getElementById('edit_bc_s_name').value = name;
+      document.getElementById('edit_bc_s_url').value = url;
+      document.getElementById('edit_bc_s_token').value = '';
+      _editBCServerOriginalToken = token;
+      document.getElementById('editBCServerModal').classList.remove('hidden'); lucide.createIcons();
+    }
+    function closeEditBCServerModal() { document.getElementById('editBCServerModal').classList.add('hidden'); }
+
+    async function saveEditBCServer(e) {
+      e.preventDefault();
+      _clearConnError('bc_edit_error');
+      const id = document.getElementById('edit_bc_s_id').value;
+      const newToken = document.getElementById('edit_bc_s_token').value;
+      const url = document.getElementById('edit_bc_s_url').value;
+      if (!newToken) { UI.showToast('Informe o token para validar e salvar (campo obrigatório).', 'warning'); return; }
+      _setBtnLoading('bc_edit_submit_btn', 'Testando conexão...');
+      try {
+        const testRes = await fetch(`${API_BASE}/backupcenter/servers/test`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, token: newToken })
+        });
+        const testData = await testRes.json();
+        if (!testData.ok) {
+          _showConnError('bc_edit_error', 'bc_edit_error_msg', 'bc_edit_ssl_hint', 'bc_edit_submit_btn', testData.message, testData.ssl_error);
+          return;
+        }
+      } catch (err) {
+        _showConnError('bc_edit_error', 'bc_edit_error_msg', 'bc_edit_ssl_hint', 'bc_edit_submit_btn', 'Não foi possível testar a conexão. Verifique se o backend está online.', false);
+        return;
+      }
+      // Conexão OK — salvar
+      const p = { name: document.getElementById('edit_bc_s_name').value, url: document.getElementById('edit_bc_s_url').value, token: newToken };
+      const res = await fetch(`${API_BASE}/backupcenter/servers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      if (res.ok) { UI.showToast('Conector atualizado!', 'success'); closeEditBCServerModal(); loadBCServers(); }
+      else UI.showToast('Erro ao atualizar conector.', 'error');
+    }
+
+    async function createClientManual(e) {
+      e.preventDefault();
+      const p = { name: document.getElementById('m_name').value, system: "phpIPAM" };
+      const res = await fetch(`${API_BASE}/clients`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      if (res.ok) { const nc = await res.json(); closeManualClientModal(); showConfigView(nc.id); }
+    }
+
+    async function createAssetManual(e) {
+      e.preventDefault();
+      const p = { client_id: activeClientId, hostname: document.getElementById('ma_hostname').value, vendor: document.getElementById('ma_vendor').value, category: document.getElementById('ma_category').value, ip_address: document.getElementById('ma_ip').value, port: document.getElementById('ma_port').value, authority_level: document.getElementById('ma_authority').value, is_approved: true, sync_mode: 'manual' };
+      await fetch(`${API_BASE}/assets`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      closeManualAssetModal(); fetchAssetsList(); UI.showToast('Ativo adicionado!', 'success');
+    }
+
+    /* helper chips for dynamic innerHTML */
+    const chip = { blue: 'background:rgba(37,99,235,0.12);color:#93C5FD;border:1px solid rgba(37,99,235,0.2)', indigo: 'background:rgba(99,102,241,0.12);color:#A5B4FC;border:1px solid rgba(99,102,241,0.2)', slate: 'background:rgba(100,116,139,0.1);color:#94A3B8;border:1px solid rgba(100,116,139,0.2)' };
+
+    function openBCServerModal()      { document.getElementById('bcServerModal').classList.remove('hidden'); lucide.createIcons(); }
+    function closeBCServerModal()     { document.getElementById('bcServerModal').classList.add('hidden'); }
+    function openManualClientModal()  { document.getElementById('manualClientModal').classList.remove('hidden'); lucide.createIcons(); }
+    function closeManualClientModal() { document.getElementById('manualClientModal').classList.add('hidden'); }
+    function openManualAssetModal()   { document.getElementById('manualAssetModal').classList.remove('hidden'); lucide.createIcons(); }
+    function closeManualAssetModal()  { document.getElementById('manualAssetModal').classList.add('hidden'); }
+    function openSettingsModal()      { document.getElementById('settingsModal').classList.remove('hidden'); lucide.createIcons(); }
+    function closeSettingsModal()     { document.getElementById('settingsModal').classList.add('hidden'); }
+    function toggleTheme()            { document.documentElement.classList.toggle('dark'); }
+
+    function showInlineDetail(detail) { document.getElementById('inlineDetailContent').textContent = detail; document.getElementById('inlineDetailModal').classList.remove('hidden'); lucide.createIcons(); }
+    // Listener delegado (anexado uma vez): o detalhe vai em data-detail
+    // (encodeURIComponent) em vez de interpolado num onclick — detalhe de erro
+    // com aspa simples quebrava o handler antigo.
+    (function () {
+      const tb = document.getElementById('inlineLogsTable');
+      if (tb) tb.addEventListener('click', (e) => {
+        const btn = e.target.closest('button.inline-detail-btn');
+        if (!btn || !btn.dataset.detail) return;
+        showInlineDetail(decodeURIComponent(btn.dataset.detail));
+      });
+    })();
+    function closeInlineDetail()      { document.getElementById('inlineDetailModal').classList.add('hidden'); }
+
+    // ── VLAN Conflict Resolution System ──
+    let pendingConflicts = [];
+
+    function closeVlanConflictModal() { document.getElementById('vlanConflictModal').classList.add('hidden'); }
+
+    function showVlanConflictModal(conflicts) {
+      pendingConflicts = conflicts;
+      const container = document.getElementById('conflictsList');
+
+      // Build L2 domain options for "link to existing"
+      let l2Opts = `<option value="">Criar novo L2 Domain</option>` +
+        globalL2Domains.map(d => `<option value="${d.id}">${esc(d.name)} (ID: ${d.id})</option>`).join('');
+
+      container.innerHTML = conflicts.map((c, idx) => {
+        const isPermError = c.type === 'permission_error';
+        return `
+        <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.03); border:1px solid rgba(245,158,11,0.15);">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="text-sm font-semibold text-white">VLAN ${c.vid}</p>
+              <p class="text-xs mt-1" style="color:#8FA4C2;">Ativo: <span style="color:#60A5FA; font-weight:600;">${esc(c.asset_hostname)}</span> · L2 Domain #${c.domain_id}</p>
+            </div>
+            <span class="text-xs font-bold px-2 py-1 rounded-lg" style="background:rgba(245,158,11,0.12); color:#FCD34D; border:1px solid rgba(245,158,11,0.25);">${isPermError ? 'PERMISSÃO' : 'CONFLITO'}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="p-2.5 rounded-lg" style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.12);">
+              <p class="text-[10px] font-bold uppercase" style="color:#F87171;">Nome atual (phpIPAM)</p>
+              <p class="text-sm font-mono font-semibold mt-1 text-white">${esc(c.existing_name)}</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.12);">
+              <p class="text-[10px] font-bold uppercase" style="color:#34D399;">Nome novo (ativo)</p>
+              <p class="text-sm font-mono font-semibold mt-1 text-white">${esc(c.new_name)}</p>
+            </div>
+          </div>
+          ${isPermError ? `
+            <div class="p-3 rounded-lg text-xs" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); color:#FCA5A5;">
+              <i data-lucide="shield-alert" class="w-3 h-3 inline mr-1"></i>
+              ${esc(c.message)}
+            </div>` : `
+            <div class="space-y-2">
+              <p class="text-[10px] font-bold uppercase" style="color:#8FA4C2;">Ação:</p>
+              <div class="flex flex-col gap-2">
+                <label class="flex items-center gap-2 p-2 rounded-lg cursor-pointer transition hover:bg-white/5" style="border:1px solid rgba(255,255,255,0.08);">
+                  <input type="radio" name="conflict_${idx}" value="update_name" checked class="accent-amber-400" />
+                  <div>
+                    <span class="text-xs font-semibold text-white">Mesma sub-rede — atualizar nome</span>
+                    <p class="text-[10px]" style="color:#8FA4C2;">Sobrescreve "${esc(c.existing_name)}" por "${esc(c.new_name)}" no phpIPAM</p>
+                  </div>
+                </label>
+                <label class="flex items-center gap-2 p-2 rounded-lg cursor-pointer transition hover:bg-white/5" style="border:1px solid rgba(255,255,255,0.08);">
+                  <input type="radio" name="conflict_${idx}" value="create_l2" class="accent-blue-400" />
+                  <div class="flex-1">
+                    <span class="text-xs font-semibold text-white">Criar / vincular outro L2 Domain</span>
+                    <p class="text-[10px]" style="color:#8FA4C2;">Separa este ativo em um L2 Domain diferente</p>
+                  </div>
+                </label>
+                <div id="l2_opts_${idx}" class="hidden ml-6 space-y-2">
+                  <div>
+                    <label class="atlas-label">L2 Domain existente ou novo</label>
+                    <select id="l2_sel_${idx}" class="atlas-input w-full px-3 py-2 rounded-xl text-xs" onchange="toggleL2NameInput(${idx})">
+                      ${l2Opts}
+                    </select>
+                  </div>
+                  <div id="l2_name_div_${idx}">
+                    <label class="atlas-label">Nome do novo L2 Domain</label>
+                    <input type="text" id="l2_name_${idx}" value="${esc(c.asset_hostname)}" placeholder="Nome sugerido" class="atlas-input w-full px-3 py-2 rounded-xl text-xs" />
+                    <button type="button" onclick="suggestL2Name(${idx}, ${esc(JSON.stringify(c.asset_hostname))})" class="text-[10px] mt-1 font-medium" style="color:#60A5FA;">Sugerir nome automático</button>
+                  </div>
+                </div>
+                <label class="flex items-center gap-2 p-2 rounded-lg cursor-pointer transition hover:bg-white/5" style="border:1px solid rgba(255,255,255,0.08);">
+                  <input type="radio" name="conflict_${idx}" value="create_group" class="accent-purple-400" />
+                  <div class="flex-1">
+                    <span class="text-xs font-semibold text-white">Criar novo grupo Atlas + L2 Domain</span>
+                    <p class="text-[10px]" style="color:#8FA4C2;">Move o ativo para um novo grupo separado</p>
+                  </div>
+                </label>
+                <div id="grp_opts_${idx}" class="hidden ml-6 space-y-2">
+                  <div>
+                    <label class="atlas-label">Nome do novo grupo Atlas</label>
+                    <input type="text" id="grp_name_${idx}" placeholder="Ex: Provedor X - POP 2" class="atlas-input w-full px-3 py-2 rounded-xl text-xs" />
+                  </div>
+                  <div>
+                    <label class="atlas-label">Nome do L2 Domain</label>
+                    <input type="text" id="grp_l2_name_${idx}" value="${esc(c.asset_hostname)}" class="atlas-input w-full px-3 py-2 rounded-xl text-xs" />
+                  </div>
+                </div>
+              </div>
+            </div>`}
+        </div>`;
+      }).join('');
+
+      // Wire up radio change events to show/hide sub-options
+      setTimeout(() => {
+        conflicts.forEach((c, idx) => {
+          if (c.type === 'permission_error') return;
+          document.querySelectorAll(`input[name="conflict_${idx}"]`).forEach(radio => {
+            radio.addEventListener('change', () => {
+              document.getElementById(`l2_opts_${idx}`).classList.toggle('hidden', radio.value !== 'create_l2');
+              document.getElementById(`grp_opts_${idx}`).classList.toggle('hidden', radio.value !== 'create_group');
+            });
+          });
+        });
+      }, 50);
+
+      document.getElementById('vlanConflictModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function toggleL2NameInput(idx) {
+      const sel = document.getElementById(`l2_sel_${idx}`);
+      document.getElementById(`l2_name_div_${idx}`).classList.toggle('hidden', sel.value !== '');
+    }
+
+    function suggestL2Name(idx, hostname) {
+      const titleEl = document.getElementById('titleGroupName');
+      const groupName = titleEl ? titleEl.innerText : 'Atlas';
+      document.getElementById(`l2_name_${idx}`).value = `${groupName} - ${hostname}`;
+    }
+
+    async function applyConflictResolutions() {
+      const resolutions = [];
+      pendingConflicts.forEach((c, idx) => {
+        if (c.type === 'permission_error') return;
+
+        const selected = document.querySelector(`input[name="conflict_${idx}"]:checked`);
+        if (!selected) return;
+
+        const item = {
+          vid: c.vid,
+          asset_id: c.asset_id,
+          domain_id: c.domain_id,
+          vlan_ipam_id: c.vlan_ipam_id || null,
+          local_vlan_id: c.local_vlan_id || null,
+          action: selected.value,
+          new_name: c.new_name
+        };
+
+        if (selected.value === 'create_l2') {
+          const l2Sel = document.getElementById(`l2_sel_${idx}`);
+          if (l2Sel && l2Sel.value) {
+            item.existing_l2_id = parseInt(l2Sel.value);
+          } else {
+            item.new_l2_name = document.getElementById(`l2_name_${idx}`)?.value || c.asset_hostname;
+          }
+        } else if (selected.value === 'create_group') {
+          const grpName = document.getElementById(`grp_name_${idx}`)?.value;
+          if (!grpName) { UI.showToast(`Conflito VLAN ${c.vid}: Informe o nome do novo grupo.`, 'warning'); return; }
+          item.new_group_name = grpName;
+          item.new_l2_name = document.getElementById(`grp_l2_name_${idx}`)?.value || grpName;
+        }
+
+        resolutions.push(item);
+      });
+
+      if (!resolutions.length) { UI.showToast('Nenhuma resolução para aplicar.', 'warning'); return; }
+
+      try {
+        const res = await fetch(`${API_BASE}/clients/${activeClientId}/resolve-vlan-conflicts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ resolutions })
+        });
+        const d = await res.json();
+        if (!res.ok) {
+          UI.showToast(`❌ ${d.detail || 'Erro ao resolver conflitos.'}`, 'error');
+        } else {
+          UI.showToast(d.message || 'Conflitos resolvidos!', 'success');
+          if (d.errors && d.errors.length > 0) {
+            d.errors.forEach(e => UI.showToast(e, 'warning'));
+          }
+          closeVlanConflictModal();
+          fetchAssetsList();
+          // Recarregar L2 domains pois podem ter sido criados novos
+          fetchRemoteIPAMData();
+        }
+      } catch (e) {
+        UI.showToast('Falha de conexão ao resolver conflitos.', 'error');
+      }
+    }
+    // ── End VLAN Conflict Resolution ──
+
+    window.onclick = e => {
+      ['bcServerModal','manualClientModal','manualAssetModal','settingsModal','editBCServerModal','inlineDetailModal','vlanConflictModal'].forEach(id => {
+        if (e.target === document.getElementById(id)) document.getElementById(id).classList.add('hidden');
+      });
+    };
+
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('edit')) {
+        Promise.resolve(showConfigView(params.get('edit'))).then(() => {
+          const tab = params.get('tab');
+          if (tab === 'tab-vlans') openClientNetwork('vlans');
+          else if (tab === 'tab-topo') openClientNetwork('topo');
+          else if (tab === 'tab-ips') openClientNetwork('ips');
+          else if (tab === 'tab-assets') switchTab('tab-assets');
+          else if (tab === 'tab-logs') { switchTab('tab-logs'); if (typeof loadInlineLogs === 'function') loadInlineLogs(); }
+        });
+      }
+      else if (params.get('action') === 'new') { showListView(); openManualClientModal(); }
+      else showListView();
+
+      // Intercept sidebar navigation to avoid losing the provider context
+      document.querySelectorAll('.sidebar a.nav-btn').forEach(btn => {
+        const href = btn.getAttribute('href');
+        if (!href) return;
+        btn.addEventListener('click', (e) => {
+          if (activeClientId) {
+            if (href === 'vlans.html') { e.preventDefault(); openClientNetwork('vlans'); }
+            else if (href === 'topologia.html') { e.preventDefault(); openClientNetwork('topo'); }
+            else if (href === 'ips.html') { e.preventDefault(); openClientNetwork('ips'); }
+          }
+        });
+      });
+    };
+  </script>
+</body>
+</html>

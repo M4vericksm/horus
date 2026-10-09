@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atlas — Configuração do Cliente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&family=League+Spartan:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sora: ['Sora','sans-serif'], inter: ['Inter','sans-serif'] },
+          colors: {
+            brand: { blue: '#2563EB', cyan: '#22D3EE' },
+            dark: { bg: '#0B1220', surface: '#0F172A', card: '#1E293B' }
+          }
+        }
+      }
+    };
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
+  </script>
+  <style>
+    * { font-family: 'Space Grotesk', 'Inter', sans-serif; }
+    .sora { font-family: 'Space Grotesk', sans-serif; }
+    .font-spartan { font-family: 'League Spartan', sans-serif; }
+
+    /* Chips de status de sync (UI.syncBadge) — alinhados ao admin_clients */
+    .chip-emerald { background: rgba(52,211,153,0.1); color: #34D399; border: 1px solid rgba(52,211,153,0.2); }
+    html.light .chip-emerald { background: #ECFDF5; color: #059669; border-color: #6EE7B7; }
+    .chip-rose { background: rgba(244,63,94,0.1); color: #FDA4AF; border: 1px solid rgba(244,63,94,0.22); }
+    html.light .chip-rose { background: #FFF1F2; color: #BE123C; border-color: #FDA4AF; }
+    .chip-slate { background: rgba(148,163,184,0.1); color: #CBD5E1; border: 1px solid rgba(148,163,184,0.2); }
+
+    /* Sidebar */
+    .sidebar { width: 240px; min-height: 100vh; background: #0B1220; border-right: 1px solid rgba(37,99,235,0.15); display: flex; flex-direction: column; position: fixed; left: 0; top: 0; z-index: 40; transition: transform 0.3s ease; }
+    .main-content { margin-left: 240px; min-height: 100vh; transition: margin-left 0.3s ease; }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } }
+
+    /* Nav items */
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 8px; margin: 2px 8px; color: #8FA4C2; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all 0.18s ease; text-decoration: none; }
+    .nav-item:hover { background: rgba(37,99,235,0.12); color: #F8FAFC; }
+    .nav-item.active { background: rgba(37,99,235,0.2); color: #F8FAFC; border-left: 3px solid #2563EB; padding-left: 13px; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* Atlas tab system */
+    .atlas-tab { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; font-size: 13.5px; font-weight: 500; color: #8FA4C2; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.18s ease; background: none; border-top: none; border-left: none; border-right: none; }
+    .atlas-tab:hover { color: #F8FAFC; border-bottom-color: rgba(37,99,235,0.4); }
+    .atlas-tab.active { color: #22D3EE; border-bottom-color: #22D3EE; }
+
+    /* Inputs */
+    .atlas-input { width: 100%; background: rgba(15,23,42,0.8); border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 9px 12px; color: #F8FAFC; font-size: 13.5px; transition: border-color 0.18s; outline: none; }
+    .atlas-input:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+    .atlas-input option { background: #0F172A; }
+    .dark .atlas-input { background: rgba(15,23,42,0.8); }
+    html:not(.dark) .atlas-input { background: #fff; border-color: #CBD5E1; color: #0F172A; }
+
+    /* Buttons */
+    .atlas-btn-primary { background: #2563EB; color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background 0.18s; }
+    .atlas-btn-primary:hover { background: #1D4ED8; }
+    .atlas-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .atlas-btn-ghost { background: rgba(37,99,235,0.1); color: #8FA4C2; border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.18s; }
+    .atlas-btn-ghost:hover { background: rgba(37,99,235,0.2); color: #F8FAFC; }
+    .atlas-btn-success { background: #059669; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.18s; }
+    .atlas-btn-success:hover { background: #047857; }
+    .atlas-btn-purple { background: rgba(124,58,237,0.15); color: #A78BFA; border: 1px solid rgba(124,58,237,0.3); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; display:flex; align-items:center; gap:6px; }
+    .atlas-btn-purple:hover { background: rgba(124,58,237,0.25); }
+    .atlas-btn-amber { background: rgba(217,119,6,0.15); color: #FCD34D; border: 1px solid rgba(217,119,6,0.3); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; display:flex; align-items:center; gap:6px; }
+    .atlas-btn-amber:hover { background: rgba(217,119,6,0.25); }
+    .atlas-btn-emerald { background: rgba(5,150,105,0.15); color: #6EE7B7; border: 1px solid rgba(5,150,105,0.3); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; display:flex; align-items:center; gap:6px; }
+    .atlas-btn-emerald:hover { background: rgba(5,150,105,0.25); }
+
+    /* Toggle switch */
+    .toggle-checkbox:checked { right: 0; border-color: #2563EB; }
+    .toggle-checkbox:checked + .toggle-label { background-color: #2563EB; }
+
+    /* Light mode */
+    html:not(.dark) body { background: #F1F5F9; color: #0F172A; }
+    html:not(.dark) .sidebar { background: #F8FAFC; }
+    html:not(.dark) .atlas-card { background: #fff; border-color: #E2E8F0; }
+    html:not(.dark) .atlas-section { background: #fff; }
+    html:not(.dark) .atlas-tab { color: #64748B; }
+    html:not(.dark) .atlas-tab.active { color: #2563EB; border-bottom-color: #2563EB; }
+    html:not(.dark) .page-header { background: rgba(255,255,255,0.95); border-bottom-color: #E2E8F0; }
+    html:not(.dark) .nav-item { color: #475569; }
+    html:not(.dark) .nav-item:hover { background: rgba(0,0,0,0.05); color: #0F172A; }
+    html:not(.dark) .nav-item.active { background: #E0F2FE; color: #0369A1; border-left: 3px solid #0284C7; }
+    html:not(.dark) .user-icon-bg { background: rgba(0,0,0,0.05) !important; }
+    html:not(.dark) .user-icon-color { color: #0F172A !important; }
+    html:not(.dark) .user-text-color { color: #0F172A !important; }
+    html:not(.dark) .font-spartan { color: #0F172A !important; }
+
+    /* Atlas section card */
+    .atlas-section { background: rgba(15,23,42,0.7); border: 1px solid rgba(37,99,235,0.15); border-radius: 12px; }
+    html:not(.dark) .atlas-section { background: #fff; border-color: #E2E8F0; }
+
+    /* Pending/managed asset cards */
+    .asset-row { background: rgba(30,41,59,0.5); border: 1px solid rgba(37,99,235,0.12); border-radius: 10px; padding: 14px 18px; }
+    html:not(.dark) .asset-row { background: #F8FAFC; border-color: #E2E8F0; }
+
+    /* Details/summary */
+    details > summary { list-style: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    details[open] summary ~ * { animation: sweep .2s ease-in-out; }
+    @keyframes sweep { 0% {opacity: 0; margin-top: -10px} 100% {opacity: 1; margin-top: 0px} }
+
+    /* Toast */
+    @keyframes slideInToast { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(37,99,235,0.3); border-radius: 3px; }
+
+    /* Page header bar */
+    .page-header { background: rgba(11,18,32,0.95); border-bottom: 1px solid rgba(37,99,235,0.15); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 30; }
+    html:not(.dark) .page-header { background: rgba(255,255,255,0.95); border-bottom-color: #E2E8F0; }
+  </style>
+</head>
+<body class="bg-dark-bg dark:bg-dark-bg text-slate-200 min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Logo -->
+    <div style="padding: 20px 16px 16px; border-bottom: 1px solid rgba(37,99,235,0.12);">
+      <a href="dashboard.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+        <svg width="42" height="42" viewBox="0 0 120 120" fill="none" class="octo-idle" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="octoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2563EB"/>
+              <stop offset="100%" stop-color="#22D3EE"/>
+            </linearGradient>
+          </defs>
+          <path d="M60 15 C70 15 78 25 76 40 C76 40 85 45 92 48 C100 51 105 58 105 60 C105 62 98 56 90 54 C80 50 74 48 74 48 C76 58 80 68 85 75 C90 82 85 88 82 85 C76 78 72 65 70 58 C72 68 74 80 75 90 C76 98 68 98 66 90 C64 80 62 70 60 62 C58 70 56 80 54 90 C52 98 44 98 45 90 C46 80 48 68 50 58 C48 65 44 78 38 85 C35 88 30 82 35 75 C40 68 44 58 46 48 C46 48 40 50 30 54 C22 56 15 62 15 60 C15 58 20 51 28 48 C35 45 44 40 44 40 C42 25 50 15 60 15 Z" fill="url(#octoGrad)"/>
+          <path d="M50 42 C54 45 52 50 48 52 C46 48 48 44 50 42 Z" fill="#0B1220"/>
+          <path d="M70 42 C66 45 68 50 72 52 C74 48 72 44 70 42 Z" fill="#0B1220"/>
+        </svg>
+        <div>
+          <div class="font-spartan" style="font-size:30px; font-weight:700; color:#F8FAFC; letter-spacing:-0.3px; line-height:1.1;">Atlas</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Nav -->
+    <nav style="padding: 12px 0; flex: 1;">
+      <div style="padding: 4px 16px 8px; font-size:10px; font-weight:600; color:#8FA4C2; letter-spacing:1.5px; text-transform:uppercase;">Principal</div>
+      <a href="dashboard.html" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="logs.html" class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        Logs de Execução
+      </a>
+      <a href="admin_clients.html" class="nav-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Administração
+      </a>
+
+      <div style="padding: 16px 16px 8px; font-size:10px; font-weight:600; color:#8FA4C2; letter-spacing:1.5px; text-transform:uppercase;">Sistema</div>
+      <a href="#" onclick="toggleTheme()" class="nav-item" id="themeToggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIcon"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <span id="themeLabel">Tema Claro</span>
+      </a>
+      <a href="#" onclick="AtlasAPI.logout(); return false;" class="nav-item" id="logoutBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Sair</span>
+      </a>
+    </nav>
+
+    <!-- Mini Octo -->
+    <div style="padding: 16px; border-top: 1px solid rgba(37,99,235,0.12); display:flex; align-items:center; gap:10px;">
+      <div class="user-icon-bg" style="display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:8px; background:rgba(255,255,255,0.05); flex-shrink:0;">
+        <svg class="user-icon-color" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#F8FAFC;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div>
+        <div class="user-text-color" style="font-size:11px; font-weight:600; color:#F8FAFC;">Administrador</div>
+        <div style="font-size:10px; color:rgba(143,164,194,0.8);">Configurações</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <!-- Mobile menu -->
+        <button onclick="document.getElementById('sidebar').classList.toggle('open')" class="md:hidden" style="background:none; border:none; color:#8FA4C2; cursor:pointer; padding:4px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <a href="admin_clients.html" style="display:flex; align-items:center; gap:6px; color:#8FA4C2; font-size:13px; font-weight:500; text-decoration:none; transition: color 0.15s;" onmouseover="this.style.color='#F8FAFC'" onmouseout="this.style.color='#8FA4C2'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Administração
+        </a>
+        <span style="color: rgba(143,164,194,0.3);">/</span>
+        <h1 class="sora" style="font-size:15px; font-weight:600; color:#F8FAFC;" id="clientNameTitle">Carregando...</h1>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button onclick="runAction('discover-assets')" class="atlas-btn-purple">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span class="hidden sm:inline">1.</span> Descobrir Ativos
+        </button>
+        <button onclick="runAction('extract-configs')" class="atlas-btn-amber">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="hidden sm:inline">2.</span> Extrair Dados
+        </button>
+        <button id="btn-sync-ipam" onclick="runSyncIPAM(event)" class="atlas-btn-emerald">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          <span class="hidden sm:inline">3.</span> <span id="btn-sync-label">Enviar ao IPAM</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs bar -->
+    <div style="background: rgba(11,18,32,0.6); border-bottom: 1px solid rgba(37,99,235,0.12); padding: 0 24px; backdrop-filter: blur(8px);">
+      <div style="display:flex; gap:2px;" id="tabList">
+        <button onclick="switchTab('tab-geral')" id="btn-tab-geral" class="atlas-tab active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          Configurações Gerais
+        </button>
+        <button onclick="switchTab('tab-gerenciamento')" id="btn-tab-gerenciamento" class="atlas-tab">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Gerenciamento de Ativos
+        </button>
+      </div>
+    </div>
+
+    <!-- Page body -->
+    <div style="padding: 28px 28px; max-width: 900px;">
+
+      <!-- TAB: Geral -->
+      <div id="tab-geral" class="tab-content">
+        <div class="atlas-section" style="padding: 28px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom: 1px solid rgba(37,99,235,0.12);">
+            <div>
+              <h2 class="sora" style="font-size:15px; font-weight:600; color:#F8FAFC; margin-bottom:3px;">Integração IPAM & Regras Globais</h2>
+              <p style="font-size:12px; color:#8FA4C2;">Configure o endpoint e credenciais para sincronização com o IPAM.</p>
+            </div>
+            <button onclick="fetchRemoteData()" class="atlas-btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:4px;"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+              Recarregar Listas do IPAM
+            </button>
+          </div>
+
+          <form id="clientForm" onsubmit="saveClientConfig(event)" style="display:flex; flex-direction:column; gap:18px;">
+
+            <!-- Sistema IPAM -->
+            <div>
+              <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Sistema IPAM</label>
+              <select id="c_system" class="atlas-input" onchange="onSystemChange()" style="max-width:220px;">
+                <option value="phpIPAM">phpIPAM</option>
+                <option value="netbox">NetBox</option>
+              </select>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div>
+                <label id="lbl_ip" style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">URL / IP do phpIPAM</label>
+                <input type="text" id="c_ip" class="atlas-input" placeholder="https://phpipam.minharede.com"/>
+                <p style="font-size:11px; color:#4A5F7A; margin-top:5px;">⚠️ phpIPAM geralmente exige HTTPS com certificado SSL válido. Conexões com certificados auto-assinados serão rejeitadas.</p>
+              </div>
+              <!-- App ID — apenas phpIPAM -->
+              <div id="row_token_name">
+                <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">App ID (Token Name)</label>
+                <input type="text" id="c_token_name" class="atlas-input"/>
+              </div>
+            </div>
+
+            <div>
+              <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Token de API</label>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input type="password" id="c_token" class="atlas-input" style="flex:1;"/>
+                <button type="button" id="btn_probe" onclick="probeIPAM()" class="atlas-btn-ghost" style="white-space:nowrap; flex-shrink:0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Testar Conexão
+                </button>
+              </div>
+            </div>
+
+            <!-- Credenciais phpIPAM (apenas phpIPAM) -->
+            <details id="row_phpipam_creds" style="padding:16px; background:rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.15); border-radius:10px;">
+              <summary style="cursor:pointer; font-size:13.5px; font-weight:600; color:#A5B4FC; display:flex; align-items:center; gap:8px; list-style:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Credenciais phpIPAM (re-autenticação automática)
+              </summary>
+              <div style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
+                <p style="font-size:11px; color:#8FA4C2;">Usuário e senha para renovar o token automaticamente antes de cada sync.</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                  <div>
+                    <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Usuário</label>
+                    <input type="text" id="c_phpipam_user" class="atlas-input" placeholder="admin"/>
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Senha</label>
+                    <input type="password" id="c_phpipam_pass" class="atlas-input" placeholder="••••••••"/>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; padding-top:16px; border-top: 1px solid rgba(37,99,235,0.1);">
+              <div>
+                <label id="lbl_l2" style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">L2 Domain (Onde as VLANs vão)</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <select id="c_l2_domain" class="atlas-input" style="flex:1;">
+                    <option value="1">Padrão (ID: 1)</option>
+                  </select>
+                  <button type="button" onclick="promptCreateL2Domain()" class="atlas-btn-ghost" style="padding:9px 11px; flex-shrink:0;" title="Criar novo L2 Domain / VLAN Group">+</button>
+                </div>
+                <!-- Banner: phpIPAM virgem -->
+                <div id="l2_virgin_banner" style="display:none; margin-top:8px; padding:10px 14px; background:rgba(34,211,238,0.07); border:1px solid rgba(34,211,238,0.22); border-radius:8px;">
+                  <p style="font-size:11.5px; color:#22D3EE; font-weight:600; margin-bottom:4px;">phpIPAM virgem detectado</p>
+                  <p style="font-size:11px; color:#8FA4C2; margin-bottom:10px;">Apenas o domain "default" existe. Deseja criar um L2 Domain com o nome do provedor?</p>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button type="button" id="l2_create_btn" onclick="createL2DomainForClient()" style="font-size:11.5px; padding:5px 12px; background:#22D3EE; color:#0B1220; border:none; border-radius:6px; cursor:pointer; font-weight:700;">Criar "<span id="l2_suggested_name"></span>"</button>
+                    <button type="button" onclick="dismissVirginBanner()" style="font-size:11.5px; padding:5px 10px; background:none; border:1px solid rgba(143,164,194,0.3); color:#8FA4C2; border-radius:6px; cursor:pointer;">Usar padrão</button>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label id="lbl_section" style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Section (Onde as Subnets vão)</label>
+                <select id="c_section_id" class="atlas-input">
+                  <option value="1">Padrão (ID: 1)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Prefixo Automático</label>
+              <input type="text" id="c_vlan_prefix" class="atlas-input" placeholder="Ex: [Provedor X]"/>
+              <p style="font-size:11px; color:rgba(143,164,194,0.6); margin-top:5px;">Será adicionado no início da descrição das VLANs e Subnets.</p>
+            </div>
+
+            <!-- VPN / Jump Host -->
+            <details style="padding:16px; background:rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.15); border-radius:10px;">
+              <summary style="cursor:pointer; font-size:13.5px; font-weight:600; color:#A5B4FC; display:flex; align-items:center; gap:8px; list-style:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                VPN / Jump Host (global)
+              </summary>
+              <div style="margin-top:16px; display:flex; flex-direction:column; gap:12px;">
+                <p style="font-size:11px; color:#8FA4C2;">Servidor proxy/bastion para alcançar equipamentos via SSH.</p>
+                <div style="display:grid; grid-template-columns:2fr 1fr; gap:12px;">
+                  <div>
+                    <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Host VPN</label>
+                    <input type="text" id="c_vpn_host" class="atlas-input" placeholder="192.168.1.1"/>
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Porta</label>
+                    <input type="number" id="c_vpn_port" class="atlas-input" value="22"/>
+                  </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                  <div>
+                    <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Usuário VPN</label>
+                    <input type="text" id="c_vpn_user" class="atlas-input" placeholder="admin"/>
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Senha VPN</label>
+                    <input type="password" id="c_vpn_pass" class="atlas-input" placeholder="••••••••"/>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- Zabbix (monitoramento do provedor — leitura via API) -->
+            <details id="row_zabbix" style="padding:16px; background:rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.15); border-radius:10px;">
+              <summary style="cursor:pointer; font-size:13.5px; font-weight:600; color:#FCA5A5; display:flex; align-items:center; gap:8px; list-style:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Zabbix (monitoramento — saúde da rede e AUTO IPAM)
+              </summary>
+              <div style="margin-top:16px; display:flex; flex-direction:column; gap:12px;">
+                <p style="font-size:11px; color:#8FA4C2;">URL e token de API <strong>read-only</strong> do Zabbix do provedor. Usado para saúde dos ativos e para popular IPs no phpIPAM automaticamente.</p>
+                <div>
+                  <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">URL do Zabbix</label>
+                  <input type="text" id="c_zabbix_url" class="atlas-input" placeholder="https://zabbix.provedor.com"/>
+                </div>
+                <div>
+                  <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Token de API (read-only)</label>
+                  <input type="password" id="c_zabbix_token" class="atlas-input" placeholder="••••••••"/>
+                </div>
+                <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#8FA4C2; cursor:pointer;">
+                  <input type="checkbox" id="c_zabbix_verify_tls" checked/>
+                  Verificar certificado TLS (desmarque para Zabbix interno com certificado self-signed)
+                </label>
+                <div>
+                  <button type="button" id="btn_test_zabbix" onclick="testZabbix()" class="atlas-btn-ghost" style="padding:9px 14px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:6px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    Testar conexão Zabbix
+                  </button>
+                </div>
+              </div>
+            </details>
+
+            <div style="display:flex; justify-content:flex-end; flex-direction:column; gap:10px; padding-top:6px;">
+              <!-- Banner de erro phpIPAM -->
+              <div id="phpipam_cfg_error" style="display:none; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:8px; padding:12px 14px;">
+                <div style="display:flex; align-items:flex-start; gap:8px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <div>
+                    <p id="phpipam_cfg_error_msg" style="font-size:12px; font-weight:600; color:#FCA5A5; margin-bottom:2px;"></p>
+                    <p id="phpipam_cfg_ssl_hint" style="display:none; font-size:11px; color:#FCD34D; margin-top:4px;">💡 Dica: phpIPAM geralmente exige HTTPS com certificado SSL confiável (não auto-assinado). Verifique o certificado do servidor.</p>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" id="phpipam_cfg_submit_btn" class="atlas-btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:6px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Salvar Configurações
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB: Gerenciamento -->
+      <div id="tab-gerenciamento" class="tab-content hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div>
+            <h2 class="sora" style="font-size:15px; font-weight:600; color:#F8FAFC; margin-bottom:3px;">Ativos Gerenciados</h2>
+            <p style="font-size:12px; color:#8FA4C2;">Equipamentos aprovados e suas configurações individuais.</p>
+          </div>
+        </div>
+        <div id="managedAssetsContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    // --- CONFIGURAÇÃO UNIVERSAL DO IP ---
+    const currentHost = window.location.hostname;
+    const API_BASE = `http://${currentHost}:${window.API_PORT || '8000'}/api`;
+    AtlasAPI.requireSession();
+    AtlasAPI.installAuthFetch();
+
+    // Escapa dados externos (hostnames/nomes vindos de equipamento, phpIPAM,
+    // NetBox) antes de interpolar em innerHTML — evita XSS armazenado.
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    // --- THEME TOGGLE ---
+    function toggleTheme() {
+        const html = document.documentElement;
+        html.classList.toggle('dark');
+        const isDark = html.classList.contains('dark');
+        localStorage.setItem('atlas-theme', isDark ? 'dark' : 'light');
+        document.getElementById('themeLabel').textContent = isDark ? 'Tema Claro' : 'Tema Escuro';
+    }
+    // ---------------------
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('id');
+
+    let globalL2Domains = [];
+    let globalSections = [];
+
+    if (!clientId) {
+        UI.showToast('ID do cliente não fornecido.', 'error');
+        setTimeout(() => { window.location.href = 'admin_clients.html'; }, 1500);
+    } else {
+        loadAllData();
+    }
+
+    async function loadAllData() {
+        await fetchClientData();
+        await fetchRemoteData();
+        await fetchAssets();
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(tabId).classList.remove('hidden');
+
+        document.querySelectorAll('#tabList button').forEach(el => el.classList.remove('active'));
+        document.getElementById('btn-' + tabId).classList.add('active');
+    }
+
+    function getSystem() {
+        return document.getElementById('c_system').value;
+    }
+
+    function onSystemChange() {
+        const sys = getSystem();
+        const isNetBox = sys === 'netbox';
+        document.getElementById('row_token_name').style.display = isNetBox ? 'none' : '';
+        document.getElementById('row_phpipam_creds').style.display = isNetBox ? 'none' : '';
+        document.getElementById('lbl_ip').textContent = isNetBox ? 'URL do NetBox' : 'URL / IP do phpIPAM';
+        document.getElementById('lbl_l2').textContent = isNetBox ? 'VLAN Group (Onde as VLANs vão)' : 'L2 Domain (Onde as VLANs vão)';
+        document.getElementById('lbl_section').textContent = isNetBox ? 'Site (Onde os Prefixos vão)' : 'Section (Onde as Subnets vão)';
+        document.getElementById('c_ip').placeholder = isNetBox ? 'https://netbox.minharede.com' : 'https://phpipam.minharede.com';
+        document.getElementById('btn-sync-label').textContent = isNetBox ? 'Enviar ao NetBox' : 'Enviar ao phpIPAM';
+        // l2 virgin banner só faz sentido para phpIPAM
+        if (isNetBox) document.getElementById('l2_virgin_banner').style.display = 'none';
+    }
+
+    async function fetchClientData() {
+        const res = await fetch(`${API_BASE}/clients/${clientId}`);
+        if (res.ok) {
+            const client = await res.json();
+            document.getElementById('clientNameTitle').innerText = client.name;
+
+            const sys = (client.system || 'phpIPAM');
+            const isNB = (client.system || 'phpIPAM') === 'netbox';
+            document.getElementById('c_system').value = sys;
+            document.getElementById('c_ip').value = isNB ? (client.netbox_url || '') : (client.ip || '');
+            document.getElementById('c_token_name').value = client.token_name || '';
+            document.getElementById('c_token').value = isNB ? (client.netbox_token || '') : (client.token || '');
+            document.getElementById('c_vlan_prefix').value = client.vlan_prefix || '';
+            document.getElementById('c_phpipam_user').value = client.phpipam_user || '';
+            document.getElementById('c_phpipam_pass').value = client.phpipam_pass || '';
+            document.getElementById('c_vpn_host').value = client.vpn_host || '';
+            document.getElementById('c_vpn_port').value = client.vpn_port || 22;
+            document.getElementById('c_vpn_user').value = client.vpn_user || '';
+            document.getElementById('c_vpn_pass').value = client.vpn_pass || '';
+            document.getElementById('c_zabbix_url').value = client.zabbix_url || '';
+            document.getElementById('c_zabbix_token').value = client.zabbix_token || '';
+            document.getElementById('c_zabbix_verify_tls').checked = client.zabbix_verify_tls !== false;
+
+            window.client_l2_domain_id = isNB ? (client.netbox_vlan_group_id || 1) : (client.l2_domain_id || 1);
+            window.client_section_id = isNB ? (client.netbox_site_id || 1) : (client.section_id || 1);
+
+            onSystemChange();
+        }
+    }
+
+    async function fetchRemoteData() {
+        try {
+            const sys = getSystem();
+            const isNetBox = sys === 'netbox';
+
+            const l2Endpoint = isNetBox
+                ? `${API_BASE}/clients/${clientId}/remote-vlan-groups`
+                : `${API_BASE}/clients/${clientId}/remote-l2-domains`;
+            const secEndpoint = isNetBox
+                ? `${API_BASE}/clients/${clientId}/remote-sites`
+                : `${API_BASE}/clients/${clientId}/remote-sections`;
+
+            const resL2 = await fetch(l2Endpoint);
+            if (resL2.ok) {
+                const dataL2 = await resL2.json();
+                if(Array.isArray(dataL2)) globalL2Domains = dataL2;
+            }
+
+            const resSec = await fetch(secEndpoint);
+            if (resSec.ok) {
+                const dataSec = await resSec.json();
+                if(Array.isArray(dataSec)) globalSections = dataSec;
+            }
+
+            populateGlobalSelects();
+            fetchAssets();
+
+        } catch(e) { console.error("Erro ao buscar dados remotos", e); }
+    }
+
+    function populateGlobalSelects() {
+        const l2Select = document.getElementById('c_l2_domain');
+        if(globalL2Domains.length > 0) {
+            l2Select.innerHTML = globalL2Domains.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' })).map(d => `<option value="${d.id}">${esc(d.name)} (ID: ${d.id})</option>`).join('');
+        }
+        if(window.client_l2_domain_id) l2Select.value = window.client_l2_domain_id;
+
+        // Detecta phpIPAM virgem: apenas 1 domain e ele é "default"
+        const banner = document.getElementById('l2_virgin_banner');
+        if(banner) {
+            const isVirgin = globalL2Domains.length === 1 &&
+                (globalL2Domains[0].name || '').toLowerCase() === 'default';
+            if(isVirgin) {
+                const clientName = document.getElementById('clientNameTitle').innerText.trim();
+                document.getElementById('l2_suggested_name').textContent = clientName;
+                banner.style.display = 'block';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        const secSelect = document.getElementById('c_section_id');
+        if(globalSections.length > 0) {
+            secSelect.innerHTML = globalSections.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' })).map(s => `<option value="${s.id}">${esc(s.name)} (ID: ${s.id})</option>`).join('');
+        }
+        if(window.client_section_id) secSelect.value = window.client_section_id;
+    }
+
+    async function runSyncIPAM(event) {
+        const sys = getSystem();
+        const endpoint = sys === 'netbox' ? 'sync-netbox' : 'sync-phpipam';
+        return runAction(endpoint, event);
+    }
+
+    async function saveClientConfig(e) {
+        e.preventDefault();
+        const sys      = getSystem();
+        const isNetBox = sys === 'netbox';
+
+        // Esconde erro anterior
+        const errDiv  = document.getElementById('phpipam_cfg_error');
+        const errMsg  = document.getElementById('phpipam_cfg_error_msg');
+        const sslHint = document.getElementById('phpipam_cfg_ssl_hint');
+        if (errDiv) errDiv.style.display = 'none';
+
+        const ipamUrl   = (document.getElementById('c_ip').value || '').trim();
+        const tokenName = (document.getElementById('c_token_name').value || '').trim();
+        const token     = (document.getElementById('c_token').value || '').trim();
+        const submitBtn = document.getElementById('phpipam_cfg_submit_btn');
+
+        // Testa a API selecionada antes de salvar quando URL e token foram preenchidos.
+        // Token mascarado ('********') = não alterado: pula o teste (backend mantém o valor salvo).
+        if (!isNetBox && ipamUrl && tokenName && token && token !== '********') {
+            const origLabel = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:6px;animation:spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Testando phpIPAM...`;
+
+            try {
+                const testRes = await fetch(`${API_BASE}/phpipam/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: ipamUrl, token_name: tokenName, token })
+                });
+                const testData = await testRes.json();
+
+                if (!testData.ok) {
+                    if (errMsg) errMsg.textContent = testData.message;
+                    if (sslHint) sslHint.style.display = testData.ssl_error ? 'block' : 'none';
+                    if (errDiv) errDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origLabel;
+                    return;
+                }
+            } catch (err) {
+                if (errMsg) errMsg.textContent = 'Não foi possível testar a conexão. Verifique se o backend está online.';
+                if (sslHint) sslHint.style.display = 'none';
+                if (errDiv) errDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = origLabel;
+                return;
+            }
+        } else if (isNetBox && ipamUrl && token && token !== '********') {
+            const origLabel = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:6px;animation:spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Testando NetBox...`;
+
+            try {
+                const testRes = await fetch(`${API_BASE.replace('/api','')}/api/netbox/probe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip: ipamUrl, token })
+                });
+                const testData = await testRes.json();
+
+                if (!testData.ok) {
+                    if (errMsg) errMsg.textContent = testData.error || 'Falha ao testar conexão com NetBox.';
+                    if (sslHint) sslHint.style.display = 'none';
+                    if (errDiv) errDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origLabel;
+                    return;
+                }
+            } catch (err) {
+                if (errMsg) errMsg.textContent = 'Não foi possível testar a conexão NetBox. Verifique se o backend está online.';
+                if (sslHint) sslHint.style.display = 'none';
+                if (errDiv) errDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = origLabel;
+                return;
+            }
+        }
+
+        // Teste OK (ou campos vazios) — salvar
+        submitBtn.disabled = true;
+        const data = {
+            name:                 document.getElementById('clientNameTitle').innerText,
+            system:               sys,
+            ip:                   isNetBox ? null : document.getElementById('c_ip').value,
+            token_name:           isNetBox ? null : document.getElementById('c_token_name').value,
+            token:                isNetBox ? null : document.getElementById('c_token').value,
+            phpipam_user:         document.getElementById('c_phpipam_user').value || null,
+            phpipam_pass:         document.getElementById('c_phpipam_pass').value || null,
+            l2_domain_id:         isNetBox ? null : parseInt(document.getElementById('c_l2_domain').value),
+            section_id:           isNetBox ? null : parseInt(document.getElementById('c_section_id').value),
+            netbox_url:           isNetBox ? ipamUrl || null : null,
+            netbox_token:         isNetBox ? token || null : null,
+            netbox_vlan_group_id: isNetBox ? parseInt(document.getElementById('c_l2_domain').value) || null : null,
+            netbox_site_id:       isNetBox ? parseInt(document.getElementById('c_section_id').value) || null : null,
+            vlan_prefix:          document.getElementById('c_vlan_prefix').value,
+            vpn_host:             document.getElementById('c_vpn_host').value || null,
+            vpn_port:             parseInt(document.getElementById('c_vpn_port').value) || 22,
+            vpn_user:             document.getElementById('c_vpn_user').value || null,
+            vpn_pass:             document.getElementById('c_vpn_pass').value || null,
+            zabbix_url:           document.getElementById('c_zabbix_url').value || null,
+            zabbix_token:         document.getElementById('c_zabbix_token').value || null,
+            zabbix_verify_tls:    document.getElementById('c_zabbix_verify_tls').checked
+        };
+
+        const res = await fetch(`${API_BASE}/clients/${clientId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        submitBtn.disabled = false;
+        if (res.ok) {
+            UI.showToast('Configurações salvas com sucesso!', 'success');
+            fetchRemoteData();
+        } else {
+            UI.showToast('Erro ao salvar configurações.', 'error');
+        }
+    }
+
+    async function testZabbix() {
+        const url = document.getElementById('c_zabbix_url').value.trim();
+        const tokenRaw = document.getElementById('c_zabbix_token').value;
+        const verify = document.getElementById('c_zabbix_verify_tls').checked;
+        const btn = document.getElementById('btn_test_zabbix');
+        const orig = btn.innerHTML;
+        if (!url) { UI.showToast('Informe a URL do Zabbix antes de testar.', 'warning'); return; }
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; animation:spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Testando...`;
+        btn.disabled = true;
+        try {
+            // Token mascarado: o backend reusa o token salvo via client_id.
+            const body = { url, verify_tls: verify, client_id: clientId };
+            if (tokenRaw && tokenRaw !== '********') body.token = tokenRaw;
+            const res = await fetch(`${API_BASE}/zabbix/test`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                UI.showToast(`Zabbix ${data.version} OK — ${data.host_count} host(s) monitorado(s).`, 'success');
+            } else if (data.auth_error) {
+                UI.showToast('Token inválido ou sem permissão. Verifique o token de API read-only.', 'error');
+            } else {
+                UI.showToast('Falha na conexão: ' + (data.message || 'Verifique URL e acesso de rede.'), 'error');
+            }
+        } catch (err) {
+            UI.showToast('Erro ao testar Zabbix: ' + err.message, 'error');
+        } finally {
+            btn.innerHTML = orig;
+            btn.disabled = false;
+        }
+    }
+
+    async function probeIPAM() {
+        const sys = getSystem();
+        const ip = document.getElementById('c_ip').value.trim();
+        const token = document.getElementById('c_token').value.trim();
+        const btn = document.getElementById('btn_probe');
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; animation:spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Testando...`;
+        btn.disabled = true;
+        try {
+            if (token === '********') { UI.showToast('Token mascarado: reinsira o token para testar a conexão.', 'warning'); return; }
+            if (sys === 'netbox') {
+                if (!ip || !token) { UI.showToast('Preencha URL e Token antes de testar.', 'warning'); return; }
+                const res = await fetch(`${API_BASE.replace('/api','')}/api/netbox/probe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip, token })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) {
+                    UI.showToast('Falha na conexão: ' + (data.error || 'Verifique URL e token.'), 'error');
+                } else {
+                    if (Array.isArray(data.vlan_groups)) globalL2Domains = data.vlan_groups;
+                    if (Array.isArray(data.sites))       globalSections  = data.sites;
+                    populateGlobalSelects();
+                    UI.showToast(`Conexão OK — ${data.vlan_groups.length} VLAN Group(s), ${data.sites.length} Site(s) encontrados.`, 'success');
+                }
+            } else {
+                const token_name = document.getElementById('c_token_name').value.trim();
+                if (!ip || !token_name || !token) { UI.showToast('Preencha URL, App ID e Token antes de testar.', 'warning'); return; }
+                const res = await fetch(`${API_BASE.replace('/api','')}/api/phpipam/probe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ip, token_name, token,
+                        phpipam_user: document.getElementById('c_phpipam_user').value || null,
+                        phpipam_pass: document.getElementById('c_phpipam_pass').value || null
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) {
+                    UI.showToast('Falha na conexão: ' + (data.error || 'Verifique URL e token.'), 'error');
+                } else {
+                    if (Array.isArray(data.l2_domains)) globalL2Domains = data.l2_domains;
+                    if (Array.isArray(data.sections))   globalSections  = data.sections;
+                    populateGlobalSelects();
+                    UI.showToast(`Conexão OK — ${data.l2_domains.length} domain(s), ${data.sections.length} section(s) encontrados.`, 'success');
+                }
+            }
+        } catch(e) {
+            UI.showToast('Erro de rede ao testar conexão.', 'error');
+        } finally {
+            btn.innerHTML = orig;
+            btn.disabled = false;
+        }
+    }
+
+    // Mantém compatibilidade com chamadas antigas
+    async function probePhpIPAM() { return probeIPAM(); }
+
+    function dismissVirginBanner() {
+        const banner = document.getElementById('l2_virgin_banner');
+        if(banner) banner.style.display = 'none';
+    }
+
+    function _l2CreateEndpoint() {
+        return getSystem() === 'netbox'
+            ? `${API_BASE}/clients/${clientId}/create-vlan-group`
+            : `${API_BASE}/clients/${clientId}/create-l2-domain`;
+    }
+
+    async function createL2DomainForClient() {
+        const name = document.getElementById('l2_suggested_name').textContent.trim();
+        if(!name) return;
+        const btn = document.getElementById('l2_create_btn');
+        const original = btn.innerHTML;
+        btn.textContent = 'Criando...';
+        btn.disabled = true;
+        try {
+            const res = await fetch(_l2CreateEndpoint(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                UI.showToast(`"${name}" criado com sucesso!`, 'success');
+                dismissVirginBanner();
+                await fetchRemoteData();
+            } else {
+                UI.showToast('Erro: ' + (data.detail || 'Falha ao criar'), 'error');
+                btn.innerHTML = original;
+                btn.disabled = false;
+            }
+        } catch(e) {
+            UI.showToast('Falha de rede ao criar.', 'error');
+            btn.innerHTML = original;
+            btn.disabled = false;
+        }
+    }
+
+    async function promptCreateL2Domain() {
+        const sys = getSystem();
+        const label = sys === 'netbox' ? 'VLAN Group' : 'L2 Domain';
+        const suggested = document.getElementById('clientNameTitle').innerText.trim();
+        const name = prompt(`Nome do novo ${label}:`, suggested);
+        if(!name) return;
+        try {
+            const res = await fetch(_l2CreateEndpoint(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                UI.showToast(`${label} "${name}" criado!`, 'success');
+                await fetchRemoteData();
+            } else {
+                UI.showToast('Erro: ' + (data.detail || 'Falha ao criar'), 'error');
+            }
+        } catch(e) {
+            UI.showToast(`Falha de rede ao criar ${label}.`, 'error');
+        }
+    }
+
+    async function fetchAssets() {
+        const res = await fetch(`${API_BASE}/clients/${clientId}/assets`);
+        if (res.ok) {
+            const assets = await res.json();
+            renderManaged(assets);
+        }
+    }
+
+    function assetSyncBadge(a) {
+        // Badge unificado via UI.syncBadge (mesmo visual chip do admin_clients).
+        return UI.syncBadge(a.last_sync_status, a.last_sync_error, a.last_sync_at);
+    }
+
+    function renderManaged(assets) {
+        const container = document.getElementById('managedAssetsContainer');
+        if(assets.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px; color:#8FA4C2; background:rgba(15,23,42,0.5); border:1px solid rgba(37,99,235,0.12); border-radius:12px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 10px; display:block; opacity:0.4;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <p style="font-size:13.5px; font-style:italic;">Nenhum ativo sendo gerenciado.</p>
+                </div>`;
+            return;
+        }
+
+        let optionsHtml = `<option value="">(Usar Padrão do Cliente)</option>`;
+        globalL2Domains.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' })).forEach(domain => {
+            optionsHtml += `<option value="${domain.id}">${esc(domain.name)} (ID: ${domain.id})</option>`;
+        });
+
+        container.innerHTML = assets.slice().sort((a, b) => (a.hostname || '').localeCompare(b.hostname || '', 'pt', { sensitivity: 'base' })).map(a => `
+            <details class="group" style="background:rgba(15,23,42,0.7); border:1px solid rgba(37,99,235,0.15); border-radius:10px; overflow:hidden;">
+                <summary style="cursor:pointer; padding:14px 18px; font-weight:600; display:flex; justify-content:space-between; align-items:center; list-style:none; transition: background 0.15s;" onmouseover="this.style.background='rgba(37,99,235,0.06)'" onmouseout="this.style.background='transparent'">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon" style="transition: transform 0.2s;"><polyline points="9 18 15 12 9 6"/></svg>
+                        <span style="font-size:14px; color:#F8FAFC;">${esc(a.hostname)}</span>
+                        ${a.is_edge_router ? `<span style="background:rgba(245,158,11,0.15); color:#F59E0B; border:1px solid rgba(245,158,11,0.3); font-size:10px; padding:2px 8px; border-radius:4px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">Roteador de Borda</span>` : ''}
+                        ${assetSyncBadge(a)}
+                    </div>
+                    <span style="font-size:11.5px; color:#8FA4C2; font-weight:400;">Modo: <span style="color:#22D3EE; font-weight:600;">${esc((a.sync_mode || 'auto').toUpperCase())}</span></span>
+                </summary>
+
+                <div style="padding:20px; border-top:1px solid rgba(37,99,235,0.1); background:rgba(11,18,32,0.4);">
+                    <form onsubmit="updateAsset(event, ${a.id})" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.15); border-radius:8px;">
+                                <div>
+                                    <p style="font-size:13px; font-weight:600; color:#F8FAFC; margin-bottom:3px;">Prioridade Máxima (Borda/Core)</p>
+                                    <p style="font-size:11px; color:#8FA4C2;">Sincroniza os dados deste ativo primeiro.</p>
+                                </div>
+                                <div class="relative inline-block w-10 align-middle select-none" style="flex-shrink:0;">
+                                    <input type="checkbox" id="edge_${a.id}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10" style="top:0; left:0;" ${a.is_edge_router ? 'checked' : ''}/>
+                                    <label for="edge_${a.id}" class="toggle-label block overflow-hidden h-5 rounded-full cursor-pointer" style="background:#334155;"></label>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.15); border-radius:8px;">
+                                <div>
+                                    <p style="font-size:13px; font-weight:600; color:#F8FAFC; margin-bottom:3px;">Sincronização Automática</p>
+                                    <p style="font-size:11px; color:#8FA4C2;">Usa a API do BackupCenter. Desative para SSH.</p>
+                                </div>
+                                <div class="relative inline-block w-10 align-middle select-none" style="flex-shrink:0;">
+                                    <input type="checkbox" id="mode_${a.id}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10" style="top:0; left:0;" ${a.sync_mode === 'auto' ? 'checked' : ''}/>
+                                    <label for="mode_${a.id}" class="toggle-label block overflow-hidden h-5 rounded-full cursor-pointer" style="background:#334155;"></label>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.12); border-radius:8px;">
+                                <div>
+                                    <p style="font-size:13px; font-weight:600; color:#FCD34D; margin-bottom:3px;">Mesma sub-rede (ignorar conflitos)</p>
+                                    <p style="font-size:11px; color:#8FA4C2;">Atualiza nomes de VLANs automaticamente.</p>
+                                </div>
+                                <div class="relative inline-block w-10 align-middle select-none" style="flex-shrink:0;">
+                                    <input type="checkbox" id="ivc_${a.id}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10" style="top:0; left:0;" ${a.ignore_vlan_conflict ? 'checked' : ''}/>
+                                    <label for="ivc_${a.id}" class="toggle-label block overflow-hidden h-5 rounded-full cursor-pointer" style="background:#334155;"></label>
+                                </div>
+                            </div>
+
+                            <!-- SSH Credentials -->
+                            <div style="padding:12px 14px; background:rgba(37,99,235,0.04); border:1px solid rgba(37,99,235,0.1); border-radius:8px;">
+                                <p style="font-size:11px; font-weight:600; color:#A5B4FC; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;">Credenciais SSH</p>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div>
+                                        <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px;">Usuário</label>
+                                        <input type="text" id="ssh_user_${a.id}" value="${esc(a.ssh_user || '')}" class="atlas-input" placeholder="admin" style="font-size:12px; padding:7px 10px;"/>
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px;">Senha</label>
+                                        <input type="password" id="ssh_pass_${a.id}" value="${esc(a.ssh_pass || '')}" class="atlas-input" placeholder="••••" style="font-size:12px; padding:7px 10px;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Domínio L2 Específico (VLANs)</label>
+                                <select id="l2_${a.id}" class="atlas-input">${optionsHtml}</select>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:end;">
+                                <div>
+                                    <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">IP (Para modo Manual)</label>
+                                    <input type="text" id="ip_${a.id}" value="${esc(a.ip_address || '')}" class="atlas-input"/>
+                                </div>
+                                <button type="button" onclick="testAssetSSH(${a.id}, event)" class="atlas-btn-ghost" style="white-space:nowrap;">Testar SSH</button>
+                                <button type="submit" class="atlas-btn-primary" style="white-space:nowrap;">Salvar Ajustes</button>
+                            </div>
+
+                            <!-- VPN Override -->
+                            <details style="padding:10px 12px; background:rgba(37,99,235,0.04); border:1px solid rgba(37,99,235,0.1); border-radius:8px;">
+                                <summary style="cursor:pointer; font-size:11px; font-weight:600; color:#A5B4FC; list-style:none;">VPN Override (específico)</summary>
+                                <div style="margin-top:10px; display:grid; grid-template-columns:2fr 1fr; gap:8px;">
+                                    <div>
+                                        <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; margin-bottom:4px;">Host VPN</label>
+                                        <input type="text" id="ovpn_host_${a.id}" value="${esc(a.override_vpn_host || '')}" class="atlas-input" placeholder="Usar global" style="font-size:12px; padding:6px 8px;"/>
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; margin-bottom:4px;">Porta</label>
+                                        <input type="number" id="ovpn_port_${a.id}" value="${esc(a.override_vpn_port || '')}" class="atlas-input" placeholder="22" style="font-size:12px; padding:6px 8px;"/>
+                                    </div>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+                                    <div>
+                                        <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; margin-bottom:4px;">Usuário</label>
+                                        <input type="text" id="ovpn_user_${a.id}" value="${esc(a.override_vpn_user || '')}" class="atlas-input" placeholder="Usar global" style="font-size:12px; padding:6px 8px;"/>
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; margin-bottom:4px;">Senha</label>
+                                        <input type="password" id="ovpn_pass_${a.id}" value="${esc(a.override_vpn_pass || '')}" class="atlas-input" placeholder="Usar global" style="font-size:12px; padding:6px 8px;"/>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+
+                    </form>
+                </div>
+            </details>
+        `).join('');
+
+        assets.forEach(a => {
+            if(a.override_l2_domain_id) {
+                const sel = document.getElementById(`l2_${a.id}`);
+                if(sel) sel.value = a.override_l2_domain_id;
+            }
+        });
+
+        // Rotate chevron on open
+        document.querySelectorAll('details').forEach(d => {
+            d.addEventListener('toggle', () => {
+                const icon = d.querySelector('.chevron-icon');
+                if(icon) icon.style.transform = d.open ? 'rotate(90deg)' : 'rotate(0deg)';
+            });
+        });
+    }
+
+    function buildAssetPayload(id) {
+        const is_edge = document.getElementById(`edge_${id}`).checked;
+        const is_auto = document.getElementById(`mode_${id}`).checked;
+        const override_l2 = document.getElementById(`l2_${id}`).value;
+        const ip = document.getElementById(`ip_${id}`).value;
+
+        return {
+            hostname: "KEEP_SAME",
+            is_edge_router: is_edge,
+            sync_mode: is_auto ? 'auto' : 'manual',
+            override_l2_domain_id: override_l2 ? parseInt(override_l2) : null,
+            ip_address: ip,
+            ignore_vlan_conflict: document.getElementById(`ivc_${id}`) ? document.getElementById(`ivc_${id}`).checked : false,
+            ssh_user: document.getElementById(`ssh_user_${id}`) ? document.getElementById(`ssh_user_${id}`).value || null : null,
+            ssh_pass: document.getElementById(`ssh_pass_${id}`) ? document.getElementById(`ssh_pass_${id}`).value || null : null,
+            override_vpn_host: document.getElementById(`ovpn_host_${id}`) ? document.getElementById(`ovpn_host_${id}`).value || null : null,
+            override_vpn_port: document.getElementById(`ovpn_port_${id}`) && document.getElementById(`ovpn_port_${id}`).value ? parseInt(document.getElementById(`ovpn_port_${id}`).value) : null,
+            override_vpn_user: document.getElementById(`ovpn_user_${id}`) ? document.getElementById(`ovpn_user_${id}`).value || null : null,
+            override_vpn_pass: document.getElementById(`ovpn_pass_${id}`) ? document.getElementById(`ovpn_pass_${id}`).value || null : null
+        };
+    }
+
+    async function saveAsset(id, { refresh = true, toast = true } = {}) {
+        const res = await fetch(`${API_BASE}/assets/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(buildAssetPayload(id))
+        });
+
+        if (res.ok) {
+            if (toast) UI.showToast('Ativo atualizado!', 'success');
+            if (refresh) fetchAssets();
+            return true;
+        }
+        return false;
+    }
+
+    async function updateAsset(e, id) {
+        e.preventDefault();
+        await saveAsset(id);
+    }
+
+    async function testAssetSSH(id, evt) {
+        const btn = evt.currentTarget;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;animation:spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Testando...`;
+        btn.disabled = true;
+        try {
+            const saved = await saveAsset(id, { refresh: false, toast: false });
+            if (!saved) {
+                UI.showToast('Não foi possível salvar as credenciais SSH antes do teste.', 'error');
+                return;
+            }
+            const res = await fetch(`${API_BASE}/clients/${clientId}/ssh-test`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ asset_id: id })
+            });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                UI.showToast(`SSH OK (${data.latency_ms} ms)`, 'success');
+            } else {
+                const hint = data.hint ? ` — ${data.hint}` : '';
+                UI.showToast(`Falha SSH: ${data.message || data.error_code || 'verifique as credenciais.'}${hint}`, 'error');
+            }
+        } catch (e) {
+            UI.showToast('Falha de rede ao testar SSH.', 'error');
+        } finally {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        }
+    }
+
+    async function runAction(endpoint, evt) {
+        const btn = (evt || event).currentTarget;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Processando...`;
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`${API_BASE}/clients/${clientId}/${endpoint}`, { method: 'POST' });
+            const data = await res.json();
+
+            if (res.ok) {
+                UI.showToast(data.message || 'Ação concluída com sucesso!', 'success');
+                // Verificar se há conflitos de VLAN pendentes
+                if (data.has_conflicts && data.conflicts && data.conflicts.length > 0) {
+                    showVlanConflictModal(data.conflicts);
+                }
+                // Exibir painel de VLANs renomeadas automaticamente
+                if (data.renamed_vlans && data.renamed_vlans.length > 0) {
+                    showRenamedVlansPanel(data.renamed_vlans);
+                }
+                fetchAssets();
+            } else {
+                UI.showToast('ERRO: ' + (data.detail || data.error || 'Falha desconhecida'), 'error');
+            }
+        } catch (e) {
+            UI.showToast('Falha de rede ao executar a ação.', 'error');
+        } finally {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        }
+    }
+
+    // ── VLAN Conflict Resolution ──
+    let pendingConflicts = [];
+
+    function closeVlanConflictModal() {
+        document.getElementById('vlanConflictModal').classList.add('hidden');
+    }
+
+    // ── Renamed VLANs Panel ──
+    function showRenamedVlansPanel(renamedVlans) {
+        // Remove painel anterior se existir
+        const old = document.getElementById('renamedVlansPanel');
+        if (old) old.remove();
+
+        const panel = document.createElement('div');
+        panel.id = 'renamedVlansPanel';
+        panel.style.cssText = [
+            'position:fixed', 'bottom:24px', 'right:24px', 'z-index:9998',
+            'width:380px', 'max-height:420px',
+            'background:#1E293B',
+            'border:1px solid rgba(34,211,238,0.25)',
+            'border-radius:14px',
+            'box-shadow:0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,211,238,0.06)',
+            'display:flex', 'flex-direction:column',
+            'animation:slideInRenamePanel 0.3s ease',
+            'overflow:hidden'
+        ].join(';');
+
+        panel.innerHTML = `
+            <div style="padding:14px 18px 12px; background:rgba(34,211,238,0.07); border-bottom:1px solid rgba(34,211,238,0.15); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <span style="font-size:13px; font-weight:700; color:#22D3EE;">VLANs Renomeadas</span>
+                    <span style="font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; background:rgba(34,211,238,0.15); color:#22D3EE; border:1px solid rgba(34,211,238,0.3);">${renamedVlans.length}</span>
+                </div>
+                <button onclick="document.getElementById('renamedVlansPanel').remove()" style="background:none; border:none; cursor:pointer; color:#8FA4C2; padding:2px; transition:color 0.15s;" onmouseover="this.style.color='#F8FAFC'" onmouseout="this.style.color='#8FA4C2'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div style="padding:12px 18px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:8px;">
+                ${renamedVlans.map(v => `
+                <div style="padding:10px 12px; background:rgba(34,211,238,0.05); border:1px solid rgba(34,211,238,0.1); border-radius:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <span style="font-size:11px; font-weight:700; color:#22D3EE; font-family:monospace; letter-spacing:0.5px;">VLAN ${v.vid}</span>
+                        <span style="font-size:9.5px; color:#8FA4C2;">L2 Domain #${v.domain_id}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <span style="font-size:11.5px; font-family:monospace; color:#FDA4AF; background:rgba(239,68,68,0.08); padding:2px 8px; border-radius:4px; border:1px solid rgba(239,68,68,0.12);">${esc(v.old_name)}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8FA4C2" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        <span style="font-size:11.5px; font-family:monospace; color:#6EE7B7; background:rgba(52,211,153,0.08); padding:2px 8px; border-radius:4px; border:1px solid rgba(52,211,153,0.12);">${esc(v.new_name)}</span>
+                    </div>
+                    <p style="font-size:10px; color:#8FA4C2; margin-top:5px;">via <span style="color:#A5B4FC;">${esc(v.asset_hostname)}</span></p>
+                </div>`).join('')}
+            </div>
+            <div style="padding:10px 18px; border-top:1px solid rgba(255,255,255,0.06); flex-shrink:0;">
+                <p style="font-size:10px; color:rgba(143,164,194,0.6); text-align:center;">Atualizado automaticamente no phpIPAM (ignore_vlan_conflict ativo)</p>
+            </div>`;
+
+        document.body.appendChild(panel);
+
+        // Auto-dismiss após 30s
+        setTimeout(() => {
+            const p = document.getElementById('renamedVlansPanel');
+            if (p) {
+                p.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                p.style.opacity = '0';
+                p.style.transform = 'translateX(20px)';
+                setTimeout(() => p.remove(), 400);
+            }
+        }, 30000);
+    }
+
+    function showVlanConflictModal(conflicts) {
+        pendingConflicts = conflicts;
+        const container = document.getElementById('conflictsList');
+        const isNetBox = getSystem() === 'netbox';
+        const l2Label = isNetBox ? 'VLAN Group' : 'L2 Domain';
+        let l2Opts = `<option value="">Criar novo ${l2Label}</option>` +
+            globalL2Domains.map(d => `<option value="${d.id}">${esc(d.name)} (ID: ${d.id})</option>`).join('');
+
+        container.innerHTML = conflicts.map((c, idx) => {
+            const isPermError = c.type === 'permission_error';
+            const isResolvable = !!c.vid && !isPermError && ['name_conflict', 'vlan_conflict'].includes(c.type);
+            const title = c.vid ? `VLAN ${c.vid}` : (c.prefix ? `Prefixo ${esc(c.prefix)}` : 'Conflito NetBox');
+            return `
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(245,158,11,0.15); border-radius:10px; padding:16px; margin-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+                    <div>
+                        <p style="font-size:14px; font-weight:600; color:#F8FAFC;">${title}</p>
+                        <p style="font-size:11px; color:#8FA4C2; margin-top:4px;">Ativo: <span style="color:#22D3EE; font-weight:600;">${esc(c.asset_hostname || '-')}</span> · ${l2Label} #${c.domain_id || '-'}</p>
+                    </div>
+                    <span style="font-size:10px; font-weight:700; padding:3px 8px; border-radius:6px; background:rgba(245,158,11,0.12); color:#FCD34D; border:1px solid rgba(245,158,11,0.25);">${isPermError ? 'PERMISSÃO' : 'CONFLITO'}</span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                    <div style="padding:10px; border-radius:8px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.12);">
+                        <p style="font-size:9px; font-weight:700; text-transform:uppercase; color:#F87171;">Atual (${isNetBox ? 'NetBox' : 'phpIPAM'})</p>
+                        <p style="font-size:13px; font-family:monospace; font-weight:600; color:#F8FAFC; margin-top:4px;">${esc(c.existing_name || '-')}</p>
+                    </div>
+                    <div style="padding:10px; border-radius:8px; background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.12);">
+                        <p style="font-size:9px; font-weight:700; text-transform:uppercase; color:#34D399;">Novo (ativo)</p>
+                        <p style="font-size:13px; font-family:monospace; font-weight:600; color:#F8FAFC; margin-top:4px;">${esc(c.new_name || c.prefix || '-')}</p>
+                    </div>
+                </div>
+                ${!isResolvable ? `<div style="padding:10px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); color:#FCA5A5; font-size:12px;">⚠ ${esc(c.message || 'Conflito sem resolução automática.')}</div>` : `
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <label style="display:flex; align-items:center; gap:8px; padding:8px; border-radius:8px; cursor:pointer; border:1px solid rgba(255,255,255,0.08);">
+                        <input type="radio" name="cc_${idx}" value="update_name" checked />
+                        <div>
+                            <span style="font-size:12px; font-weight:600; color:#F8FAFC;">Mesma sub-rede — atualizar nome</span>
+                            <p style="font-size:10px; color:#8FA4C2;">Sobrescreve "${esc(c.existing_name)}" por "${esc(c.new_name)}"</p>
+                        </div>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:8px; padding:8px; border-radius:8px; cursor:pointer; border:1px solid rgba(255,255,255,0.08);">
+                        <input type="radio" name="cc_${idx}" value="create_l2" />
+                        <span style="font-size:12px; font-weight:600; color:#F8FAFC;">Criar / vincular outro ${l2Label}</span>
+                    </label>
+                    <div id="cc_l2_${idx}" style="display:none; margin-left:24px;">
+                        <select id="cc_l2_sel_${idx}" class="atlas-input" style="margin-bottom:6px;" onchange="document.getElementById('cc_l2_name_d_${idx}').style.display=this.value?'none':'block'">${l2Opts}</select>
+                        <div id="cc_l2_name_d_${idx}">
+                            <input type="text" id="cc_l2_name_${idx}" class="atlas-input" value="${esc(c.asset_hostname || '')}" placeholder="Nome do ${l2Label}" />
+                        </div>
+                    </div>
+                </div>`}
+            </div>`;
+        }).join('');
+
+        // Wire radios
+        setTimeout(() => {
+            conflicts.forEach((c, idx) => {
+                if (!c.vid || c.type === 'permission_error') return;
+                document.querySelectorAll(`input[name="cc_${idx}"]`).forEach(r => {
+                    r.addEventListener('change', () => {
+                        const l2Div = document.getElementById(`cc_l2_${idx}`);
+                        if (l2Div) l2Div.style.display = r.value === 'create_l2' ? 'block' : 'none';
+                    });
+                });
+            });
+        }, 50);
+
+        document.getElementById('vlanConflictModal').classList.remove('hidden');
+    }
+
+    async function applyConflictResolutions() {
+        const resolutions = [];
+        pendingConflicts.forEach((c, idx) => {
+            if (!c.vid || c.type === 'permission_error') return;
+            const sel = document.querySelector(`input[name="cc_${idx}"]:checked`);
+            if (!sel) return;
+            const item = { vid: c.vid, asset_id: c.asset_id, domain_id: c.domain_id, vlan_ipam_id: c.vlan_ipam_id, local_vlan_id: c.local_vlan_id, action: sel.value, new_name: c.new_name };
+            if (sel.value === 'create_l2') {
+                const l2Sel = document.getElementById(`cc_l2_sel_${idx}`);
+                if (l2Sel && l2Sel.value) item.existing_l2_id = parseInt(l2Sel.value);
+                else item.new_l2_name = document.getElementById(`cc_l2_name_${idx}`)?.value || c.asset_hostname;
+            }
+            resolutions.push(item);
+        });
+        if (!resolutions.length) { UI.showToast('Nenhuma resolução para aplicar.', 'warning'); return; }
+        try {
+            const endpoint = getSystem() === 'netbox' ? 'resolve-netbox-conflicts' : 'resolve-vlan-conflicts';
+            const res = await fetch(`${API_BASE}/clients/${clientId}/${endpoint}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ resolutions })
+            });
+            const d = await res.json();
+            if (!res.ok) UI.showToast('ERRO: ' + (d.detail || 'Falha'), 'error');
+            else {
+                UI.showToast(d.message || 'Conflitos resolvidos!', 'success');
+                if (d.errors?.length) d.errors.forEach(e => UI.showToast(e, 'warning'));
+                closeVlanConflictModal();
+                fetchAssets();
+                fetchRemoteData();
+            }
+        } catch (e) { UI.showToast('Falha ao resolver conflitos.', 'error'); }
+    }
+  </script>
+
+  <!-- Modal: Conflitos de VLAN -->
+  <div id="vlanConflictModal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px);">
+    <div style="background:#1E293B; border:1px solid rgba(245,158,11,0.2); border-radius:16px; width:100%; max-width:700px; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+      <div style="padding:20px 24px; border-bottom:1px solid rgba(245,158,11,0.2); background:rgba(245,158,11,0.06); border-radius:16px 16px 0 0; flex-shrink:0;">
+        <h3 style="font-size:15px; font-weight:700; color:#FCD34D; margin-bottom:4px;">⚠ Conflitos de VLAN Detectados</h3>
+        <p style="font-size:11px; color:#FCA5A5;">VLANs com mesmo número mas nomes diferentes foram encontradas.</p>
+      </div>
+      <div id="conflictsList" style="padding:20px 24px; overflow-y:auto; flex:1;"></div>
+      <div style="padding:12px 24px 20px; border-top:1px solid rgba(255,255,255,0.07); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+        <button onclick="closeVlanConflictModal()" style="font-size:12px; color:#8FA4C2; background:none; border:none; cursor:pointer;">Cancelar</button>
+        <button onclick="applyConflictResolutions()" class="atlas-btn-primary">Aplicar Resoluções</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    #vlanConflictModal.hidden { display: none !important; }
+    @keyframes slideInRenamePanel { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+  </style>
+</body>
+</html>

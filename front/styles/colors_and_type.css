@@ -1,0 +1,243 @@
+/* NetworkAtlas — Command Deck
+ * Single-file foundation: color vars + semantic typography.
+ * Usage: <link rel="stylesheet" href="colors_and_type.css"/>
+ *        <html class="dark"> or <html class="light">
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=League+Spartan:wght@700;800&display=swap');
+
+/* ─────────────────────────────────────────────────────────
+   COLOR TOKENS
+   ───────────────────────────────────────────────────────── */
+
+:root,
+html.dark {
+  /* Background layers (back → front) */
+  --bg-void:    #050B14;
+  --bg-deep:    #08101C;
+  --bg-surface: #0E1A2B;
+  --bg-elev:    #13233A;
+  --bg-hover:   #1A2E4A;
+
+  /* Lines & dividers — bluish-tinted, not neutral grey */
+  --line:        rgba(110, 170, 255, 0.08);
+  --line-strong: rgba(110, 170, 255, 0.16);
+
+  /* Text */
+  --text-primary:   #E8F0FE;
+  --text-secondary: #B3C5DC;
+  --text-muted:     #8DA2BD;
+
+  /* Primary identity accents — muted, not neon */
+  --cyan:    #5EB4C7;
+  --cyan-dim: #3E8A9B;
+  --magenta: #B590C4;
+
+  /* Semantic accents — muted */
+  --amber:   #C99552;
+  --emerald: #6BB592;
+  --rose:    #C97A7A;
+
+  /* Radii */
+  --r-sm: 6px;
+  --r-md: 9px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+
+  /* Shadows */
+  --shadow-sm:   0 1px 2px  rgba(0,0,0,0.2);
+  --shadow-md:   0 4px 14px rgba(0,0,0,0.25);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.4);
+  --shadow-cyan: 0 4px 14px color-mix(in oklab, var(--cyan) 28%, transparent);
+  --shadow-rose: 0 4px 14px color-mix(in oklab, var(--rose) 28%, transparent);
+}
+
+html.light {
+  --bg-void:    #F4F7FB;
+  --bg-deep:    #FFFFFF;
+  --bg-surface: #FFFFFF;
+  --bg-elev:    #F8FAFC;
+  --bg-hover:   #F1F5F9;
+
+  --line:        rgba(15, 23, 42, 0.08);
+  --line-strong: rgba(15, 23, 42, 0.14);
+
+  --text-primary:   #0B1220;
+  --text-secondary: #334155;
+  --text-muted:     #64748B;
+
+  --cyan:     #0891B2;
+  --cyan-dim: #0E7490;
+  --magenta:  #A21CAF;
+  --amber:    #B45309;
+  --emerald:  #047857;
+  --rose:     #B91C1C;
+
+  --shadow-sm: 0 1px 2px  rgba(15,23,42,0.05);
+  --shadow-md: 0 4px 14px rgba(15,23,42,0.08);
+  --shadow-lg: 0 8px 32px rgba(15,23,42,0.12);
+}
+
+/* ─────────────────────────────────────────────────────────
+   PALETAS DE TEMA — aplicadas via 2ª classe no <html>
+   (ex.: <html class="dark t-rosa">). A classe de modo (dark/
+   light) mantém o Tailwind dark: e os tokens-base; a paleta
+   .t-* sobrescreve fundos, linhas, texto e acentos.
+   O polvo do login recolore via --logo-filter.
+   ───────────────────────────────────────────────────────── */
+
+/* Rosa */
+html.dark.t-rosa {
+  --bg-void:#0E0610; --bg-deep:#160A12; --bg-surface:#20101A; --bg-elev:#2A1622; --bg-hover:#371E2E;
+  --line:rgba(255,150,200,0.09); --line-strong:rgba(255,150,200,0.18);
+  --text-primary:#FCE9F1; --text-secondary:#D9AEC2; --text-muted:#A98095;
+  --cyan:#E8709E; --cyan-dim:#B95377; --magenta:#C77DD4;
+  --amber:#D89A5A; --emerald:#5FB58E; --rose:#D96E84;
+  --logo-filter:hue-rotate(115deg) saturate(1.05);
+}
+html.light.t-rosa {
+  --bg-void:#FFF5F9; --bg-deep:#FFFFFF; --bg-surface:#FFFFFF; --bg-elev:#FCEEF4; --bg-hover:#F7E0EB;
+  --line:rgba(150,30,80,0.10); --line-strong:rgba(150,30,80,0.16);
+  --text-primary:#2A0E1B; --text-secondary:#6E3650; --text-muted:#9C6B80;
+  --cyan:#D6336C; --cyan-dim:#B02356; --magenta:#9C36B5;
+  --amber:#B45309; --emerald:#047857; --rose:#B91C1C;
+  --logo-filter:hue-rotate(115deg) saturate(1.05);
+}
+
+/* Preto & Branco (mono) */
+html.dark.t-mono {
+  --bg-void:#060607; --bg-deep:#0A0A0B; --bg-surface:#131314; --bg-elev:#1B1B1D; --bg-hover:#26262A;
+  --line:rgba(255,255,255,0.07); --line-strong:rgba(255,255,255,0.15);
+  --text-primary:#F4F4F5; --text-secondary:#B4B4B8; --text-muted:#7A7A80;
+  --cyan:#E5E5E7; --cyan-dim:#B8B8BC; --magenta:#A8A8AE;
+  --amber:#C9A35E; --emerald:#7FB59A; --rose:#C98080;
+  --logo-filter:grayscale(1) contrast(1.05);
+}
+html.light.t-mono {
+  --bg-void:#FFFFFF; --bg-deep:#FFFFFF; --bg-surface:#FFFFFF; --bg-elev:#F5F5F6; --bg-hover:#ECECEE;
+  --line:rgba(0,0,0,0.08); --line-strong:rgba(0,0,0,0.15);
+  --text-primary:#0A0A0B; --text-secondary:#45454A; --text-muted:#6B6B70;
+  --cyan:#111113; --cyan-dim:#333338; --magenta:#55555A;
+  --amber:#8A5A12; --emerald:#1F6B4E; --rose:#A53030;
+  --logo-filter:grayscale(1) contrast(1.05);
+}
+
+/* Roxo */
+html.dark.t-roxo {
+  --bg-void:#0B0716; --bg-deep:#120A1E; --bg-surface:#1A0F2C; --bg-elev:#241638; --bg-hover:#2F1F48;
+  --line:rgba(170,140,255,0.09); --line-strong:rgba(170,140,255,0.18);
+  --text-primary:#EFE8FE; --text-secondary:#C3B2E6; --text-muted:#9D86C0;
+  --cyan:#9B7BE8; --cyan-dim:#7458C0; --magenta:#C77DD4;
+  --amber:#C99552; --emerald:#6BB592; --rose:#C97A9E;
+  --logo-filter:hue-rotate(55deg) saturate(1.05);
+}
+
+/* Lavanda (claro, bem suave) */
+html.light.t-lav {
+  --bg-void:#F3F0FB; --bg-deep:#FFFFFF; --bg-surface:#FFFFFF; --bg-elev:#F6F2FD; --bg-hover:#ECE5FA;
+  --line:rgba(90,60,160,0.10); --line-strong:rgba(90,60,160,0.16);
+  --text-primary:#2A2440; --text-secondary:#574E78; --text-muted:#7A7095;
+  --cyan:#7C6BC4; --cyan-dim:#5E4DA6; --magenta:#B98FD9;
+  --amber:#B45309; --emerald:#047857; --rose:#B91C1C;
+  --logo-filter:hue-rotate(45deg) saturate(0.7) brightness(1.05);
+}
+
+/* Esmeralda (escolha) */
+html.dark.t-esm {
+  --bg-void:#04100B; --bg-deep:#06140F; --bg-surface:#0A1E16; --bg-elev:#102A20; --bg-hover:#18382B;
+  --line:rgba(90,220,170,0.09); --line-strong:rgba(90,220,170,0.18);
+  --text-primary:#E6F6EE; --text-secondary:#A7D6C2; --text-muted:#6F9A86;
+  --cyan:#4FBF9B; --cyan-dim:#2F9C7B; --magenta:#62C6C6;
+  --amber:#C99552; --emerald:#5FC79E; --rose:#C97A7A;
+  --logo-filter:hue-rotate(-65deg) saturate(1.05);
+}
+
+/* Âmbar / Pôr-do-sol (escolha) */
+html.dark.t-amb {
+  --bg-void:#100B05; --bg-deep:#150F08; --bg-surface:#211810; --bg-elev:#2E2114; --bg-hover:#3D2D1A;
+  --line:rgba(230,180,110,0.09); --line-strong:rgba(230,180,110,0.18);
+  --text-primary:#FBF0E2; --text-secondary:#DCC2A0; --text-muted:#A8906F;
+  --cyan:#D99A4E; --cyan-dim:#B57B34; --magenta:#D87A5A;
+  --amber:#E0A95E; --emerald:#6BB592; --rose:#D96E6E;
+  --logo-filter:hue-rotate(165deg) saturate(1.1);
+}
+
+/* O polvo (logo) recolore conforme o tema ativo. */
+img[src$="atlas-logo.png"] { filter: var(--logo-filter, none); transition: filter .2s ease; }
+
+/* ─────────────────────────────────────────────────────────
+   GLOBAL BASE
+   ───────────────────────────────────────────────────────── */
+
+* { font-family: 'Space Grotesk', system-ui, sans-serif; box-sizing: border-box; }
+html, body { background: var(--bg-void); color: var(--text-primary); }
+body { margin: 0; -webkit-font-smoothing: antialiased; }
+
+.brand { font-family: 'League Spartan', sans-serif; font-weight: 800; letter-spacing: -0.03em; }
+.mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+.sans  { font-family: 'Space Grotesk', system-ui, sans-serif; }
+/* Unifica tipografia: classes legadas (Sora) passam a usar a fonte do produto. */
+.font-sora, .sora { font-family: 'Space Grotesk', system-ui, sans-serif !important; }
+
+/* Remove as tags decorativas de "modulo" (// xxx) — ruido sem valor pro operador. */
+.module-tag { display: none !important; }
+
+/* Acessibilidade: alvos de clique maiores e fonte legivel nos botoes de config. */
+.mini-config-btn, .iface-config-btn { min-height: 28px !important; font-size: 11px !important; padding: 6px 10px !important; display: inline-flex; align-items: center; }
+
+/* Polvo da marca flutuando — em todas as telas (logo da sidebar). */
+/* Bob sutil só com transform, em camada própria da GPU (will-change/translateZ)
+   para rodar no compositor e não engasgar quando a thread principal está ocupada
+   (dashboard/vlans). Definição única — as telas não devem redefinir .octo-idle. */
+@keyframes octoIdle { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -4px, 0); } }
+.octo-idle {
+  animation: octoIdle 4s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) { .octo-idle { animation: none; } }
+
+/* ─────────────────────────────────────────────────────────
+   SEMANTIC TYPE SCALE
+   ───────────────────────────────────────────────────────── */
+
+.t-display { font: 800 32px/1.1  'League Spartan', sans-serif; letter-spacing: -0.03em; }
+.t-h1      { font: 600 24px/1.3  'Space Grotesk', sans-serif; letter-spacing: -0.01em; }
+.t-h2      { font: 600 18px/1.35 'Space Grotesk', sans-serif; }
+.t-h3      { font: 600 15px/1.4  'Space Grotesk', sans-serif; }
+
+.t-body    { font: 400 14px/1.55 'Space Grotesk', sans-serif; }
+.t-small   { font: 400 13px/1.5  'Space Grotesk', sans-serif; }
+.t-xs      { font: 500 12px/1.4  'Space Grotesk', sans-serif; }
+
+.t-data    { font: 500 13px/1.45 'JetBrains Mono', monospace; }
+.t-data-sm { font: 500 11px/1.3  'JetBrains Mono', monospace; }
+.t-label   {
+  font: 600 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.t-label-soft {
+  font: 600 11px/1 'Space Grotesk', sans-serif;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+
+/* Unopinionated defaults */
+h1 { margin: 0; font: 600 24px/1.3 'Space Grotesk', sans-serif; letter-spacing: -0.01em; color: var(--text-primary); }
+h2 { margin: 0; font: 600 18px/1.35 'Space Grotesk', sans-serif; color: var(--text-primary); }
+h3 { margin: 0; font: 600 15px/1.4  'Space Grotesk', sans-serif; color: var(--text-primary); }
+p  { margin: 0; font: 400 14px/1.55 'Space Grotesk', sans-serif; color: var(--text-secondary); }
+code, pre, kbd, samp { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

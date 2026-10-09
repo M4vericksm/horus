@@ -1,0 +1,67 @@
+# Segredos e variáveis de ambiente — NUNCA commitar
+.env
+CREDENTIALS_LOCAL.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+*.egg
+
+# Banco de dados local
+*.db
+*.sqlite3
+
+# Dumps de backup do Postgres (pg_dump) — nunca commitar
+backup_*.sql
+
+# Override local do docker-compose (ex.: porta 15432 em loopback) — não commitar
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Docker volumes locais
+postgres_data/
+
+# Logs
+*.log
+
+# Coverage
+.coverage
+htmlcov/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+CLAUDE.md
+
+# Config gerado pelo Docker (não commitar)
+front/config.js
+
+# Pacotes de deploy e artefatos locais
+*.zip
+
+# Claude Code
+.claude/
+
+# Artefato Windows
+nul
+
+# Scripts operacionais avulsos da raiz: são de uso pontual (acesso à VM,
+# checagem de status, hotfix) e carregam senha/IP em texto puro. Nunca foram
+# commitados — conferido com `git log --all -S`. O ignore é para que continue
+# assim. Automação de verdade vai em scripts/ e lê credencial do ambiente.
+/check_*.py
+/check_*.sh
+/deploy_vm*.py
+/fix_*.py
+/fix_*.sh
+/gen_hash.py

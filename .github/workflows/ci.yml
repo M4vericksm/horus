@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r back/requirements.txt
+          pip install -r back/requirements-dev.txt
+
+      # Roda da RAIZ do repo, não de dentro de back/: o pacote drivers/ fica na
+      # raiz e os testes o importam. Com working-directory: back a suíte quebrava
+      # em ModuleNotFoundError: No module named 'drivers' antes do primeiro teste.
+      # Mesmo comando documentado no README.md.
+      - name: Run tests
+        env:
+          PYTHONPATH: "back:."
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+          ATLAS_API_KEY: "test-key"
+          FERNET_KEY: "C5LxWEXjlFk89r0ftj0n861jF-axuxFRy_IYIL_B2Bs="
+          APP_ENV: "test"
+        run: pytest back/tests/ -q --no-cov

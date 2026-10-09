@@ -1,0 +1,3 @@
+// Copie este arquivo para config.js e ajuste o valor se necessário.
+// Em Docker, config.js é gerado automaticamente a partir do API_PORT do .env.
+window.API_PORT = '8000';

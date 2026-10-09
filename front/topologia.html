@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atlas — Topologia</title>
+  <link rel="stylesheet" href="styles/colors_and_type.css"/>
+  <link rel="stylesheet" href="styles/components.css"/>
+  <link rel="stylesheet" href="styles/atmosphere.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
+    function toggleAtlasTheme(){ const h=document.documentElement; const n=h.classList.contains('dark')?'light':'dark'; h.classList.remove('dark','light'); h.classList.add(n); localStorage.setItem('atlas-theme',n); }
+  </script>
+  <script>(function(){ if(new URLSearchParams(location.search).get('embed')==='1') document.documentElement.classList.add('embed'); })();</script>
+  <style>
+    html.embed aside.sidebar { display:none !important; }
+    html.embed main { height:100vh; }
+    /* No embed: mantém a busca de VLAN no topo; o seletor de provedor fica no workspace. */
+    html.embed .topbar { padding:12px 22px !important; }
+    html.embed .topo-title, html.embed #groupSel { display:none !important; }
+    html.embed .layout { height: calc(100vh - 64px); }
+    body { display:flex; min-height:100vh; overflow:hidden; }
+    aside.sidebar { width:220px; flex-shrink:0; background:var(--bg-deep); border-right:1px solid var(--line); height:100vh; position:sticky; top:0; display:flex; flex-direction:column; z-index:50; }
+    main { flex:1; height:100vh; overflow-y:auto; }
+    .layout { display:grid; grid-template-columns:1fr 320px; gap:0; height:calc(100vh - 86px); }
+    @media(max-width:1000px){ .layout{ grid-template-columns:1fr; } }
+    .canvas { position:relative; overflow:hidden; cursor:grab; touch-action:none; background:radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0); background-size:28px 28px; }
+    .canvas.grabbing { cursor:grabbing; }
+    .stage { position:absolute; top:0; left:0; transform-origin:0 0; }
+    .zoom-ctrls { position:absolute; right:14px; bottom:14px; z-index:6; display:flex; flex-direction:column; gap:6px; }
+    .zoom-ctrls button { width:34px; height:34px; border-radius:9px; background:var(--bg-elev); border:1px solid var(--line-strong); color:var(--text-primary); cursor:pointer; font:600 16px 'Space Grotesk'; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); }
+    .zoom-ctrls button:hover { border-color:var(--cyan); color:var(--cyan); }
+    .node { position:absolute; width:150px; box-sizing:border-box; background:var(--bg-surface); border:1px solid var(--line-strong); border-radius:12px; padding:10px 12px; cursor:pointer; transition:transform .1s, border-color .12s, box-shadow .12s; z-index:2; user-select:none; }
+    .node:hover { transform:translateY(-2px); border-color:var(--cyan); }
+    .node.sel { border-color:var(--cyan); box-shadow:0 0 0 2px color-mix(in oklab, var(--cyan) 30%, transparent); }
+    .node.dim { opacity:.28; } .node.hot { border-color:var(--magenta); box-shadow:0 0 0 2px color-mix(in oklab, var(--magenta) 30%, transparent); }
+    .node .nm { font:600 12px 'JetBrains Mono'; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .node .ct { font:500 10px 'Space Grotesk'; margin-top:3px; }
+    .node .ip { font:400 10px 'JetBrains Mono'; color:var(--text-muted); margin-top:4px; }
+    svg.edges { position:absolute; inset:0; z-index:1; pointer-events:none; overflow:visible; }
+    .side { border-left:1px solid var(--line); background:var(--bg-deep); overflow-y:auto; padding:18px; }
+    .vchip { display:inline-flex; align-items:center; gap:4px; font:600 11px 'JetBrains Mono'; color:var(--cyan); background:color-mix(in oklab, var(--cyan) 12%, transparent); border:1px solid color-mix(in oklab, var(--cyan) 26%, transparent); padding:4px 10px; border-radius:7px; cursor:pointer; line-height:1.4; }
+    .vchip.hot { color:var(--magenta); background:color-mix(in oklab, var(--magenta) 14%, transparent); border-color:var(--magenta); }
+    .chips-wrap { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .path-stack { position:relative; display:flex; flex-direction:column; gap:10px; margin-top:6px; }
+    .path-stack:before { content:""; position:absolute; left:10px; top:14px; bottom:14px; border-left:1px dashed var(--line-strong); opacity:.85; }
+    .path-item { position:relative; display:grid; grid-template-columns:22px minmax(0,1fr); gap:10px; align-items:start; }
+    .path-dot { width:9px; height:9px; border-radius:999px; margin:14px auto 0; background:var(--cyan); box-shadow:0 0 0 4px color-mix(in oklab, var(--cyan) 14%, transparent); z-index:1; }
+    .path-hop { background:var(--bg-elev); border:1px solid var(--line-strong); border-radius:10px; padding:9px 11px; }
+    .vac { position:relative; }
+    #vlanSug { position:absolute; top:42px; left:0; right:0; z-index:60; background:var(--bg-elev); border:1px solid var(--line-strong); border-radius:10px; max-height:300px; overflow:auto; box-shadow:0 18px 44px rgba(0,0,0,.45); }
+    #vlanSug.hidden { display:none; }
+    .sug-item { display:flex; align-items:center; gap:9px; padding:8px 11px; cursor:pointer; border-bottom:1px solid var(--line); }
+    .sug-item:last-child { border-bottom:0; }
+    .sug-item:hover { background:color-mix(in oklab, var(--cyan) 10%, transparent); }
+    .iface-line { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 9px; border-radius:8px; background:var(--bg-elev); border:1px solid var(--line); }
+    .mini-config-btn { font:600 10px 'Space Grotesk'; color:var(--cyan); background:color-mix(in oklab, var(--cyan) 10%, transparent); border:1px solid color-mix(in oklab, var(--cyan) 26%, transparent); border-radius:6px; padding:3px 7px; cursor:pointer; white-space:nowrap; }
+    .mini-config-btn:hover { border-color:var(--cyan); }
+    select.grp, input.flt { height:36px; padding:0 12px; border-radius:10px; background:var(--bg-elev); border:1px solid var(--line-strong); color:var(--text-primary); font-size:13px; }
+    .empty { text-align:center; padding:60px 20px; color:var(--text-muted); }
+    #topoConfigModal.hidden { display:none !important; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <main>
+    <header class="topbar" style="padding:16px 28px;position:sticky;top:0;z-index:30;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div class="topo-title">
+        <div class="module-tag" style="font-family:'JetBrains Mono';font-size:11px;color:var(--cyan);font-weight:600;">// topology</div>
+        <h1 class="t-h1">Topologia da rede</h1>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div class="vac">
+          <input class="flt" id="vlanFlt" autocomplete="off" placeholder="buscar VLAN (VID ou nome)…" style="width:230px"/>
+          <div id="vlanSug" class="hidden"></div>
+        </div>
+        <select class="grp" id="groupSel" style="min-width:220px" title="Trocar de provedor"></select>
+      </div>
+    </header>
+    <div id="content"></div>
+  </main>
+
+  <div id="topoConfigModal" class="hidden" onclick="if(event.target===this)closeTopoInterfaceConfig()" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(5,11,20,.72);backdrop-filter:blur(8px);padding:18px;">
+    <div style="width:min(720px,100%);max-height:82vh;background:var(--bg-elev);border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.42);">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);">
+        <div>
+          <div style="font:600 13px 'Space Grotesk';color:var(--text-primary)">Configuração</div>
+          <div id="topoConfigModalTitle" class="mono" style="font-size:11px;color:var(--text-muted);margin-top:2px"></div>
+        </div>
+        <button onclick="closeTopoInterfaceConfig()" class="icon-btn" title="Fechar"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+      </div>
+      <pre id="topoConfigModalBody" style="margin:0;padding:16px 18px;max-height:60vh;overflow:auto;background:var(--bg-deep);color:var(--text-secondary);font:12px/1.6 'JetBrains Mono',monospace;"></pre>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin-nav.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/provider-picker.js"></script>
+  <script src="js/vlan-finder.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/data_api.js"></script>
+  <script>
+    AtlasAPI.requireSession();
+    AtlasAPI.installAuthFetch();
+    AtlasNav.render('topo');
+
+    const content = document.getElementById('content');
+    const groupSel = document.getElementById('groupSel');
+    const vlanFlt = document.getElementById('vlanFlt');
+    let NET = null, selNode = null, hotVid = null;
+    let zoom = 1, panX = 0, panY = 0, _stageDim = { w: 0, h: 0 };
+    let topoConfigRef = [];
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    function showState(msg, icon, color) {
+      const spin = /loader/i.test(icon) ? 'animation:spin 1s linear infinite;' : '';
+      content.innerHTML = `<div class="empty"><i data-lucide="${icon}" style="display:block;margin:0 auto;width:28px;height:28px;color:${color||'var(--text-muted)'};${spin}"></i><p style="margin-top:10px">${esc(msg)}</p></div>`;
+      lucide.createIcons();
+    }
+
+    async function init() {
+      showState('Carregando grupos…', 'loader-2', 'var(--cyan)');
+      let groups;
+      try { groups = await AtlasData.loadGroups(); }
+      catch (e) { showState('Falha ao listar grupos: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
+      if (!groups.length) { showState('Nenhum grupo cadastrado.', 'inbox'); return; }
+      groupSel.innerHTML = groups.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
+      const qid = new URLSearchParams(location.search).get('client_id');
+      if (qid && groups.some(g => String(g.id) === qid)) groupSel.value = qid;
+      AtlasPicker.enhance(groupSel, { placeholder: "Digite o nome do provedor…" });
+      groupSel.onchange = () => loadGroup(groupSel.value);
+      vlanFlt.oninput = () => {
+        if (!vlanFlt.value.trim()) { hotVid = null; hideSug(); paint(); renderSide(); return; }
+        renderSug();
+      };
+      vlanFlt.onkeydown = (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); const ms = vlanMatches(vlanFlt.value); if (ms.length) selectVlan(ms[0].vid); }
+        else if (e.key === 'Escape') { vlanFlt.value = ''; hotVid = null; hideSug(); paint(); renderSide(); }
+      };
+      vlanFlt.onfocus = () => { if (vlanFlt.value.trim()) renderSug(); };
+      vlanFlt.onblur = () => { setTimeout(hideSug, 150); };
+      loadGroup(groupSel.value);
+    }
+
+    // ── Autocomplete de VLAN: digita VID ou nome, Enter/clique seleciona ──────
+    function vlanMatches(qs) {
+      const q = String(qs || '').trim().toLowerCase();
+      if (!q || !NET) return [];
+      const hits = NET.vlans.filter(v =>
+        String(v.vid).includes(q) ||
+        (v.name || '').toLowerCase().includes(q) ||
+        (v.desc || '').toLowerCase().includes(q)
+      );
+      // Sugestão é autocomplete, então o parcial continua valendo — mas o VID
+      // exato vai para o topo: digitar 500 não pode sugerir 1500 antes da 500.
+      hits.sort((a, b) => (String(b.vid) === q) - (String(a.vid) === q));
+      return hits.slice(0, 12);
+    }
+    function hideSug() { const box = document.getElementById('vlanSug'); if (box) { box.classList.add('hidden'); box.innerHTML = ''; } }
+    function renderSug() {
+      const box = document.getElementById('vlanSug'); if (!box) return;
+      const ms = vlanMatches(vlanFlt.value);
+      if (!ms.length) { box.classList.add('hidden'); box.innerHTML = '<div style="padding:10px 12px;font-size:12px;color:var(--text-muted)">Nenhuma VLAN.</div>'; box.classList.remove('hidden'); return; }
+      box.innerHTML = ms.map(v => `<div class="sug-item" data-vid="${v.vid}">
+        <span class="vchip" style="pointer-events:none">${v.vid}</span>
+        <span style="font-size:12px;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.name)}</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--text-muted);white-space:nowrap">${v.assets} ativo(s)</span>
+      </div>`).join('');
+      box.classList.remove('hidden');
+      box.querySelectorAll('.sug-item').forEach(it => it.onmousedown = (e) => { e.preventDefault(); selectVlan(+it.dataset.vid); });
+    }
+    function selectVlan(vid) {
+      hotVid = vid;
+      const v = NET.vlans.find(x => x.vid === vid);
+      vlanFlt.value = v ? `${vid} · ${v.name}` : String(vid);
+      hideSug();
+      paint(); renderSide();
+    }
+
+    // Config reconstruída da interface a partir das VLANs que ela carrega (independe
+    // de realce). NUNCA capturada de verdade — nenhum driver guarda o bloco L2
+    // access/trunk de uma porta —, então a sintaxe tem que ser a do fabricante do
+    // ativo; sintaxe fixa (ex.: Cisco) mostraria um comando que nunca existiu num
+    // Huawei/MikroTik/Juniper. Ver AtlasData.helpers.
+    function buildTopoInterfaceConfig(ifc, vendor) {
+      const H = AtlasData.helpers;
+      // MikroTik/Juniper não têm modo de configuração de interface: o cabeçalho
+      // "interface X" abriria um bloco que não cola no equipamento.
+      const lines = H.reconstructInterfaceHeaderLines(vendor, ifc.name, ifc.description);
+      const vlans = ifc.vlans || [];
+      const md = v => String(v.mode || '').toLowerCase();
+      const access = vlans.filter(v => md(v) === 'access').map(v => v.vid);
+      const native = vlans.filter(v => md(v) === 'native').map(v => v.vid);
+      const trunk = vlans.filter(v => md(v) === 'trunk' || md(v) === 'tagged').map(v => v.vid);
+      const routed = vlans.filter(v => md(v) === 'routed').map(v => v.vid);
+      if (access.length || trunk.length || native.length) {
+        lines.push(...H.reconstructPortVlanLines(vendor, ifc.name,
+          { access, native: native.length ? native[0] : null, trunk }));
+      }
+      if (routed.length) lines.push(H.commentLine(vendor, `SVI da(s) VLAN ${routed.join(',')}`));
+      if (ifc.ip_address) {
+        const l = H.reconstructIpAddressLine(vendor, ifc.ip_address, ifc.mask, ifc.name);
+        if (l) lines.push(l);
+      }
+      if (ifc.is_management) lines.push(H.commentLine(vendor, 'interface de gerencia'));
+      lines.push('', H.commentLine(vendor, 'reconstruído a partir do inventário — não é o texto bruto capturado do equipamento', false));
+      return lines.join('\n');
+    }
+    function openTopoInterfaceConfig(i) {
+      const ref = topoConfigRef[i]; if (!ref) return;
+      const ifc = ref.iface, node = ref.node;
+      document.getElementById('topoConfigModalTitle').textContent = `${node.label || ''} · ${ifc.name || ''}  (reconstruída)`;
+      document.getElementById('topoConfigModalBody').textContent = buildTopoInterfaceConfig(ifc, node.vendor);
+      document.getElementById('topoConfigModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closeTopoInterfaceConfig() { document.getElementById('topoConfigModal').classList.add('hidden'); }
+
+    // ── Configuração da VLAN na Topologia (busca o trace sob demanda) ───────────
+    let curGid = null;
+    const _traceCacheTopo = {};
+    async function openVlanConfigTopo(vid) {
+      const body = document.getElementById('topoConfigModalBody');
+      document.getElementById('topoConfigModalTitle').textContent = `VLAN ${vid} · configuração`;
+      body.textContent = 'Carregando…';
+      document.getElementById('topoConfigModal').classList.remove('hidden');
+      let rows = _traceCacheTopo[vid];
+      if (!rows) {
+        try { rows = await AtlasData.loadVlanConfigs(curGid, vid); _traceCacheTopo[vid] = rows; }
+        catch (e) { body.textContent = 'Falha ao carregar a config: ' + e.message; return; }
+      }
+      if (!rows || !rows.length) { body.textContent = 'Sem config extraída para esta VLAN.'; return; }
+      // Cada ativo recebe uma cor distinta no cabeçalho para diferenciar os blocos.
+      const HCOLORS = ['var(--cyan)', 'var(--magenta)', 'var(--emerald)', 'var(--amber)', 'var(--rose)', 'var(--cyan-dim)'];
+      body.innerHTML = rows.map((r, i) => {
+        const cfg = r.config ? r.config : `vlan ${vid}${r.name ? '\n name ' + r.name : ''}`;
+        const tag = r.config ? '' : '  (sem config capturada)';
+        const col = HCOLORS[i % HCOLORS.length];
+        return `<span style="color:${col};font-weight:700">! ===== ${esc(r.hostname)} · ${esc(r.vlan_type || 'L2')}${tag} =====</span>\n${esc(cfg)}`;
+      }).join('\n\n');
+    }
+
+    async function loadGroup(id) {
+      curGid = id;
+      showState('Carregando topologia…', 'loader-2', 'var(--cyan)');
+      try { NET = await AtlasData.loadGroup(id); }
+      catch (e) { showState('Falha ao carregar o grupo: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
+      selNode = null; hotVid = null; vlanFlt.value = ''; hideSug();
+      render();
+    }
+
+    const COLW = 220, PADX = 70, PADY = 34;
+    const ROW_CFG = {
+      0: { y: 24,  spread: 250, offset: 40 },
+      1: { y: 188, spread: 230, offset: 155 },
+      2: { y: 360, spread: 215, offset: 75 },
+      3: { y: 530, spread: 200, offset: 140 },
+    };
+    function layoutStats() {
+      const rows = {};
+      NET.nodes.forEach(n => { (rows[n.row] = rows[n.row] || []).push(n); });
+      let maxW = 0, maxY = 0;
+      Object.keys(rows).forEach(r => {
+        const cfg = ROW_CFG[r] || { y: 530 + (+r - 3) * 150, spread: 200, offset: 80 };
+        maxW = Math.max(maxW, (rows[r].length - 1) * cfg.spread + COLW + cfg.offset);
+        maxY = Math.max(maxY, cfg.y + 130);
+      });
+      return { rows, w: maxW + PADX * 2, h: maxY + PADY * 2 };
+    }
+    function pos(n) {
+      const st = layoutStats();
+      const rowNodes = st.rows[n.row] || [];
+      const cfg = ROW_CFG[n.row] || { y: 530 + (n.row - 3) * 150, spread: 200, offset: 80 };
+      const rowWidth = (rowNodes.length - 1) * cfg.spread + COLW;
+      const xBase = Math.max(0, (st.w - rowWidth) / 2) + ((n.col % 2) ? cfg.offset * .22 : -cfg.offset * .12);
+      const stagger = (n.col % 3 === 1) ? 30 : (n.col % 3 === 2 ? -18 : 0);
+      return { x: xBase + n.col * cfg.spread, y: PADY + cfg.y + stagger, w: st.w, h: st.h };
+    }
+
+    // Layout force-directed (Fruchterman-Reingold simplificado) — grafo orgânico,
+    // não em linha reta. Seed em círculo + repulsão + atração nas arestas + gravidade.
+    const NODE_W = 150, NODE_H = 64;
+    // IDEAL = distância-alvo (centro a centro) entre nós conectados.
+    // GAP_X/GAP_Y = folga mínima anti-sobreposição (caixa do nó + margem).
+    const IDEAL = 250, GAP_X = NODE_W + 80, GAP_Y = NODE_H + 80, REP_CUTOFF = IDEAL * 2.6; // larger gap to keep nodes apart
+    function resolveCollisions(nodes) {
+      const N = nodes.length; let moved = false;
+      for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) {
+        let dx = nodes[j]._x - nodes[i]._x, dy = nodes[j]._y - nodes[i]._y;
+        if (dx === 0 && dy === 0) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; }
+        const ox = GAP_X - Math.abs(dx), oy = GAP_Y - Math.abs(dy);
+        if (ox > 0 && oy > 0) {
+          if (ox < oy) { const s = (dx < 0 ? -1 : 1) * ox / 2; nodes[i]._x -= s; nodes[j]._x += s; }
+          else { const s = (dy < 0 ? -1 : 1) * oy / 2; nodes[i]._y -= s; nodes[j]._y += s; }
+          moved = true;
+        }
+      }
+      return moved;
+    }
+    function computeForceLayout(nodes, edges) {
+      const N = nodes.length;
+      if (!N) return { w: 600, h: 400 };
+      // Semente em círculo compacto (raiz quadrada de N mantém densidade estável).
+      const R = Math.max(180, Math.sqrt(N) * 120);
+      nodes.forEach((n, i) => { const a = (i / N) * Math.PI * 2; n._x = Math.cos(a) * R; n._y = Math.sin(a) * R; });
+      const idx = {}; nodes.forEach((n, i) => idx[n.id] = i);
+      const ITER = 480;
+      for (let it = 0; it < ITER; it++) {
+        const t = 1 - it / ITER;
+        const fx = new Array(N).fill(0), fy = new Array(N).fill(0);
+        // Repulsão (Coulomb) local: só age dentro do cutoff, evitando que nós
+        // distantes/desconectados inflem o grafo para fora.
+        for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) {
+          let dx = nodes[i]._x - nodes[j]._x, dy = nodes[i]._y - nodes[j]._y;
+          let d = Math.hypot(dx, dy) || 0.01;
+          if (d > REP_CUTOFF) continue;
+          const rep = (IDEAL * IDEAL) / d;
+          const ux = dx / d, uy = dy / d;
+          fx[i] += ux * rep; fy[i] += uy * rep; fx[j] -= ux * rep; fy[j] -= uy * rep;
+        }
+        // Atração (mola) nas arestas: aproxima nós conectados até ~IDEAL.
+        edges.forEach(e => {
+          const a = idx[e.a], b = idx[e.b]; if (a == null || b == null) return;
+          let dx = nodes[a]._x - nodes[b]._x, dy = nodes[a]._y - nodes[b]._y;
+          let d = Math.hypot(dx, dy) || 0.01; const att = (d * d) / IDEAL;
+          const ux = dx / d, uy = dy / d;
+          fx[a] -= ux * att; fy[a] -= uy * att; fx[b] += ux * att; fy[b] += uy * att;
+        });
+        // Gravidade ao centro: mantém componentes desconectados compactos (não voam).
+        for (let i = 0; i < N; i++) { fx[i] -= nodes[i]._x * 0.06; fy[i] -= nodes[i]._y * 0.06; }
+        const max = 110 * t + 6;
+        for (let i = 0; i < N; i++) {
+          let d = Math.hypot(fx[i], fy[i]) || 0.01; const lim = Math.min(d, max);
+          nodes[i]._x += fx[i] / d * lim; nodes[i]._y += fy[i] / d * lim;
+        }
+        resolveCollisions(nodes);
+      }
+      // Passes finais só de colisão: itera até assentar (sem sobreposição) ou o teto.
+      for (let pass = 0; pass < 60; pass++) { if (!resolveCollisions(nodes)) break; }
+      let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+      nodes.forEach(n => { minx = Math.min(minx, n._x); miny = Math.min(miny, n._y); maxx = Math.max(maxx, n._x); maxy = Math.max(maxy, n._y); });
+      const pad = 80;
+      nodes.forEach(n => { n._x = Math.round(n._x - minx + pad); n._y = Math.round(n._y - miny + pad); });
+      return { w: (maxx - minx) + pad * 2 + NODE_W, h: (maxy - miny) + pad * 2 + NODE_H };
+    }
+
+    // ── Pan/zoom estilo draw.io ─────────────────────────────────────────────────
+    function applyT() {
+      const st = document.getElementById('stage');
+      if (st) st.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+    }
+    function fitView() {
+      const canvas = content.querySelector('.canvas');
+      if (!canvas) return false;
+      const cw = canvas.clientWidth, ch = canvas.clientHeight;
+      const sw = _stageDim.w, sh = _stageDim.h;
+      if (!cw || !ch || !sw || !sh) return false;
+              // Fit view but never zoom out below MIN_ZOOM (0.6) and cap at 1.4× for initial fit
+        const fitZoom = Math.min(cw / sw, ch / sh, 1.4) * 0.92;
+        zoom = Math.max(fitZoom, 0.6);
+      panX = (cw - sw * zoom) / 2;
+      panY = (ch - sh * zoom) / 2;
+      applyT();
+      return true;
+    }
+    // O canvas pode não ter dimensões no primeiro frame (layout/fontes ainda
+    // assentando) — tenta de novo até conseguir, sem deixar o stage sem fit.
+    function fitViewWhenReady(tries) {
+      if (fitView() || tries <= 0) return;
+      requestAnimationFrame(() => fitViewWhenReady(tries - 1));
+    }
+    // Zoom mantendo o ponto (cx,cy — relativo ao canvas) fixo sob o cursor.
+    function zoomAt(factor, cx, cy) {
+      const canvas = content.querySelector('.canvas');
+      if (!canvas) return;
+      if (cx == null) { cx = canvas.clientWidth / 2; cy = canvas.clientHeight / 2; }
+        // Clamp zoom: prevent absurd zoom‑out (<0.6) and limit max zoom to 2.5×
+        const MIN_ZOOM = 0.6;
+        const MAX_ZOOM = 2.5;
+        const nz = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom * factor));
+      const wx = (cx - panX) / zoom, wy = (cy - panY) / zoom;
+      zoom = nz; panX = cx - wx * zoom; panY = cy - wy * zoom;
+      applyT();
+    }
+    function setupPanZoom() {
+      const canvas = content.querySelector('.canvas');
+      if (!canvas) return;
+      canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const r = canvas.getBoundingClientRect();
+        zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - r.left, e.clientY - r.top);
+      }, { passive: false });
+
+      let panning = false, moved = false, sx = 0, sy = 0, spx = 0, spy = 0;
+      canvas.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 || e.target.closest('.zoom-ctrls')) return;
+        panning = true; moved = false;
+        sx = e.clientX; sy = e.clientY; spx = panX; spy = panY;
+        canvas.classList.add('grabbing');
+        try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      canvas.addEventListener('pointermove', (e) => {
+        if (!panning) return;
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) moved = true;
+        panX = spx + dx; panY = spy + dy; applyT();
+      });
+      const endPan = (e) => {
+        if (!panning) return;
+        panning = false; canvas.classList.remove('grabbing');
+        try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+      };
+      canvas.addEventListener('pointerup', endPan);
+      canvas.addEventListener('pointercancel', endPan);
+
+      // Seleção centralizada no click do canvas: se arrastou (pan), ignora;
+      // clicou num nó → seleciona; senão → limpa seleção.
+      canvas.addEventListener('click', (e) => {
+        if (moved) { moved = false; return; }
+        if (e.target.closest('.zoom-ctrls')) return;
+        // O setPointerCapture do pan pode fazer e.target virar o canvas;
+        // resolve o nó pela posição do cursor (hit-test), não pelo target.
+        let nodeEl = e.target.closest('.node');
+        if (!nodeEl) {
+          const under = document.elementFromPoint(e.clientX, e.clientY);
+          nodeEl = (under && under.closest) ? under.closest('.node') : null;
+        }
+        if (nodeEl) {
+          const n = NET.nodes.find(x => String(x.id) === nodeEl.dataset.id);
+          if (n) { selNode = n.id; paint(); renderSide(); }
+          return;
+        }
+        selNode = null; hotVid = null; vlanFlt.value = ''; hideSug();
+        paint(); renderSide();
+      });
+
+      document.getElementById('zin').onclick = () => zoomAt(1.25);
+      document.getElementById('zout').onclick = () => zoomAt(1 / 1.25);
+      document.getElementById('zfit').onclick = () => fitView();
+    }
+
+    // Prefixo DOMINANTE entre os hostnames (ex.: "PROVEDOR - ") para encurtar os
+    // rótulos. Usa o prefixo (terminado em separador) compartilhado por >=50% dos
+    // ativos — assim um nó fora do padrão (ex.: "RB 2011 ...") não anula o encurtamento.
+    function commonNodePrefix(arr) {
+      if (arr.length < 3) return '';
+      const freq = {};
+      for (const s of arr) {
+        const re = /[ \-_/]/g; let m;
+        while ((m = re.exec(s)) !== null) {
+          const p = s.slice(0, m.index + 1);
+          if (p.trim().length >= 2) freq[p] = (freq[p] || 0) + 1;
+        }
+      }
+      const half = Math.ceil(arr.length * 0.5);
+      let best = '', bestFreq = 0;
+      for (const p in freq) {
+        if (freq[p] >= half && (freq[p] > bestFreq || (freq[p] === bestFreq && p.length > best.length))) { best = p; bestFreq = freq[p]; }
+      }
+      return best.length >= 3 ? best : '';
+    }
+
+    function render() {
+      if (!NET.nodes.length) { showState('Sem topologia: nenhum ativo aprovado com dados extraídos.', 'share-2'); return; }
+      content.innerHTML = `<div class="layout">
+        <div class="canvas">
+          <div class="stage" id="stage"><svg class="edges" id="edges"></svg></div>
+          <div class="zoom-ctrls"><button id="zin" type="button" title="Aproximar">+</button><button id="zout" type="button" title="Afastar">−</button><button id="zfit" type="button" title="Ajustar à tela">⤢</button></div>
+        </div>
+        <div class="side" id="side"></div>
+      </div>`;
+      const stage = document.getElementById('stage');
+      const dimL = computeForceLayout(NET.nodes, NET.edges);
+      let dim = { w: dimL.w, h: dimL.h };
+      const namePrefix = commonNodePrefix(NET.nodes.map(n => n.label || ''));
+      NET.nodes.forEach(n => {
+        const m = NET.catMeta[n.cat] || {};
+        const el = document.createElement('div');
+        el.className = 'node'; el.dataset.id = n.id;
+        el.title = n.label || '';
+        el.style.left = n._x + 'px'; el.style.top = n._y + 'px';
+        const disp = (namePrefix && (n.label || '').startsWith(namePrefix)) ? n.label.slice(namePrefix.length) : (n.label || '');
+        el.innerHTML = `<div class="nm">${esc(disp || n.label)}</div><div class="ct" style="color:${m.color||'var(--text-muted)'}">${m.label||n.cat} · ${n.ifaces} if</div><div class="ip">${esc(n.mgmt)}</div>`;
+        stage.appendChild(el);
+      });
+      stage.style.width = dim.w + 'px'; stage.style.height = dim.h + 'px';
+      const svg = document.getElementById('edges'); svg.setAttribute('width', dim.w); svg.setAttribute('height', dim.h);
+      _stageDim = { w: dim.w, h: dim.h };
+      zoom = 1; panX = 0; panY = 0;
+      setupPanZoom();
+      fitViewWhenReady(30);
+      paint(); renderSide(); lucide.createIcons();
+    }
+
+    function paint() {
+      const byId = {}; NET.nodes.forEach(n => byId[n.id] = n);
+      const svg = document.getElementById('edges'); if (!svg) return;
+      svg.innerHTML = NET.edges.map(e => {
+        const a = byId[e.a], b = byId[e.b]; if (!a || !b) return '';
+        const x1 = a._x + 75, y1 = a._y + 28, x2 = b._x + 75, y2 = b._y + 28;
+        const hot = hotVid != null && e.vids.includes(hotVid);
+        const col = hot ? 'var(--magenta)' : 'var(--line-strong)';
+        const w = hot ? 2.5 : 1.2;
+        // Desenha SEMPRE os enlaces: sem VLAN selecionada todos aparecem
+        // esmaecidos (o mapa abria vazio antes); com uma VLAN ativa, os dela
+        // ficam realçados e os demais bem apagados para dar contraste.
+        const op = hot ? 1 : (hotVid == null ? 0.45 : 0.12);
+        const midY = y1 + (y2 - y1) * 0.5;
+        const d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+        return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" opacity="${op}"/>`;
+      }).join('');
+      document.querySelectorAll('.node').forEach(el => {
+        const n = byId[el.dataset.id];
+        el.classList.toggle('sel', n.id === selNode);
+        const onVlan = hotVid != null && n.vids.includes(hotVid);
+        el.classList.toggle('hot', !!onVlan);
+        el.classList.toggle('dim', hotVid != null && !onVlan);
+      });
+    }
+
+    function renderSide() {
+      const side = document.getElementById('side'); if (!side) return;
+      topoConfigRef = [];
+      const parts = [];
+      if (hotVid != null) parts.push(vlanPanel(hotVid));
+      if (selNode != null) {
+        try {
+          parts.push(nodePanel());
+        } catch(e) {
+          parts.push(`<div style="color:var(--rose);font-size:11px;word-break:break-all">${esc(e.message)}<br>${esc(e.stack)}</div>`);
+        }
+      }
+      if (!parts.length) {
+        side.innerHTML = `<div style="font:600 13px 'Space Grotesk';color:var(--text-primary)">Topologia</div>
+          <p style="font-size:12px;color:var(--text-secondary);margin-top:8px;line-height:1.6">${NET.stats.total_assets||NET.nodes.length} ativos, ${NET.edges.length} enlaces (VLANs em comum). Busque uma VLAN no topo para ver por onde ela passa, ou clique num nó. Clique no fundo do mapa para limpar a seleção.</p>`;
+        return;
+      }
+      side.innerHTML = parts.join('<div style="height:18px"></div>');
+      side.querySelectorAll('.vchip[data-vid]').forEach(c => c.onclick = () => selectVlan(+c.dataset.vid));
+      lucide.createIcons();
+    }
+
+    // Painel da VLAN: cabeçalho + caminho vertical (tracejado) por onde ela passa.
+    function vlanPanel(vid) {
+      const v = NET.vlans.find(x => x.vid === vid);
+      const p = NET.vlanPaths[vid];
+      let pathHtml;
+      if (p && p.length) {
+        pathHtml = `<div class="path-stack">` + p.map(h => {
+          const m = NET.catMeta[h.cat] || {};
+          const role = h.role === 'origem' ? '<span style="font:600 9px \'JetBrains Mono\';color:var(--magenta);text-transform:uppercase">origem</span>' : (h.role === 'destino' ? '<span style="font:600 9px \'JetBrains Mono\';color:var(--emerald);text-transform:uppercase">destino</span>' : '');
+          return `<div class="path-item"><span class="path-dot"></span><div class="path-hop">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><i data-lucide="${m.icon||'router'}" style="width:15px;height:15px;color:${m.color||'var(--text-muted)'}"></i><span class="mono" style="font-size:12px;font-weight:600;color:var(--text-primary)">${esc(h.host)}</span>${role}</div>
+            <div style="font-size:10.5px;color:var(--text-muted);margin-top:5px">${m.label||h.cat}${h.ifaces?' · <span class="mono">'+esc(h.ifaces)+'</span>':''}</div>
+          </div></div>`;
+        }).join('') + `</div>`;
+      } else {
+        pathHtml = `<div style="font-size:11.5px;color:var(--text-muted);margin-top:6px;line-height:1.5">Presente em ${(v?v.assets:0)} ativo(s) — não cruza múltiplos equipamentos.</div>`;
+      }
+      return `<div>
+        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><span class="vchip hot" style="pointer-events:none">${vid}</span><div style="font:600 13px 'Space Grotesk';color:var(--text-primary);min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v?esc(v.name):'VLAN '+vid}</div>${v&&v.vlan_type?`<span style="font:600 9px 'JetBrains Mono';text-transform:uppercase;color:var(--amber);border:1px solid color-mix(in oklab, var(--amber) 50%, transparent);border-radius:5px;padding:1px 5px">${esc(v.vlan_type)}</span>`:''}<button type="button" class="mini-config-btn" onclick="openVlanConfigTopo(${vid})">Ver config</button></div>
+        ${v&&v.desc?`<p style="font-size:11.5px;color:var(--text-secondary);margin:8px 0 0;line-height:1.55">${esc(v.desc)}</p>`:''}
+        <div style="font:600 11px 'Space Grotesk';color:var(--text-muted);margin:16px 0 2px">Caminho da VLAN — por onde ela passa</div>
+        ${pathHtml}
+      </div>`;
+    }
+
+    // Painel do ativo selecionado: dados + VLANs (clicáveis) + interfaces da VLAN ativa.
+    function nodePanel() {
+      const n = NET.nodes.find(x => x.id === selNode); if (!n) return '';
+      const m = NET.catMeta[n.cat] || {};
+      const vchips = n.vids.slice().sort((a,b)=>a-b).map(vid => {
+        const v = NET.vlans.find(x => x.vid === vid);
+        return `<span class="vchip${vid===hotVid?' hot':''}" data-vid="${vid}" title="${esc(v?v.name:'')}">${vid}</span>`;
+      }).join('');
+      const subnets = n.subnets.map(s => `<span class="mono" style="font-size:10.5px;color:var(--text-muted);background:var(--bg-elev);padding:3px 7px;border-radius:5px">${esc(s)}</span>`).join('');
+      // Interfaces do ativo — sempre listadas, com "Ver config". Se há VLAN realçada,
+      // as interfaces dela ficam destacadas e aparecem primeiro.
+      const allIfs = (n._interfaces || []).slice();
+      if (hotVid != null) {
+        allIfs.sort((a, b) => (((a.vlans || []).some(x => x.vid === hotVid)) ? 0 : 1) - (((b.vlans || []).some(x => x.vid === hotVid)) ? 0 : 1));
+      }
+      topoConfigRef = allIfs.map(ifc => ({ node: n, iface: ifc }));
+      const ifaceHtml = allIfs.map((ifc, i) => {
+        const vlans = ifc.vlans || [];
+        const onHot = hotVid != null && vlans.some(x => x.vid === hotVid);
+        const md = onHot ? (vlans.find(x => x.vid === hotVid) || {}).mode : (vlans[0] || {}).mode;
+        const modeLbl = md ? esc(String(md).toUpperCase()) : esc(String(ifc.type || '').toUpperCase());
+        const ip = ifc.ip_address ? `<span class="mono" style="font-size:10px;color:var(--text-muted)">${esc(ifc.ip_address)}${ifc.mask != null ? '/' + ifc.mask : ''}</span>` : '';
+        const desc = ifc.description ? `<div style="font-size:10px;color:var(--text-muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ifc.description)}</div>` : '';
+        return `<div class="iface-line"${onHot ? ' style="border-color:var(--magenta)"' : ''}>
+          <div style="min-width:0"><div class="mono" style="font-size:11.5px;color:var(--text-primary);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ifc.name)}</div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">${modeLbl ? `<span style="font:600 9px 'JetBrains Mono';color:var(--cyan);text-transform:uppercase">${modeLbl}</span>` : ''}${ip}</div>${desc}</div>
+          <button type="button" onclick="openTopoInterfaceConfig(${i})" class="mini-config-btn">Ver config</button>
+        </div>`;
+      }).join('');
+      const ifaceBlock = `<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+        <div style="font:600 11px 'Space Grotesk';color:var(--text-muted);margin-bottom:8px">Interfaces (${allIfs.length})</div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto">${ifaceHtml || '<span style="font-size:11px;color:var(--text-muted)">Nenhuma interface extraída.</span>'}</div>
+      </div>`;
+      return `<div style="display:flex;align-items:center;gap:10px"><i data-lucide="${m.icon||'router'}" style="width:18px;height:18px;color:${m.color||'var(--text-muted)'}"></i><div style="min-width:0"><div style="font:600 13px 'JetBrains Mono';color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(n.label)}</div><div style="font-size:11px;color:var(--text-muted)">${m.label||n.cat}${n.vendor?' · '+esc(n.vendor):''}</div></div></div>
+        <div style="margin-top:14px;font-size:12px;color:var(--text-secondary)">Gerência: <span class="mono" style="color:var(--text-primary)">${esc(n.mgmt)}</span></div>
+        <div style="margin-top:6px;font-size:12px;color:var(--text-secondary)">${n.ifaces} interfaces</div>
+        <div style="margin-top:16px;font:600 11px 'Space Grotesk';color:var(--text-muted)">VLANs (${n.vids.length}) — clique para realçar</div>
+        <div class="chips-wrap">${vchips||'<span style="font-size:11px;color:var(--text-muted)">—</span>'}</div>
+        ${subnets?`<div style="margin-top:16px;font:600 11px 'Space Grotesk';color:var(--text-muted)">Subnets</div><div class="chips-wrap">${subnets}</div>`:''}
+        ${ifaceBlock}`;
+    }
+
+    init();
+  </script>
+</body>
+</html>

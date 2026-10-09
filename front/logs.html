@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atlas — Atividade</title>
+  <link rel="stylesheet" href="styles/colors_and_type.css"/>
+  <link rel="stylesheet" href="styles/components.css"/>
+  <link rel="stylesheet" href="styles/atmosphere.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
+    function toggleAtlasTheme() {
+      const html = document.documentElement;
+      const next = html.classList.contains('dark') ? 'light' : 'dark';
+      html.classList.remove('dark','light');
+      html.classList.add(next);
+      localStorage.setItem('atlas-theme', next);
+    }
+  </script>
+  <style>
+    body { display:flex; min-height:100vh; overflow:hidden; }
+    aside.sidebar { width:220px; flex-shrink:0; background:var(--bg-deep); border-right:1px solid var(--line); height:100vh; position:sticky; top:0; display:flex; flex-direction:column; z-index:50; }
+    main { flex:1; height:100vh; overflow-y:auto; }
+    header.topbar { background:var(--bg-deep); border-bottom:1px solid var(--line); padding:20px 28px; position:sticky; top:0; z-index:30; display:flex; justify-content:space-between; align-items:center; backdrop-filter:blur(12px); }
+    .module-tag { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--cyan); font-weight:600; letter-spacing:0.05em; margin-bottom:4px; }
+    /* Log table overrides for <table> structure */
+    .log-table { width:100%; border-collapse:collapse; }
+    .log-table thead tr { background:var(--bg-elev); }
+    .log-table thead th { padding:12px 20px; font:600 11px 'JetBrains Mono',monospace; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); border-bottom:1px solid var(--line); text-align:left; }
+    .log-table tbody tr { border-bottom:1px solid var(--line); transition:background 0.12s; cursor:default; }
+    .log-table tbody tr:hover { background:var(--bg-elev); }
+    .log-table tbody td { padding:12px 20px; font-size:13px; vertical-align:middle; }
+    .log-table tbody tr.row-err td:first-child { border-left:3px solid var(--rose); }
+    .log-table tbody tr.row-ok  td:first-child { border-left:3px solid var(--emerald); }
+    /* Filter bar */
+    .filter-bar { background:var(--bg-surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:18px 20px; margin:24px 28px 16px; display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; }
+    .filter-field label { display:block; font:600 10px 'JetBrains Mono',monospace; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+    @keyframes slideInToast { from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);} }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div style="display:flex;align-items:center;gap:12px;padding:22px 20px;border-bottom:1px solid var(--line);">
+      <img src="assets/atlas-logo.png" width="36" height="36" alt="Atlas" class="octo-idle"/>
+      <span class="brand" style="font-size:28px;color:var(--text-primary);line-height:1;">Atlas</span>
+    </div>
+    <nav style="flex:1;padding:14px 0;">
+      <a href="dashboard.html" class="nav-btn">
+        <i data-lucide="layout-dashboard" style="width:15px;height:15px;"></i>
+        <span>Visão geral</span>
+      </a>
+      <a href="logs.html" class="nav-btn active">
+        <i data-lucide="activity" style="width:15px;height:15px;"></i>
+        <span>Atividade</span>
+      </a>
+      <a href="admin_clients.html" class="nav-btn">
+        <i data-lucide="folder-tree" style="width:15px;height:15px;"></i>
+        <span>Grupos e ativos</span>
+      </a>
+      <a href="vlans.html" class="nav-btn">
+        <i data-lucide="layers-3" style="width:15px;height:15px;"></i>
+        <span>VLANs</span>
+      </a>
+      <a href="topologia.html" class="nav-btn">
+        <i data-lucide="share-2" style="width:15px;height:15px;"></i>
+        <span>Topologia</span>
+      </a>
+      <a href="ips.html" class="nav-btn">
+        <i data-lucide="globe" style="width:15px;height:15px;"></i>
+        <span>IPs</span>
+      </a>
+    </nav>
+    <div style="padding:12px 14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-elev);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i data-lucide="user" style="width:14px;height:14px;color:var(--text-secondary);"></i>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <p style="font:600 12px 'Space Grotesk';color:var(--text-primary);margin:0;">Administrador</p>
+        <p style="font-size:11px;color:var(--text-muted);margin:0;">Sistema</p>
+      </div>
+      <button onclick="toggleAtlasTheme()" class="icon-btn" title="Alternar tema">
+        <i data-lucide="sun-moon" style="width:15px;height:15px;"></i>
+      </button>
+      <button onclick="AtlasAPI.logout()" class="icon-btn" title="Sair">
+        <i data-lucide="log-out" style="width:15px;height:15px;"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <header class="topbar">
+      <div>
+        <div class="module-tag">// logs_exec</div>
+        <h1 class="t-h1">Atividade</h1>
+        <p style="font:400 12px 'Space Grotesk';color:var(--text-muted);margin-top:4px;">Histórico de descoberta, extração e sync phpIPAM</p>
+      </div>
+      <button onclick="loadLogs(1)" class="btn-ghost">
+        <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+        Atualizar
+      </button>
+    </header>
+
+    <!-- Filtros -->
+    <div class="filter-bar">
+      <div class="filter-field">
+        <label>Cliente</label>
+        <select id="f_client" class="input select" style="min-width:160px;padding:8px 12px;font-size:13px;">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>Operação</label>
+        <select id="f_operation" class="input select" style="padding:8px 12px;font-size:13px;">
+          <option value="">Todas</option>
+          <option value="sync_assets">Descoberta</option>
+          <option value="discover_assets">Descoberta (link)</option>
+          <option value="extract_bc">Extração BC</option>
+          <option value="extract_manual">Extração manual</option>
+          <option value="extract_all">Extração global</option>
+          <option value="sync_phpipam">Sync phpIPAM</option>
+          <option value="sync_netbox">Sync NetBox</option>
+          <option value="daily_sync">Sync diário</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>Status</label>
+        <select id="f_status" class="input select" style="padding:8px 12px;font-size:13px;">
+          <option value="">Todos</option>
+          <option value="error">Erro</option>
+          <option value="success">Sucesso</option>
+        </select>
+      </div>
+      <button onclick="loadLogs(1)" class="btn-primary" style="align-self:flex-end;">
+        <i data-lucide="search" style="width:14px;height:14px;"></i>
+        Filtrar
+      </button>
+    </div>
+
+    <!-- Tabela -->
+    <div style="margin:0 28px 16px;background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Data / Hora</th>
+            <th>Cliente</th>
+            <th>Operação</th>
+            <th>Status</th>
+            <th>Mensagem</th>
+            <th style="text-align:right;">Duração</th>
+          </tr>
+        </thead>
+        <tbody id="logsTable">
+          <tr><td colspan="6" style="padding:48px;text-align:center;color:var(--text-muted);font-size:13px;">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginação -->
+    <div style="margin:0 28px 40px;display:flex;justify-content:space-between;align-items:center;">
+      <span id="paginaInfo" class="mono" style="font-size:11px;color:var(--text-muted);"></span>
+      <div style="display:flex;gap:8px;">
+        <button id="btnPrev" onclick="changePage(-1)" disabled class="btn-ghost" style="font-size:12px;padding:7px 14px;">← Anterior</button>
+        <button id="btnNext" onclick="changePage(1)"  disabled class="btn-ghost" style="font-size:12px;padding:7px 14px;">Próxima →</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal: Detalhe de Erro -->
+  <div id="detailModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" style="background:rgba(5,11,20,0.75);backdrop-filter:blur(8px);">
+    <div class="modal-panel" style="width:100%;max-width:680px;padding:0;overflow:hidden;">
+      <div style="padding:16px 20px;background:color-mix(in oklab,var(--rose) 8%,transparent);border-bottom:1px solid color-mix(in oklab,var(--rose) 20%,transparent);display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font:600 14px 'Space Grotesk';color:var(--rose);display:flex;align-items:center;gap:8px;margin:0;">
+          <i data-lucide="alert-triangle" style="width:15px;height:15px;"></i>
+          Detalhe do erro
+        </h3>
+        <button onclick="closeDetail()" class="icon-btn"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
+      </div>
+      <pre id="detailContent" class="mono" style="padding:20px 24px;font-size:12px;overflow:auto;max-height:420px;white-space:pre-wrap;color:var(--text-secondary);background:var(--bg-void);margin:0;"></pre>
+    </div>
+  </div>
+
+  <!-- Modal: Configurações -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4" style="background:rgba(5,11,20,0.7);backdrop-filter:blur(8px);">
+    <div class="modal-panel" style="width:100%;max-width:400px;padding:0;">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;">
+        <h3 class="t-h3">Configurações</h3>
+        <button onclick="closeSettingsModal()" class="icon-btn"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
+      </div>
+      <div style="padding:20px 24px;">
+        <p class="t-small" style="color:var(--text-secondary);">Mais opções estarão disponíveis na próxima atualização. O tema pode ser alternado na barra lateral.</p>
+      </div>
+      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;">
+        <button onclick="closeSettingsModal()" class="btn-ghost">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin-nav.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    lucide.createIcons();
+    const API_BASE = `http://${window.location.hostname}:${window.API_PORT || '8000'}/api`;
+    AtlasAPI.requireSession();
+    AtlasAPI.installAuthFetch();
+    let currentPage = 1;
+    const PAGE_LIMIT = 50;
+    let clientMap = {};
+
+    // Escapa dados externos (nomes de cliente, mensagens de erro derivadas de
+    // equipamento) antes de ir para innerHTML — evita XSS armazenado.
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    // Duração legível: segundos com 1 casa até 1 min; acima disso, "Xm Ys".
+    function fmtDur(ms) {
+      if (ms == null) return '—';
+      const s = ms / 1000;
+      if (s < 60) return s.toFixed(1) + 's';
+      const m = Math.floor(s / 60), r = Math.round(s % 60);
+      return r ? `${m}m ${r}s` : `${m}m`;
+    }
+
+    const OP_LABELS = {
+      sync_assets:     'Descoberta',
+      discover_assets: 'Descoberta (link)',
+      extract_bc:      'Extração BC',
+      extract_manual:  'Extração manual',
+      extract_all:     'Extração global',
+      sync_phpipam:    'Sync phpIPAM',
+      sync_netbox:     'Sync NetBox',
+      daily_sync:      'Sync diário',
+    };
+
+    async function loadClients() {
+      try {
+        const res = await fetch(`${API_BASE}/clients`);
+        const clients = (await res.json()).slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' }));
+        clientMap = {};
+        const sel = document.getElementById('f_client');
+        sel.innerHTML = '<option value="">Todos</option>';
+        clients.forEach(c => {
+          clientMap[c.id] = c.name;
+          sel.innerHTML += `<option value="${c.id}">${esc(c.name)}</option>`;
+        });
+      } catch (e) {}
+    }
+
+    async function loadLogs(page) {
+      currentPage = page;
+      const operation = document.getElementById('f_operation').value;
+      const status    = document.getElementById('f_status').value;
+      const clientId  = document.getElementById('f_client').value;
+
+      let url = `${API_BASE}/logs?page=${page}&limit=${PAGE_LIMIT}`;
+      if (operation) url += `&operation=${encodeURIComponent(operation)}`;
+      if (status)    url += `&status=${encodeURIComponent(status)}`;
+      if (clientId)  url += `&client_id=${clientId}`;
+
+      document.getElementById('logsTable').innerHTML =
+        `<tr><td colspan="6" style="padding:48px;text-align:center;color:var(--text-muted);font-size:13px;">Carregando...</td></tr>`;
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const logs = await res.json();
+        const hasMore = res.headers.get('X-Has-More') === 'true';
+        renderLogs(logs);
+        UI.updatePager({ page, count: logs.length, limit: PAGE_LIMIT, hasMore, prevBtn: 'btnPrev', nextBtn: 'btnNext', infoEl: 'paginaInfo' });
+      } catch (e) {
+        document.getElementById('logsTable').innerHTML =
+          `<tr><td colspan="6" style="padding:48px;text-align:center;color:var(--rose);font-size:13px;font-weight:500;">Erro ao carregar logs (${e.message || 'sem resposta'}). Verifique se o backend está rodando.</td></tr>`;
+      }
+    }
+
+    function renderLogs(logs) {
+      if (!logs.length) {
+        document.getElementById('logsTable').innerHTML =
+          `<tr><td colspan="6" style="padding:48px;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic;">Nenhum log encontrado para os filtros selecionados.</td></tr>`;
+        return;
+      }
+      document.getElementById('logsTable').innerHTML = logs.map(l => {
+        const isError    = l.status === 'error';
+        const clientName = l.client_id ? (clientMap[l.client_id] || `#${l.client_id}`) : '—';
+        const opLabel    = OP_LABELS[l.operation] || l.operation || '—';
+        const dt         = l.created_at ? new Date(l.created_at + 'Z').toLocaleString('pt-BR', {timeZone: 'America/Recife'}) : '—';
+        const dur        = fmtDur(l.duration_ms);
+        const statusBadge = isError
+          ? `<span class="chip chip-rose">ERRO</span>`
+          : `<span class="chip chip-emerald">OK</span>`;
+        const detailBtn = isError && l.detail
+          ? `<button type="button" class="log-detail-btn" style="margin-left:8px;font-size:11px;color:var(--rose);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:2px;" data-detail="${encodeURIComponent(l.detail)}">ver detalhe</button>`
+          : '';
+        return `
+          <tr class="${isError ? 'row-err' : 'row-ok'}">
+            <td class="mono" style="font-size:11.5px;color:var(--text-secondary);">${dt}</td>
+            <td style="font:500 13px 'Space Grotesk';color:var(--text-primary);">${esc(clientName)}</td>
+            <td style="font-size:13px;color:var(--text-secondary);">${esc(opLabel)}</td>
+            <td>${statusBadge}</td>
+            <td style="font-size:12px;color:var(--text-muted);max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(l.message || '—')}${detailBtn}</td>
+            <td class="mono" style="font-size:11.5px;color:var(--text-muted);text-align:right;">${dur}</td>
+          </tr>`;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function changePage(dir) { loadLogs(currentPage + dir); }
+
+    function showDetail(detail) {
+      document.getElementById('detailContent').textContent = detail;
+      document.getElementById('detailModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closeDetail() { document.getElementById('detailModal').classList.add('hidden'); }
+
+    function openSettingsModal()  { document.getElementById('settingsModal').classList.remove('hidden'); lucide.createIcons(); }
+    function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
+    function toggleTheme() { toggleAtlasTheme(); }
+
+    window.onclick = e => {
+      if (e.target === document.getElementById('detailModal'))   closeDetail();
+      if (e.target === document.getElementById('settingsModal')) closeSettingsModal();
+    };
+
+    document.getElementById('logsTable').addEventListener('click', (e) => {
+      const btn = e.target.closest('button.log-detail-btn');
+      if (!btn || !btn.dataset.detail) return;
+      showDetail(decodeURIComponent(btn.dataset.detail));
+    });
+
+    window.onload = async () => {
+      await loadClients();
+      loadLogs(1);
+    };
+  </script>
+</body>
+</html>

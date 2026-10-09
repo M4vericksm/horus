@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atlas — Endereçamento IP</title>
+  <link rel="stylesheet" href="styles/colors_and_type.css"/>
+  <link rel="stylesheet" href="styles/components.css"/>
+  <link rel="stylesheet" href="styles/atmosphere.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
+    function toggleAtlasTheme(){ const h=document.documentElement; const n=h.classList.contains('dark')?'light':'dark'; h.classList.remove('dark','light'); h.classList.add(n); localStorage.setItem('atlas-theme',n); }
+  </script>
+  <script>(function(){ if(new URLSearchParams(location.search).get('embed')==='1') document.documentElement.classList.add('embed'); })();</script>
+  <style>
+    html.embed aside.sidebar, html.embed .topbar { display:none !important; }
+    html.embed main { height:100vh; }
+    body { display:flex; min-height:100vh; overflow:hidden; }
+    aside.sidebar { width:220px; flex-shrink:0; background:var(--bg-deep); border-right:1px solid var(--line); height:100vh; position:sticky; top:0; display:flex; flex-direction:column; z-index:50; }
+    main { flex:1; height:100vh; overflow-y:auto; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:24px 28px 0; max-width:1400px; }
+    @media(max-width:900px){ .kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+    .kpi-label { font:500 11px 'Space Grotesk'; color:var(--text-muted); }
+    .kpi-value { font:600 24px 'Space Grotesk'; color:var(--text-primary); margin-top:6px; }
+    .kpi-sub { font:400 11px 'Space Grotesk'; color:var(--text-muted); margin-top:2px; }
+    .cols { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:18px; align-items:start; padding:20px 28px 40px; max-width:1400px; }
+    @media(max-width:1000px){ .cols{ grid-template-columns:1fr; } }
+    .blk-row { display:grid; grid-template-columns:1.4fr 1fr 0.7fr 0.9fr; gap:12px; padding:12px 16px; align-items:center; border-bottom:1px solid var(--line); cursor:pointer; transition:background .12s; }
+    .blk-row:hover { background:var(--bg-elev); } .blk-row.sel { background:color-mix(in oklab, var(--cyan) 9%, transparent); box-shadow:inset 3px 0 0 var(--cyan); }
+    .bar { height:6px; border-radius:4px; background:var(--bg-elev); overflow:hidden; margin-top:5px; }
+    .bar > i { display:block; height:100%; background:var(--cyan); }
+    .calc-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .calc-cell { background:var(--bg-elev); border:1px solid var(--line); border-radius:8px; padding:9px 11px; }
+    .calc-cell .l { font:500 10px 'Space Grotesk'; color:var(--text-muted); }
+    .calc-cell .v { font:600 13px 'JetBrains Mono'; color:var(--text-primary); margin-top:3px; }
+    .host-row { display:grid; grid-template-columns:1.2fr 0.5fr 1fr 1fr; gap:10px; padding:9px 14px; border-bottom:1px solid var(--line); align-items:center; font-size:12px; }
+    .panel-h { padding:14px 18px; border-bottom:1px solid var(--line); }
+    select.grp, select.flt, input.flt { height:36px; padding:0 12px; border-radius:10px; background:var(--bg-elev); border:1px solid var(--line-strong); color:var(--text-primary); font-size:13px; }
+    select.grp, select.flt { appearance:none; -webkit-appearance:none; padding-right:30px; cursor:pointer; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237E8AA0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 10px center; }
+    select.grp option, select.flt option { background:var(--bg-elev); color:var(--text-primary); }
+    select.grp { min-width:240px; }
+    .empty { text-align:center; padding:60px 20px; color:var(--text-muted); }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <main>
+    <header class="topbar" style="padding:20px 28px;position:sticky;top:0;z-index:30;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div class="module-tag" style="font-family:'JetBrains Mono';font-size:11px;color:var(--cyan);font-weight:600;">// ip_inventory</div>
+        <h1 class="t-h1">Endereçamento IP</h1>
+      </div>
+      <select class="grp" id="groupSel"></select>
+    </header>
+    <div id="content"></div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin-nav.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/provider-picker.js"></script>
+  <script src="js/vlan-finder.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/data_api.js"></script>
+  <script>
+    AtlasAPI.requireSession();
+    AtlasAPI.installAuthFetch();
+    AtlasNav.render('ips');
+
+    const H = AtlasData.helpers;
+    const content = document.getElementById('content');
+    const groupSel = document.getElementById('groupSel');
+    let NET = null, selBlock = null, scope = 'todos', q = '', TREE = [];
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    function showState(msg, icon, color) {
+      const spin = /loader/i.test(icon) ? 'animation:spin 1s linear infinite;' : '';
+      content.innerHTML = `<div class="empty"><i data-lucide="${icon}" style="display:block;margin:0 auto;width:28px;height:28px;color:${color||'var(--text-muted)'};${spin}"></i><p style="margin-top:10px">${esc(msg)}</p></div>`;
+      lucide.createIcons();
+    }
+
+    async function init() {
+      showState('Carregando grupos…', 'loader-2', 'var(--cyan)');
+      let groups;
+      try { groups = await AtlasData.loadGroups(); }
+      catch (e) { showState('Falha ao listar grupos: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
+      if (!groups.length) { showState('Nenhum grupo cadastrado.', 'inbox'); return; }
+      groupSel.innerHTML = groups.map(g => `<option value="${g.id}">${esc(g.name)} · ${(g.subnet_count || 0).toLocaleString('pt-BR')} subnets</option>`).join('');
+      const qid = new URLSearchParams(location.search).get('client_id');
+      if (qid && groups.some(g => String(g.id) === qid)) groupSel.value = qid;
+      AtlasPicker.enhance(groupSel, { placeholder: "Digite o nome do provedor…" });
+      groupSel.onchange = () => loadGroup(groupSel.value);
+      loadGroup(groupSel.value);
+    }
+
+    async function loadGroup(id) {
+      showState('Carregando IPs…', 'loader-2', 'var(--cyan)');
+      try { NET = await AtlasData.loadGroup(id); }
+      catch (e) { showState('Falha ao carregar o grupo: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
+      selBlock = NET.ipBlocks.length ? NET.ipBlocks[0].prefix : null;
+      render();
+    }
+
+    function blocksFiltered() {
+      return NET.ipBlocks.filter(b => (scope === 'todos' || b.scope === scope) && (!q || b.prefix.includes(q) || (b.desc||'').toLowerCase().includes(q.toLowerCase()) || (b.edge||'').toLowerCase().includes(q.toLowerCase())));
+    }
+
+    function kpis() {
+      const all = NET.ipBlocks;
+      const filtered = scope === 'todos' ? all : all.filter(b => b.scope === scope);
+      const isFiltered = scope !== 'todos';
+      const fUsed = filtered.reduce((s,b)=>s+b.used,0);
+      const fFree = filtered.reduce((s,b)=>s+Math.max(0,b.total-b.used),0);
+      const fPub = filtered.filter(b=>b.scope==='publico').length;
+      const fPriv = filtered.filter(b=>b.scope==='privado').length;
+      const fHosts = filtered.length ? NET.ipHosts.filter(h => filtered.some(b => b.prefix === h.block)).length : 0;
+      const ctx = (v, total) => isFiltered ? `${v} de ${total}` : v;
+      const card = (l,v,s,a)=>`<div class="kpi-card" style="--accent:${a}"><div class="kpi-label">${l}</div><div class="kpi-value">${v}</div><div class="kpi-sub">${s}</div></div>`;
+      return `<div class="kpi-grid">
+        ${card('Blocos', ctx(filtered.length, all.length), fPub+' públicos · '+fPriv+' privados', 'var(--cyan)')}
+        ${card('IPs em uso', ctx(fUsed.toLocaleString('pt-BR'), all.reduce((s,b)=>s+b.used,0).toLocaleString('pt-BR')), 'mapeados', 'var(--amber)')}
+        ${card('IPs livres', ctx(fFree.toLocaleString('pt-BR'), all.reduce((s,b)=>s+Math.max(0,b.total-b.used),0).toLocaleString('pt-BR')), 'estimados nos blocos', 'var(--emerald)')}
+        ${card('Hosts mapeados', ctx(fHosts.toLocaleString('pt-BR'), NET.ipHosts.length.toLocaleString('pt-BR')), 'IPs de interface', 'var(--magenta)')}
+      </div>`;
+    }
+
+    // ── Árvore de blocos: contenção por IP + pai /24 agregado (suposto) ──────
+    function blkNet(b) { return b._net != null ? b._net : b.prefix.split('/')[0]; }
+    function blkMask(b) { return b._mask != null ? b._mask : +b.prefix.split('/')[1]; }
+    function blkContains(pNet, pMask, cNet, cMask) { return pMask < cMask && H.networkOf(cNet, pMask) === pNet; }
+    function blkCmp(a, b) { return (H.ipToInt(a._net) - H.ipToInt(b._net)) || (a._mask - b._mask); }
+
+    function buildBlockTree(blocks) {
+      const nodes = blocks.map(b => Object.assign({}, b, { _net: blkNet(b), _mask: blkMask(b), inferred: false }));
+      const have = new Set(nodes.map(n => n.prefix));
+      // Sintetiza pais /24 quando 2+ blocos > /24 compartilham o mesmo /24 e ele não existe.
+      const sup = {};
+      nodes.forEach(n => { if (n._mask > 24) { const s = H.networkOf(n._net, 24); if (s) sup[s] = (sup[s] || 0) + 1; } });
+      Object.keys(sup).forEach(s => {
+        const pref = s + '/24';
+        const parentScope = H.scopeOf(s);
+        if (sup[s] >= 2 && !have.has(pref) && (scope === 'todos' || parentScope === scope)) {
+          nodes.push({ prefix: pref, _net: s, _mask: 24, total: H.hostCount(24), used: 0, scope: parentScope, desc: 'agregado (suposto)', edge: '—', inferred: true });
+          have.add(pref);
+        }
+      });
+      // Liga ao pai mais específico.
+      nodes.forEach(n => {
+        let parent = null;
+        nodes.forEach(c => { if (c !== n && blkContains(c._net, c._mask, n._net, n._mask)) { if (!parent || c._mask > parent._mask) parent = c; } });
+        n._parent = parent;
+      });
+      const childrenOf = p => nodes.filter(n => n._parent === p).sort(blkCmp);
+      const out = [];
+      const walk = (n, d) => { out.push({ block: n, depth: d }); childrenOf(n).forEach(c => walk(c, d + 1)); };
+      nodes.filter(n => !n._parent).sort(blkCmp).forEach(r => walk(r, 0));
+      return out;
+    }
+
+    function blockList() {
+      const rows = TREE.map(({ block: b, depth }) => {
+        const pct = b.total ? Math.min(100, Math.round(b.used / b.total * 100)) : 0;
+        const totalLabel = b.total > 9999 ? '—' : b.total;
+        const arrow = depth > 0 ? '<i data-lucide="corner-down-right" style="width:12px;height:12px;color:var(--text-muted);flex-shrink:0"></i>' : '';
+        const tag = b.inferred ? '<span class="chip chip-slate" title="Bloco /24 deduzido por agregação dos sub-blocos — não foi lido da config do equipamento." style="color:var(--cyan);border-color:color-mix(in oklab,var(--cyan) 30%,transparent)">suposto</span>' : '';
+        const usage = b.inferred ? '<div></div>' : `<div><div class="mono" style="font-size:11px;color:var(--text-secondary)">${b.used}/${totalLabel}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`;
+        return `<div class="blk-row${b.prefix === selBlock ? ' sel' : ''}" data-blk="${esc(b.prefix)}" style="padding-left:${16 + depth * 22}px">
+          <div style="min-width:0;display:flex;align-items:center;gap:7px">${arrow}<div style="min-width:0"><span class="mono" style="font-size:12.5px;font-weight:600;color:var(--text-primary)">${esc(b.prefix)}</span> ${tag}<div style="font-size:10.5px;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(b.desc || '—')}</div></div></div>
+          <div class="mono" style="font-size:11px;color:var(--text-muted)">${esc(b.edge)}</div>
+          <span class="chip ${b.scope === 'publico' ? 'chip-amber' : 'chip-slate'}" style="justify-self:start">${b.scope}</span>
+          ${usage}
+        </div>`;
+      }).join('');
+      return `<div class="surface" style="padding:0">
+        <div class="panel-h" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <b style="font:600 13px 'Space Grotesk';color:var(--text-primary)">Blocos de IP</b>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="position:relative;display:flex;align-items:center">
+              <i data-lucide="search" style="position:absolute;left:9px;width:14px;height:14px;color:var(--text-muted);pointer-events:none"></i>
+              <input class="flt" id="flt" placeholder="buscar IP, bloco, descrição ou equipamento…" value="${esc(q)}" style="width:min(260px,46vw);padding-left:30px"/>
+            </div>
+            <select class="flt" id="scopeSel" title="Tipo de IP"><option value="todos">Todos os tipos</option><option value="publico">Público</option><option value="privado">Privado</option></select>
+          </div>
+        </div>
+        ${TREE.length ? rows : '<div class="empty"><i data-lucide="search-x"></i><p style="margin-top:8px">Nenhum bloco para o filtro.</p></div>'}
+      </div>`;
+    }
+
+    function calc() {
+      const node = TREE.find(r => r.block.prefix === selBlock);
+      const b = node ? node.block : null;
+      if (!b) return `<div class="surface"><div class="empty"><i data-lucide="calculator"></i><p style="margin-top:8px">Selecione um bloco.</p></div></div>`;
+      const ip = b.prefix.split('/')[0], mask = +b.prefix.split('/')[1];
+      const net = H.networkOf(ip, mask), gw = H.gatewayOf(ip, mask), bc = H.broadcastOf(ip, mask);
+      const cell = (l,v)=>`<div class="calc-cell"><div class="l">${l}</div><div class="v">${esc(v)}</div></div>`;
+      const hosts = NET.ipHosts.filter(h => h.block === b.prefix);
+      const hostRows = hosts.map(h => `<div class="host-row"><span class="mono" style="color:var(--text-primary)">${esc(h.ip)}</span><span class="mono" style="color:var(--cyan)">${h.vid ?? '—'}</span><span class="mono" style="color:var(--text-muted)">${esc(h.iface)}</span><span style="color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(h.use||'—')}</span></div>`).join('');
+      return `<div class="surface" style="padding:0">
+        <div class="panel-h"><b style="font:600 13px 'Space Grotesk';color:var(--text-primary)">Calculadora · ${esc(b.prefix)}</b><div style="font-size:11px;color:var(--text-muted);margin-top:2px">${esc(b.edge)} · ${b.scope} · ${b.total.toLocaleString('pt-BR')} hosts</div></div>
+        <div style="padding:14px 18px"><div class="calc-grid">${cell('Rede', net+'/'+mask)}${cell('Gateway', gw)}${cell('Broadcast', bc)}${cell('Hosts utilizáveis', b.total.toLocaleString('pt-BR'))}</div></div>
+        <div style="padding:0 18px 6px"><div class="t-label-soft" style="font-size:11px;color:var(--text-muted)">IPs mapeados neste bloco (${hosts.length})</div></div>
+        ${hosts.length ? `<div style="display:grid;grid-template-columns:1.2fr 0.5fr 1fr 1fr;gap:10px;padding:6px 14px;border-bottom:1px solid var(--line)"><span class="t-label-soft" style="font-size:10px;color:var(--text-muted)">IP</span><span class="t-label-soft" style="font-size:10px;color:var(--text-muted)">VLAN</span><span class="t-label-soft" style="font-size:10px;color:var(--text-muted)">Interface</span><span class="t-label-soft" style="font-size:10px;color:var(--text-muted)">Uso</span></div>${hostRows}` : '<div class="empty" style="padding:24px"><p>Nenhum IP de host mapeado neste bloco.</p></div>'}
+      </div>`;
+    }
+
+    // ── Calculadora de IP independente (digite qualquer IP/CIDR) ──────────────
+    let calcCidr = '10.0.0.0/24';
+    function _i2ip(n){ return [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.'); }
+    function _maskDotted(m){ const v = m<=0?0:(m>=32?0xffffffff:((0xffffffff<<(32-m))>>>0)); return _i2ip(v>>>0); }
+    function _wildcard(m){ const v = m>=32?0:((~((m<=0?0:(0xffffffff<<(32-m)))>>>0))>>>0); return _i2ip(v>>>0); }
+    function ipCalculator() {
+      return `<div class="surface" style="padding:0">
+        <div class="panel-h"><b style="font:600 13px 'Space Grotesk';color:var(--text-primary)">Calculadora de IP</b><div style="font-size:11px;color:var(--text-muted);margin-top:2px">Digite um IP ou CIDR — ex.: 192.168.10.0/24</div></div>
+        <div style="padding:14px 18px">
+          <input class="flt" id="calcInput" placeholder="ex.: 10.20.0.0/22" value="${esc(calcCidr)}" style="width:100%;margin-bottom:12px"/>
+          <div id="calcOut"></div>
+        </div>
+      </div>`;
+    }
+    function calcCompute() {
+      const out = document.getElementById('calcOut'); if (!out) return;
+      const m = (calcCidr || '').trim().match(/^(\d{1,3}(?:\.\d{1,3}){3})(?:\s*\/\s*(\d{1,2}))?$/);
+      if (!m) { out.innerHTML = '<div style="font-size:12px;color:var(--text-muted)">Formato inválido — use <span class="mono">IP</span> ou <span class="mono">IP/máscara</span>.</div>'; return; }
+      const ip = m[1], mask = m[2] != null ? +m[2] : 24;
+      const okOctets = ip.split('.').every(o => +o >= 0 && +o <= 255);
+      if (!okOctets || H.ipToInt(ip) == null || mask < 0 || mask > 32) { out.innerHTML = '<div style="font-size:12px;color:var(--rose)">IP ou máscara inválidos.</div>'; return; }
+      const net = H.networkOf(ip, mask), bc = H.broadcastOf(ip, mask), gw = H.gatewayOf(ip, mask), hosts = H.hostCount(mask);
+      const last = mask >= 31 ? bc : _i2ip((H.ipToInt(bc) - 1) >>> 0);
+      const cell = (l,v)=>`<div class="calc-cell"><div class="l">${l}</div><div class="v">${esc(v)}</div></div>`;
+      out.innerHTML = `<div class="calc-grid">
+        ${cell('Rede', net + '/' + mask)}
+        ${cell('Máscara', _maskDotted(mask))}
+        ${cell('Gateway (1º útil)', gw)}
+        ${cell('Broadcast', bc)}
+        ${cell('Faixa utilizável', mask >= 31 ? '—' : gw + ' – ' + last)}
+        ${cell('Hosts utilizáveis', hosts.toLocaleString('pt-BR'))}
+        ${cell('Wildcard', _wildcard(mask))}
+        ${cell('Tipo', H.scopeOf(net))}
+      </div>`;
+    }
+
+    function render() {
+      TREE = buildBlockTree(blocksFiltered());
+      if (!TREE.some(r => r.block.prefix === selBlock)) selBlock = TREE.length ? TREE[0].block.prefix : null;
+      content.innerHTML = kpis() + `<div class="cols"><div>${blockList()}</div><div style="display:flex;flex-direction:column;gap:18px">${ipCalculator()}${calc()}</div></div>`;
+      const flt = document.getElementById('flt'); if (flt) flt.oninput = (e) => { q = e.target.value; const pos = flt.selectionStart; render(); const nf = document.getElementById('flt'); if (nf){ nf.focus(); nf.setSelectionRange(pos,pos);} };
+      const ss = document.getElementById('scopeSel'); if (ss) { ss.value = scope; ss.onchange = (e) => { scope = e.target.value; render(); }; }
+      const ci = document.getElementById('calcInput'); if (ci) ci.oninput = (e) => { calcCidr = e.target.value; calcCompute(); };
+      content.querySelectorAll('.blk-row').forEach(el => el.onclick = () => { selBlock = el.dataset.blk; render(); });
+      calcCompute();
+      lucide.createIcons();
+    }
+
+    init();
+  </script>
+</body>
+</html>

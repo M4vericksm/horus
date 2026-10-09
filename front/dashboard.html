@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atlas — Visão Geral</title>
+  <link rel="stylesheet" href="styles/colors_and_type.css"/>
+  <link rel="stylesheet" href="styles/components.css"/>
+  <link rel="stylesheet" href="styles/atmosphere.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
+    function toggleAtlasTheme() {
+      const html = document.documentElement;
+      const next = html.classList.contains('dark') ? 'light' : 'dark';
+      html.classList.remove('dark','light');
+      html.classList.add(next);
+      localStorage.setItem('atlas-theme', next);
+    }
+  </script>
+  <style>
+    body { display:flex; min-height:100vh; overflow:hidden; }
+    aside.sidebar { width:220px; flex-shrink:0; background:var(--bg-deep); border-right:1px solid var(--line); height:100vh; position:sticky; top:0; display:flex; flex-direction:column; z-index:50; }
+    main { flex:1; height:100vh; overflow-y:auto; }
+    header.topbar { background:var(--bg-deep); border-bottom:1px solid var(--line); padding:20px 28px; position:sticky; top:0; z-index:30; display:flex; justify-content:space-between; align-items:center; backdrop-filter:blur(12px); }
+    .module-tag { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--cyan); font-weight:600; letter-spacing:0.05em; margin-bottom:4px; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:24px 28px 0; max-width:1400px; }
+    @media(max-width:900px){ .kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+    .client-grid { padding:20px 28px 40px; display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+    .stat-box { background:var(--bg-elev); border-radius:8px; padding:8px 10px; }
+    .stat-label { font:500 10px 'Space Grotesk'; color:var(--text-muted); margin-bottom:3px; }
+    .stat-value { font:600 14px 'JetBrains Mono',monospace; color:var(--text-primary); }
+    @keyframes slideInToast { from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);} }
+    @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div style="display:flex;align-items:center;gap:12px;padding:22px 20px;border-bottom:1px solid var(--line);">
+      <img src="assets/atlas-logo.png" width="36" height="36" alt="Atlas" class="octo-idle"/>
+      <span class="brand" style="font-size:28px;color:var(--text-primary);line-height:1;">Atlas</span>
+    </div>
+    <nav style="flex:1;padding:14px 0;">
+      <a href="dashboard.html" class="nav-btn active">
+        <i data-lucide="layout-dashboard" style="width:15px;height:15px;"></i>
+        <span>Visão geral</span>
+      </a>
+      <a href="logs.html" class="nav-btn">
+        <i data-lucide="activity" style="width:15px;height:15px;"></i>
+        <span>Atividade</span>
+      </a>
+      <a href="admin_clients.html" class="nav-btn">
+        <i data-lucide="folder-tree" style="width:15px;height:15px;"></i>
+        <span>Grupos e ativos</span>
+      </a>
+      <a href="vlans.html" class="nav-btn">
+        <i data-lucide="layers-3" style="width:15px;height:15px;"></i>
+        <span>VLANs</span>
+      </a>
+      <a href="topologia.html" class="nav-btn">
+        <i data-lucide="share-2" style="width:15px;height:15px;"></i>
+        <span>Topologia</span>
+      </a>
+      <a href="ips.html" class="nav-btn">
+        <i data-lucide="globe" style="width:15px;height:15px;"></i>
+        <span>IPs</span>
+      </a>
+    </nav>
+    <div style="padding:12px 14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-elev);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i data-lucide="user" style="width:14px;height:14px;color:var(--text-secondary);"></i>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <p style="font:600 12px 'Space Grotesk';color:var(--text-primary);margin:0;">Administrador</p>
+        <p style="font-size:11px;color:var(--text-muted);margin:0;">Sistema</p>
+      </div>
+      <button onclick="toggleAtlasTheme()" class="icon-btn" title="Alternar tema">
+        <i data-lucide="sun-moon" style="width:15px;height:15px;"></i>
+      </button>
+      <button onclick="AtlasAPI.logout()" class="icon-btn" title="Sair">
+        <i data-lucide="log-out" style="width:15px;height:15px;"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <header class="topbar">
+      <div>
+        <div class="module-tag">// command_deck</div>
+        <h1 class="t-h1">Grupos monitorados</h1>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+          <div class="status-live"><span class="dot"></span>Sistema online</div>
+          <span class="mono" style="font-size:11px;color:var(--text-muted);" id="clientCount"></span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="AtlasVlanFinder.open()" class="btn-ghost" title="Buscar uma VLAN em todos os provedores (atalho: /)">
+          <i data-lucide="search" style="width:14px;height:14px;"></i>
+          Buscar VLAN
+        </button>
+        <button id="btn-extract-all" onclick="extractAllGroups(this)" class="btn-ghost">
+          <i data-lucide="download-cloud" style="width:14px;height:14px;"></i>
+          Extrair tudo
+        </button>
+        <button onclick="window.location.href='admin_clients.html?action=new'" class="btn-primary">
+          <i data-lucide="plus" style="width:14px;height:14px;"></i>
+          Novo grupo
+        </button>
+      </div>
+    </header>
+
+    <div class="kpi-grid" id="kpi-row"></div>
+
+    <!-- Filtro dos cards: com ~100 grupos, rolar a grade inteira não escala. -->
+    <div style="padding:20px 28px 0;max-width:1400px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="position:relative;flex:1;min-width:240px;max-width:420px;">
+        <i data-lucide="search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);pointer-events:none;"></i>
+        <input id="clientFilter" type="text" placeholder="Filtrar provedores por nome…" aria-label="Filtrar provedores"
+               style="width:100%;height:40px;padding:0 12px 0 36px;border-radius:10px;background:var(--bg-elev);border:1px solid var(--line-strong);color:var(--text-primary);font-size:13px;font-family:inherit;">
+      </div>
+      <span id="filterCount" class="mono" style="font-size:11px;color:var(--text-muted);"></span>
+    </div>
+
+    <div class="client-grid" id="clients-grid">
+      <div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;padding:80px 0;color:var(--text-muted);font-size:13px;">Carregando grupos...</div>
+    </div>
+  </main>
+
+  <!-- Modal: Configurações -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(5,11,20,0.7);backdrop-filter:blur(8px);">
+    <div class="modal-panel" style="width:100%;max-width:400px;padding:0;">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;">
+        <h3 class="t-h3">Configurações</h3>
+        <button onclick="closeSettingsModal()" class="icon-btn"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
+      </div>
+      <div style="padding:20px 24px;">
+        <p class="t-small" style="color:var(--text-secondary);">Mais opções estarão disponíveis na próxima atualização. O tema pode ser alternado na barra lateral.</p>
+      </div>
+      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;">
+        <button onclick="closeSettingsModal()" class="btn-ghost">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin-nav.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/provider-picker.js"></script>
+  <script src="js/vlan-finder.js"></script>
+  <script>
+    lucide.createIcons();
+    const API_BASE = `http://${window.location.hostname}:${window.API_PORT || '8000'}/api`;
+    AtlasAPI.requireSession();
+    AtlasAPI.installAuthFetch();
+
+    // Lista completa em memória: o filtro por nome repinta a grade sem refetch.
+    let ALL_CLIENTS = [];
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    const _nameCollator = new Intl.Collator('pt-BR', { sensitivity: 'base', numeric: true });
+    function _cmpClientName(a, b) {
+      const na = (a.name || '').trim();
+      const nb = (b.name || '').trim();
+      const c = _nameCollator.compare(na, nb);
+      return c !== 0 ? c : (a.id || 0) - (b.id || 0);
+    }
+
+    async function renderClients() {
+      const grid = document.getElementById('clients-grid');
+      try {
+        const res = await fetch(`${API_BASE}/clients`);
+        if (!res.ok) throw new Error();
+        const clients = (await res.json()).slice().sort(_cmpClientName);
+        ALL_CLIENTS = clients;
+
+        document.getElementById('clientCount').textContent =
+          `${clients.length} grupo${clients.length !== 1 ? 's' : ''} cadastrado${clients.length !== 1 ? 's' : ''}`;
+
+        // KPI row
+        const totalAssets = clients.reduce((s,c) => s+(c.asset_count||0), 0);
+        const totalVlans  = clients.reduce((s,c) => s+(c.vlan_count||0), 0);
+        const bcCount     = clients.filter(c => !!c.external_group_id).length;
+        document.getElementById('kpi-row').innerHTML = [
+          { accent:'var(--cyan)',    icon:'folder-tree',  label:'Grupos',  value: clients.length.toLocaleString('pt-BR') },
+          { accent:'var(--magenta)', icon:'cloud',        label:'BackupCenter', value: bcCount.toLocaleString('pt-BR') },
+          { accent:'var(--emerald)', icon:'router',       label:'Ativos',  value: totalAssets.toLocaleString('pt-BR') },
+          { accent:'var(--amber)',   icon:'layers',       label:'VLANs',   value: totalVlans.toLocaleString('pt-BR') },
+        ].map((k,i) => `
+          <div class="kpi-card fade-up" style="--accent:${k.accent};animation-delay:${i*30}ms;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <i data-lucide="${k.icon}" style="width:14px;height:14px;color:${k.accent};"></i>
+              <span class="t-label-soft">${k.label}</span>
+            </div>
+            <p class="mono" style="font-size:28px;font-weight:600;color:var(--text-primary);margin:0;">${k.value}</p>
+          </div>`).join('');
+
+        if (!clients.length) {
+          grid.innerHTML = `
+            <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;">
+              <div style="width:64px;height:64px;border-radius:14px;background:var(--bg-surface);border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;">
+                <i data-lucide="folder-open" style="width:28px;height:28px;color:var(--cyan);"></i>
+              </div>
+              <div style="text-align:center;">
+                <p style="font:600 14px 'Space Grotesk';color:var(--text-primary);margin:0 0 4px;">Nenhum grupo cadastrado ainda</p>
+                <p style="font-size:13px;color:var(--text-secondary);margin:0;">Crie o primeiro grupo para começar a monitorar</p>
+              </div>
+              <button onclick="window.location.href='admin_clients.html?action=new'" class="btn-primary">
+                <i data-lucide="plus" style="width:14px;height:14px;"></i> Criar primeiro grupo
+              </button>
+            </div>`;
+          lucide.createIcons();
+          return;
+        }
+
+        renderGrid();
+      } catch (e) {
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:20px;border-radius:14px;background:color-mix(in oklab,var(--rose) 8%,transparent);border:1px solid color-mix(in oklab,var(--rose) 25%,transparent);color:var(--rose);font-size:13px;">Erro de conexão com o backend. Verifique se os containers estão rodando.</div>`;
+      }
+    }
+
+    /** Cartão de um provedor. Os atalhos param a propagação para não disparar
+     *  a navegação do card inteiro (que vai para a configuração). */
+    function _clientCard(c, i) {
+      const isBC    = !!c.external_group_id;
+      const isNetBox = c.system === 'netbox' || !!c.netbox_url;
+      const endpoint = isNetBox ? c.netbox_url : c.ip;
+      const hasIPAM = !!endpoint;
+      const ipamName = isNetBox ? 'NetBox' : 'phpIPAM';
+      const accentColor = isBC ? 'var(--magenta)' : 'var(--cyan)';
+      const go = (page) => `event.stopPropagation();window.location.href='${page}.html?client_id=${c.id}'`;
+      const link = (page, icon, label) => `
+        <button type="button" onclick="${go(page)}" title="${label} de ${esc(c.name)}"
+                style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:5px 0;border-radius:7px;
+                       background:transparent;border:1px solid var(--line);color:var(--text-muted);
+                       font:500 10.5px 'Space Grotesk';cursor:pointer;font-family:inherit;">
+          <i data-lucide="${icon}" style="width:11px;height:11px;"></i>${label}</button>`;
+      return `
+        <div class="client-card fade-up" style="--accent-color:${accentColor};animation-delay:${Math.min(i,12)*30}ms;"
+             onclick="window.location.href='admin_clients.html?edit=${c.id}'">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+            ${isBC
+              ? `<span class="chip chip-magenta"><i data-lucide="cloud" style="width:10px;height:10px;"></i>&nbsp;BackupCenter</span>`
+              : `<span class="chip chip-cyan"><i data-lucide="hand" style="width:10px;height:10px;"></i>&nbsp;Manual</span>`}
+            <i data-lucide="arrow-up-right" style="width:14px;height:14px;color:${accentColor};opacity:0.5;"></i>
+          </div>
+          <h3 style="font:600 15px 'Space Grotesk';color:var(--text-primary);margin:0 0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(c.name)}</h3>
+          <p class="mono" style="font-size:11px;color:var(--text-muted);margin:0 0 16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(endpoint || 'Sem endpoint configurado')}</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+            <div class="stat-box"><div class="stat-label">Ativos</div><div class="stat-value">${c.asset_count||0}</div></div>
+            <div class="stat-box"><div class="stat-label">VLANs</div><div class="stat-value">${c.vlan_count||0}</div></div>
+            <div class="stat-box"><div class="stat-label">Subnets</div><div class="stat-value">${c.subnet_count||0}</div></div>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:12px;">
+            ${link('vlans','layers','VLANs')}${link('ips','network','IPs')}${link('topologia','share-2','Topo')}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--line);">
+            <span style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${hasIPAM?'var(--emerald)':'var(--amber)'};box-shadow:0 0 6px ${hasIPAM?'rgba(107,181,146,0.5)':'rgba(201,149,82,0.5)'};"></span>
+            <span style="font:500 11px 'Space Grotesk';color:${hasIPAM?'var(--emerald)':'var(--amber)'};">${hasIPAM ? `${ipamName} conectado` : `IPAM pendente`}</span>
+          </div>
+        </div>`;
+    }
+
+    /** Repinta a grade aplicando o filtro por nome (sem nova requisição). */
+    function renderGrid() {
+      const grid = document.getElementById('clients-grid');
+      const q = (document.getElementById('clientFilter').value || '').trim().toLowerCase();
+      const list = q ? ALL_CLIENTS.filter(c => (c.name || '').toLowerCase().includes(q)) : ALL_CLIENTS;
+
+      document.getElementById('filterCount').textContent =
+        q ? `${list.length} de ${ALL_CLIENTS.length}` : '';
+
+      if (!list.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:60px 20px;text-align:center;color:var(--text-muted);font-size:13px;">
+          Nenhum provedor encontrado para “${esc(q)}”.</div>`;
+        return;
+      }
+      grid.innerHTML = list.map(_clientCard).join('');
+      lucide.createIcons();
+    }
+
+    async function extractAllGroups(btn) {
+      const originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;display:inline-block;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Extraindo...`;
+      try {
+        const res = await fetch(`${API_BASE}/backupcenter/extract-all`, { method: 'POST' });
+        if (!res.ok) throw new Error();
+        const started = await res.json();
+        if (!started.job_id) throw new Error();
+        UI.showToast('Extração global iniciada: grupos, ativos, VLANs e subnets.', 'info');
+
+        let finalJob = null;
+        for (let i = 0; i < 180; i++) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const jobRes = await fetch(`${API_BASE}/jobs/${started.job_id}`);
+          if (!jobRes.ok) throw new Error();
+          const job = await jobRes.json();
+          const progress = job.progress || {};
+          const label = job.status === 'queued'
+            ? 'Na fila'
+            : `${progress.groups_seen ? `${progress.groups_seen} grupos` : (job.phase || 'Processando')}`;
+          btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;display:inline-block;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ${label}`;
+          if (job.status === 'completed' || job.status === 'partial' || job.status === 'error') {
+            finalJob = job;
+            break;
+          }
+          if (i % 5 === 0) renderClients();
+        }
+
+        if (!finalJob) {
+          UI.showToast('Extração ainda em andamento. Consulte a tela de Atividade.', 'warning');
+        } else {
+          const type = finalJob.status === 'error' ? 'error' : (finalJob.status === 'partial' ? 'warning' : 'success');
+          UI.showToast(finalJob.message || 'Extração global concluída.', type);
+        }
+        renderClients();
+      } catch (e) {
+        UI.showToast('Erro ao iniciar a extração global.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        lucide.createIcons();
+      }
+    }
+
+
+    function openSettingsModal()  { document.getElementById('settingsModal').classList.remove('hidden'); lucide.createIcons(); }
+    function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
+    function toggleTheme() { toggleAtlasTheme(); }
+
+    window.onclick = e => { if (e.target === document.getElementById('settingsModal')) closeSettingsModal(); };
+
+    // "/" abre a busca de VLAN de qualquer lugar (menos dentro de um campo).
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      e.preventDefault();
+      AtlasVlanFinder.open();
+    });
+
+    window.onload = () => {
+      const filter = document.getElementById('clientFilter');
+      let t;
+      filter.addEventListener('input', () => { clearTimeout(t); t = setTimeout(renderGrid, 120); });
+      renderClients();
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atlas — Mapa de VLANs</title>
+  <link rel="stylesheet" href="styles/colors_and_type.css"/>
+  <link rel="stylesheet" href="styles/components.css"/>
+  <link rel="stylesheet" href="styles/atmosphere.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
+    function toggleAtlasTheme(){ const h=document.documentElement; const n=h.classList.contains('dark')?'light':'dark'; h.classList.remove('dark','light'); h.classList.add(n); localStorage.setItem('atlas-theme',n); }
+  </script>
+  <script>(function(){ if(new URLSearchParams(location.search).get('embed')==='1') document.documentElement.classList.add('embed'); })();</script>
+  <style>
+    html.embed aside.sidebar, html.embed .topbar { display:none !important; }
+    html.embed main { height:100vh; }
+    body { display:flex; min-height:100vh; overflow:hidden; }
+    aside.sidebar { width:220px; flex-shrink:0; background:var(--bg-deep); border-right:1px solid var(--line); height:100vh; position:sticky; top:0; display:flex; flex-direction:column; z-index:50; }
+    main { flex:1; height:100vh; overflow-y:auto; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:24px 28px 0; max-width:1400px; }
+    @media(max-width:900px){ .kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+    .kpi-label { font:500 11px 'Space Grotesk'; color:var(--text-muted); }
+    .kpi-value { font:600 26px 'Space Grotesk'; color:var(--text-primary); margin-top:6px; }
+    .kpi-sub { font:400 11px 'Space Grotesk'; color:var(--text-muted); margin-top:2px; }
+    .cols { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); gap:18px; align-items:start; padding:20px 28px 40px; max-width:1400px; }
+    @media(max-width:1000px){ .cols{ grid-template-columns:1fr; } }
+    /* Painel de VLANs com altura fixa: só a lista rola, mantendo "Caminho da VLAN" no lugar. */
+    .vlan-panel { display:flex; flex-direction:column; max-height:calc(100vh - 190px); min-height:420px; }
+    .vlan-rows { overflow-y:auto; flex:1; min-height:0; }
+    /* Custom pill-shaped scrollbar */
+    .vlan-rows::-webkit-scrollbar { width:8px; }
+    .vlan-rows::-webkit-scrollbar-track { background:transparent; }
+    .vlan-rows::-webkit-scrollbar-thumb { background-color:hsl(210,20%,50%); border-radius:4px; }
+    .vlan-rows { scrollbar-width:thin; scrollbar-color:hsl(210,20%,50%) transparent; }
+    @media(max-width:1000px){ .vlan-panel{ max-height:none; } .vlan-rows{ overflow:visible; } }
+    .vlan-row { display:grid; grid-template-columns:92px 1fr 84px; gap:14px; padding:13px 18px; align-items:center; border-bottom:1px solid var(--line); cursor:pointer; transition:background .12s; }
+    .vlan-row:hover { background:color-mix(in oklab, var(--cyan) 6%, transparent); }
+    .vlan-row.sel { background:color-mix(in oklab, var(--cyan) 9%, transparent); box-shadow:inset 3px 0 0 var(--cyan); }
+    .vid-badge { display:inline-flex; align-items:center; justify-content:center; padding:4px 0; border-radius:6px; background:var(--bg-elev); border:1px solid var(--line-strong); font:600 12px 'JetBrains Mono'; color:var(--cyan); }
+    .subnet-tag { font:400 10.5px 'JetBrains Mono'; color:var(--text-muted); background:var(--bg-elev); padding:2px 6px; border-radius:5px; }
+    .hop { display:flex; align-items:center; gap:12px; padding:13px 15px; border-radius:10px; background:var(--bg-elev); border:1px solid var(--line-strong); }
+    .hop.origem { border-color:var(--magenta); } .hop.destino { border-color:var(--emerald); }
+    .path-stack { position:relative; display:flex; flex-direction:column; gap:14px; }
+    .iface-card { padding:10px 12px; border-radius:8px; background:var(--bg-deep); border:1px solid var(--line); }
+    .iface-card .ic-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .path-stack:before { content:""; position:absolute; left:50%; top:8px; bottom:8px; border-left:2px dashed var(--cyan); opacity:.35; z-index:0; transform:translateX(-50%); }
+    .path-item { position:relative; display:flex; flex-direction:column; gap:10px; align-items:stretch; }
+    .path-dot { width:11px; height:11px; border-radius:999px; margin:0 auto; background:var(--cyan); box-shadow:0 0 0 4px color-mix(in oklab, var(--cyan) 18%, transparent); z-index:2; position:relative; }
+    .hop-label { font:700 9px 'JetBrains Mono'; text-transform:uppercase; letter-spacing:.6px; padding:2px 7px; border-radius:5px; margin-left:auto; }
+    .hop-label.origem { color:var(--magenta); background:color-mix(in oklab, var(--magenta) 12%, transparent); }
+    .hop-label.destino { color:var(--emerald); background:color-mix(in oklab, var(--emerald) 12%, transparent); }
+    .iface-config-btn { font:600 10px 'Space Grotesk'; color:var(--cyan); background:color-mix(in oklab, var(--cyan) 10%, transparent); border:1px solid color-mix(in oklab, var(--cyan) 26%, transparent); border-radius:6px; padding:3px 7px; cursor:pointer; }
+    .iface-config-btn:hover { border-color:var(--cyan); }
+    .panel-h { padding:14px 18px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
+    .range-chip { font:600 12px 'JetBrains Mono'; color:var(--emerald); background:color-mix(in oklab, var(--emerald) 12%, transparent); border:1px solid color-mix(in oklab, var(--emerald) 28%, transparent); padding:4px 10px; border-radius:8px; }
+    select.grp, input.flt { height:38px; padding:0 12px; border-radius:10px; background:var(--bg-elev); border:1px solid var(--line-strong); color:var(--text-primary); font-size:13px; }
+    select.grp { min-width:240px; }
+    .empty { text-align:center; padding:60px 20px; color:var(--text-muted); }
+    #configModal.hidden { display:none !important; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <main>
+    <header class="topbar" style="padding:20px 28px;position:sticky;top:0;z-index:30;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div class="module-tag" style="font-family:'JetBrains Mono';font-size:11px;color:var(--cyan);font-weight:600;">// vlan_map</div>
+        <h1 class="t-h1">Mapa de VLANs</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <button type="button" onclick="AtlasVlanFinder.open()" title="Buscar uma VLAN em todos os provedores (atalho: /)"
+                style="height:38px;padding:0 14px;border-radius:10px;background:var(--bg-elev);border:1px solid var(--line-strong);color:var(--text-secondary);font-size:13px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:7px;">
+          <i data-lucide="search" style="width:14px;height:14px;"></i> Buscar VLAN em todos
+        </button>
+        <select class="grp" id="groupSel"></select>
+      </div>
+    </header>
+
+    <div id="content"></div>
+  </main>
+
+  <div id="configModal" class="hidden" onclick="if(event.target===this)closeInterfaceConfig()" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(5,11,20,.72);backdrop-filter:blur(8px);padding:18px;">
+    <div style="width:min(720px,100%);max-height:82vh;background:var(--bg-elev);border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.42);">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);">
+        <div>
+          <div style="font:600 13px 'Space Grotesk';color:var(--text-primary)">Configuração</div>
+          <div id="configModalTitle" class="mono" style="font-size:11px;color:var(--text-muted);margin-top:2px"></div>
+        </div>
+        <button onclick="closeInterfaceConfig()" class="icon-btn" title="Fechar"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+      </div>
+      <pre id="configModalBody" style="margin:0;padding:16px 18px;max-height:60vh;overflow:auto;background:var(--bg-deep);color:var(--text-secondary);font:12px/1.6 'JetBrains Mono',monospace;"></pre>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin-nav.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/provider-picker.js"></script>
+  <script src="js/vlan-finder.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/data_api.js"></script>
+  <script>
+    AtlasAPI.requireSession();
+    AtlasAPI.installAuthFetch();
+    AtlasNav.render('vlans');
+
+    const content = document.getElementById('content');
+    const groupSel = document.getElementById('groupSel');
+    let NET = null, selVid = null, curGid = null, selAssetId = null;
+    let vlanQ = '';
+    let trace = null, traceVid = null, traceLoading = false;
+    const traceCache = {};
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    function showState(msg, icon, color) {
+      const spin = /loader/i.test(icon) ? 'animation:spin 1s linear infinite;' : '';
+      content.innerHTML = `<div class="empty"><i data-lucide="${icon}" style="display:block;margin:0 auto;width:28px;height:28px;color:${color||'var(--text-muted)'};${spin}"></i><p style="margin-top:10px">${esc(msg)}</p></div>`;
+      lucide.createIcons();
+    }
+
+    async function init() {
+      showState('Carregando grupos…', 'loader-2', 'var(--cyan)');
+      let groups;
+      try { groups = await AtlasData.loadGroups(); }
+      catch (e) { showState('Falha ao listar grupos: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
+      if (!groups.length) { showState('Nenhum grupo cadastrado.', 'inbox'); return; }
+      groupSel.innerHTML = groups.map(g => `<option value="${g.id}">${esc(g.name)} · ${(g.vlan_count || 0).toLocaleString('pt-BR')} VLANs</option>`).join('');
+      const qid = new URLSearchParams(location.search).get('client_id');
+      if (qid && groups.some(g => String(g.id) === qid)) groupSel.value = qid;
+      AtlasPicker.enhance(groupSel, { placeholder: "Digite o nome do provedor…" });
+      // "/" abre a busca de VLAN entre provedores (menos dentro de um campo).
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+        const t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        e.preventDefault();
+        AtlasVlanFinder.open();
+      });
+      groupSel.onchange = () => loadGroup(groupSel.value);
+      loadGroup(groupSel.value);
+    }
+
+    async function loadGroup(id) {
+      showState('Carregando VLANs…', 'loader-2', 'var(--cyan)');
+      try { NET = await AtlasData.loadGroup(id); }
+      catch (e) { showState('Falha ao carregar o grupo: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
+      curGid = id;
+      for (const k in traceCache) delete traceCache[k];
+      trace = null; traceVid = null;
+      vlanQ = '';
+      // freeByAsset vem ordenado por VIDs livres desc — o padrão é o equipamento
+      // com mais espaço, que é o que o operador quer ver primeiro
+      selAssetId = (NET.freeByAsset && NET.freeByAsset.length) ? NET.freeByAsset[0].id : null;
+      selVid = NET.vlans.length ? NET.vlans[0].vid : null;
+      render();
+      if (selVid != null) loadTrace(selVid);
+    }
+
+    // Busca o caminho (trace) de uma VLAN sob demanda e re-renderiza só o painel.
+    async function loadTrace(vid) {
+      if (vid == null) { trace = null; traceVid = null; renderPath(); return; }
+      if (traceCache[vid]) { trace = traceCache[vid]; traceVid = vid; traceLoading = false; renderPath(); return; }
+      traceLoading = true; traceVid = vid; trace = null; renderPath();
+      try {
+        const t = await AtlasData.loadVlanTrace(curGid, vid);
+        traceCache[vid] = t;
+        if (selVid === vid) { trace = t; traceLoading = false; renderPath(); }
+      } catch (e) {
+        if (selVid === vid) { trace = { _error: e.message }; traceLoading = false; renderPath(); }
+      }
+    }
+
+    function kpis() {
+      const used = NET.vlans.length;
+      const free = NET.freeRanges.reduce((s, r) => s + r.count, 0);
+      const nAssets = (NET.freeByAsset || []).length;
+      const ipUsed = NET.ipBlocks.reduce((s, b) => s + b.used, 0);
+      const ipFree = NET.ipBlocks.reduce((s, b) => s + Math.max(0, b.total - b.used), 0);
+      const card = (label, val, sub, accent) => `<div class="kpi-card" style="--accent:${accent}"><div class="kpi-label">${label}</div><div class="kpi-value">${val}</div><div class="kpi-sub">${sub}</div></div>`;
+      return `<div class="kpi-grid">
+        ${card('VLANs em uso', used, 'ativas neste grupo', 'var(--cyan)')}
+        ${card('VIDs livres (todos)', free.toLocaleString('pt-BR'), `livres nos ${nAssets} ativos ao mesmo tempo`, 'var(--magenta)')}
+        ${card('IPs livres', ipFree.toLocaleString('pt-BR'), 'disponíveis p/ alocar', 'var(--emerald)')}
+        ${card('IPs em uso', ipUsed.toLocaleString('pt-BR'), 'mapeados na rede', 'var(--amber)')}
+      </div>`;
+    }
+
+    // /vlans-enriched é quem traz as subnets de cada VLAN. Quando ele falha, a
+    // lista de VLANs ainda carrega (vem de /topology), mas TODA VLAN aparece
+    // "sem subnet" — o que o operador lê como "não tem IP aqui". O aviso existe
+    // para que dado ausente por falha nunca se pareça com dado ausente de verdade.
+    function enrichedWarning() {
+      if (!NET.enrichedError) return '';
+      return `<div class="surface" style="border-color:color-mix(in oklab, var(--amber) 45%, transparent);background:color-mix(in oklab, var(--amber) 7%, transparent);display:flex;gap:11px;align-items:flex-start;margin-bottom:18px">
+        <i data-lucide="alert-triangle" style="width:17px;height:17px;color:var(--amber);flex:none;margin-top:1px"></i>
+        <div>
+          <div style="font:600 12.5px 'Space Grotesk';color:var(--amber)">As subnets por VLAN não carregaram</div>
+          <div style="font-size:11.5px;color:var(--text-secondary);margin-top:3px">As VLANs abaixo estão corretas, mas os IPs de cada uma não puderam ser lidos — uma VLAN aparecer sem subnet aqui <b>não</b> significa que ela não tem IP. Falha: <span class="mono">${esc(NET.enrichedError)}</span></div>
+        </div>
+      </div>`;
+    }
+
+    function vlanQueryVid() {
+      const s = vlanQ.trim();
+      if (!/^\d{1,4}$/.test(s)) return null;
+      const n = Number(s);
+      return n >= 1 && n <= 4094 ? n : null;
+    }
+
+    function filteredVlans() {
+      const q = vlanQ.trim().toLowerCase();
+      if (!q) return NET.vlans;
+      // Número busca o VID exato — mesma regra da busca global: digitar 500 não
+      // pode trazer 1500/2500/3500. Só cai para o parcial quando não existe VID
+      // exato (ajuda enquanto o número ainda está sendo digitado).
+      if (/^\d+$/.test(q)) {
+        const exatas = NET.vlans.filter(v => String(v.vid) === q);
+        if (exatas.length) return exatas;
+      }
+      return NET.vlans.filter(v =>
+        String(v.vid).includes(q) ||
+        (v.name || '').toLowerCase().includes(q) ||
+        (v.desc || '').toLowerCase().includes(q) ||
+        (v.hosts || []).some(h => String(h).toLowerCase().includes(q)) ||
+        (v.subnets || []).some(s => String(s).toLowerCase().includes(q))
+      );
+    }
+
+    function freeVidNotice() {
+      const vid = vlanQueryVid();
+      if (vid == null || NET.vlans.some(v => v.vid === vid)) return '';
+      return `<div style="display:grid;grid-template-columns:92px 1fr 84px;gap:14px;padding:13px 18px;align-items:center;border-bottom:1px solid var(--line);background:color-mix(in oklab, var(--emerald) 7%, transparent);">
+        <span class="vid-badge" style="color:var(--emerald)">${vid}</span>
+        <div>
+          <div style="font:600 12.5px 'Space Grotesk';color:var(--emerald)">VID livre neste grupo</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Disponível para alocação</div>
+        </div>
+        <div style="text-align:right"><i data-lucide="check-circle-2" style="width:16px;height:16px;color:var(--emerald)"></i></div>
+      </div>`;
+    }
+
+    function vlanList() {
+      if (!NET.vlans.length) return `<div class="surface" style="padding:0"><div class="panel-h"><b>VLANs</b></div><div class="empty"><i data-lucide="layers"></i><p style="margin-top:8px">Nenhuma VLAN extraída para este grupo.</p></div></div>`;
+      const vs = filteredVlans();
+      const rows = vs.map(v => `
+        <div class="vlan-row${v.vid === selVid ? ' sel' : ''}" data-vid="${v.vid}">
+          <span class="vid-badge">${v.vid}</span>
+          <div style="min-width:0">
+            <div style="display:flex;align-items:center;gap:8px"><span class="mono" style="font-size:12.5px;font-weight:600;color:var(--text-primary)">${esc(v.name)}</span>${v.vlan_type ? `<span style="font:600 9px 'JetBrains Mono';text-transform:uppercase;color:var(--amber);border:1px solid color-mix(in oklab, var(--amber) 50%, transparent);border-radius:5px;padding:1px 5px">${esc(v.vlan_type)}</span>` : ''}${NET.vlanPaths[v.vid] ? '<i data-lucide="route" style="width:12px;height:12px;color:var(--text-muted)"></i>' : ''}</div>
+            <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${v.subnets.map(s => `<span class="subnet-tag">${esc(s)}</span>`).join('') || (NET.enrichedError ? '<span class="subnet-tag" style="opacity:.7;color:var(--amber)">subnet não carregada</span>' : '<span class="subnet-tag" style="opacity:.6">sem subnet</span>')}</div>
+          </div>
+          <div style="text-align:right"><span class="mono" style="font-size:14px;font-weight:600;color:var(--text-primary)">${v.assets}</span><div style="font:400 10px 'Space Grotesk';color:var(--text-muted)">ativos</div></div>
+        </div>`).join('');
+      const empty = `<div class="empty" style="padding:34px 16px"><i data-lucide="search-x" style="width:22px;height:22px"></i><p style="margin-top:8px;font-size:12.5px">Nenhuma VLAN encontrada.</p></div>`;
+      return `<div class="surface vlan-panel" style="padding:0">
+        <div class="panel-h" style="gap:12px;align-items:center">
+          <div><b style="font:600 13px 'Space Grotesk';color:var(--text-primary)">VLANs</b> <span style="font-size:11px;color:var(--text-muted)">· ${NET.vlans.length} sincronizadas</span></div>
+          <input class="flt" id="vlanSearch" placeholder="buscar VID, nome, host..." value="${esc(vlanQ)}" style="width:min(260px,42vw)"/>
+        </div>
+        <div style="display:grid;grid-template-columns:92px 1fr 84px;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line)"><span class="t-label-soft" style="font-size:11px;color:var(--text-muted)">VLAN</span><span class="t-label-soft" style="font-size:11px;color:var(--text-muted)">Nome no equipamento</span><span class="t-label-soft" style="font-size:11px;color:var(--text-muted);text-align:right">Ativos</span></div>
+        <div class="vlan-rows">${freeVidNotice()}${rows || empty}</div>
+      </div>`;
+    }
+
+    // O VID é único dentro de um domínio L2, não dentro do provedor. Somar os VIDs
+    // de dezenas de equipamentos independentes satura 1–4094 e a tela passa a dizer
+    // "nenhuma VLAN livre" num cliente que tem milhares livres em cada equipamento.
+    // Por isso o card mostra as duas leituras: por equipamento (VLAN local) e a
+    // interseção de todos (VLAN de transporte fim-a-fim, caso do MPLS/OSPF).
+    function ranges() {
+      const list = NET.freeByAsset || [];
+      const cur = list.find(a => String(a.id) === String(selAssetId)) || list[0] || null;
+      const dash = '<span style="font-size:12px;color:var(--text-muted)">—</span>';
+      const chip = r => `<span class="range-chip">${r.from}${r.to !== r.from ? '–' + r.to : ''}<span style="opacity:.7;font-weight:400"> · ${r.count}</span></span>`;
+      const opts = list.map(a => `<option value="${esc(a.id)}"${cur && a.id === cur.id ? ' selected' : ''}>${esc(a.label)} · ${a.freeCount.toLocaleString('pt-BR')} livres</option>`).join('');
+      return `<div class="surface" id="rangesCard">
+        <div style="font:600 13px 'Space Grotesk';color:var(--text-primary);margin-bottom:10px">Faixas disponíveis</div>
+        ${list.length ? `<select class="grp" id="freeAssetSel" style="min-width:0;width:100%;margin-bottom:12px">${opts}</select>` : ''}
+        <div style="display:flex;flex-wrap:wrap;gap:10px">${(cur && cur.ranges.length ? cur.ranges.map(chip).join('') : '') || dash}</div>
+        <div style="margin-top:12px;font-size:11.5px;color:var(--text-muted)">Próximo VID neste equipamento: <span class="mono" style="color:var(--emerald);font-weight:600">${cur && cur.nextFree != null ? cur.nextFree : '—'}</span></div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:9px">Livre em <b>todos</b> os ${list.length} ativos — para VLAN que atravessa a rede (MPLS/OSPF)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px">${NET.freeRanges.map(chip).join('') || dash}</div>
+          <div style="margin-top:12px;font-size:11.5px;color:var(--text-muted)">Próximo VID fim-a-fim: <span class="mono" style="color:var(--emerald);font-weight:600">${NET.nextFree ?? '—'}</span></div>
+        </div>
+      </div>`;
+    }
+
+    const MODE_META = {
+      access: { label: 'access', color: 'var(--emerald)' },
+      trunk:  { label: 'trunk',  color: 'var(--cyan)' },
+      tagged: { label: 'tagged', color: 'var(--cyan)' },
+      native: { label: 'native', color: 'var(--amber)' },
+      routed: { label: 'routed', color: 'var(--magenta)' },
+    };
+    function modeBadge(m) {
+      const x = MODE_META[m] || { label: m || '—', color: 'var(--text-muted)' };
+      return `<span style="font:600 9px 'JetBrains Mono';text-transform:uppercase;color:${x.color};border:1px solid color-mix(in oklab, ${x.color} 50%, transparent);border-radius:5px;padding:1px 5px">${esc(x.label)}</span>`;
+    }
+    function catMetaOf(cat) { return NET.catMeta[cat] || { icon: 'router', color: 'var(--text-muted)', label: cat || '—' }; }
+
+    function pathBody() {
+      if (selVid == null) return `<div class="empty" style="padding:24px 12px"><i data-lucide="route" style="width:24px;height:24px"></i><p style="margin-top:8px;font-size:12.5px">Selecione uma VLAN</p></div>`;
+      if (traceLoading || traceVid !== selVid || (!trace)) return `<div class="empty" style="padding:24px 12px"><i data-lucide="loader-2" style="width:22px;height:22px;color:var(--cyan)"></i><p style="margin-top:8px;font-size:12px">Carregando caminho…</p></div>`;
+      if (trace._error) return `<div class="empty" style="padding:24px 12px"><i data-lucide="wifi-off" style="width:22px;height:22px;color:var(--rose)"></i><p style="margin-top:8px;font-size:12px">Falha: ${esc(trace._error)}</p></div>`;
+
+      const eps = trace.endpoints || [];
+      if (!eps.length) return `<div class="empty" style="padding:24px 12px"><i data-lucide="route-off" style="width:24px;height:24px"></i><p style="margin-top:8px;font-size:12.5px">Sem interfaces mapeadas</p><p style="font-size:11px;margin-top:2px">Esta VLAN não tem interface associada nos ativos extraídos.</p></div>`;
+
+      const byAsset = {};
+      eps.forEach((e, idx) => {
+        (byAsset[e.hostname] = byAsset[e.hostname] || { cat: e.category, vendor: e.vendor, ifs: [] }).ifs.push(Object.assign({ _idx: idx }, e));
+      });
+      // Ordena o caminho "de baixo para cima": core/borda no topo, acesso embaixo.
+      const TIER = { borda: 0, border: 0, core: 1, nucleo: 1, agregacao: 2, distribuicao: 2, agg: 2, olt: 3, acesso: 4, access: 4, cliente: 5 };
+      const _tier = c => { const t = TIER[String(c || '').toLowerCase()]; return t == null ? 3 : t; };
+      const assetKeys = Object.keys(byAsset).sort((x, y) => _tier(byAsset[x].cat) - _tier(byAsset[y].cat)), _hopTotal = assetKeys.length;
+      const assetCards = assetKeys.map((host, _hopIdx) => {
+        const a = byAsset[host], m = catMetaOf(a.cat);
+        const vt = (a.ifs[0] || {}).vlan_type;
+        const ifs = a.ifs.map(e => {
+          const ip = e.host_ip ? `<span class="mono" style="font-size:10.5px;color:var(--text-secondary)">${esc(e.host_ip)}${e.mask != null ? '/' + e.mask : ''}</span>` : '';
+          const desc = e.description ? `<div style="font-size:10.5px;color:var(--text-muted);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.description)}</div>` : '';
+          return `<div class="iface-card" style="position:relative;z-index:1">
+            <div class="mono" style="font-size:11.5px;font-weight:600;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.interface)}</div>
+            <div class="ic-head" style="margin-top:8px">${modeBadge(e.mode)}${ip}${e.is_management ? '<span style="font:600 9px \'JetBrains Mono\';color:var(--magenta)">MGMT</span>' : ''}<button type="button" class="iface-config-btn" style="margin-left:auto" onclick="openInterfaceConfig(${e._idx})">Ver config</button></div>
+            ${desc}</div>`;
+        }).join('');
+        return `<div class="path-item"><span class="path-dot"></span><div class="hop${_hopIdx === 0 ? ' origem' : ''}${_hopIdx === _hopTotal - 1 && _hopTotal > 1 ? ' destino' : ''}" style="flex-direction:column;align-items:stretch;gap:12px;z-index:1">
+            <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><i data-lucide="${m.icon}" style="width:17px;height:17px;color:${m.color}"></i>
+              <span class="mono" style="font-size:12.5px;font-weight:600;color:var(--text-primary)">${esc(host)}</span>
+              <span style="font-size:10px;color:var(--text-muted)">${esc(m.label || a.cat || '')}${a.vendor ? ' · ' + esc(a.vendor) : ''}</span>${_hopIdx === 0 ? '<span class="hop-label origem">ORIGEM</span>' : ''}${_hopIdx === _hopTotal - 1 && _hopTotal > 1 ? '<span class="hop-label destino">DESTINO</span>' : ''}</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${vlanTypeBadge(vt)}</div>
+            <div style="display:flex;flex-direction:column;gap:12px">${ifs}</div>
+          </div></div>`;
+      }).join('');
+
+      return `<div style="font:600 11px 'Space Grotesk';color:var(--text-muted);margin-bottom:8px">Interfaces (${eps.length})</div>
+        <div class="path-stack">${assetCards}</div>`;
+    }
+
+    function renderPath() {
+      const el = document.getElementById('pathBody');
+      if (el) { el.innerHTML = pathBody(); lucide.createIcons(); }
+    }
+
+    function path() {
+      const v = NET.vlans.find(x => x.vid === selVid);
+      return `<div class="surface"><div style="display:flex;align-items:center;gap:8px;margin-bottom:2px"><span style="font:600 13px 'Space Grotesk';color:var(--text-primary)">Caminho da VLAN</span>${v ? vlanTypeBadge(v.vlan_type) : ''}${v ? `<button type="button" class="iface-config-btn" style="margin-left:auto" onclick="openVlanConfigsModal(${selVid})">Ver config da VLAN</button>` : ''}</div><div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">${v ? 'VLAN ' + selVid + ' · ' + esc(v.name) : 'Selecione uma VLAN'}</div><div id="pathBody">${pathBody()}</div></div>`;
+    }
+
+    // Config reconstruída da interface para a VLAN selecionada. O bloco L2
+    // access/trunk de uma porta NUNCA é capturado (nenhum driver guarda), então a
+    // sintaxe tem que sair do fabricante do ativo — sintaxe fixa (ex.: Cisco)
+    // mostraria ao operador um comando que nunca existiu num Huawei/MikroTik/
+    // Juniper. Ver AtlasData.helpers.
+    function buildInterfaceConfig(e) {
+      const H = AtlasData.helpers;
+      const mode = String(e.mode || '').toLowerCase();
+      let lines;
+
+      if (mode === 'routed') {
+        // O helper de VLAN roteada já monta o cabeçalho da interface, a descrição
+        // e o IP na sintaxe do fabricante (SVI Huawei ≠ subinterface Cisco ≠ unit
+        // Juniper ≠ /interface vlan MikroTik).
+        lines = H.reconstructRoutedInterfaceLines(e.vendor, selVid, e).slice();
+      } else {
+        // MikroTik/Juniper não têm modo de configuração de interface: o cabeçalho
+        // "interface X" abriria um bloco que não cola no equipamento.
+        lines = H.reconstructInterfaceHeaderLines(e.vendor, e.interface, e.description);
+        if (mode === 'access' || mode === 'native' || mode === 'trunk' || mode === 'tagged') {
+          lines.push(...H.reconstructPortVlanLines(e.vendor, e.interface, {
+            access: mode === 'access' ? [selVid] : [],
+            native: mode === 'native' ? selVid : null,
+            trunk: (mode === 'trunk' || mode === 'tagged') ? [selVid] : [],
+          }));
+        } else {
+          lines.push(H.commentLine(e.vendor, `VLAN ${selVid}${mode ? ` em modo "${mode}" (não modelado)` : ''}`));
+        }
+        if (e.host_ip) {
+          const l = H.reconstructIpAddressLine(e.vendor, e.host_ip, e.mask, e.interface);
+          if (l) lines.push(l);
+        }
+      }
+
+      if (e.is_management) lines.push(H.commentLine(e.vendor, 'interface de gerencia'));
+      lines.push('', H.commentLine(e.vendor, 'reconstruído a partir do inventário — não é o texto bruto capturado do equipamento', false));
+      return lines.join('\n');
+    }
+
+    function openInterfaceConfig(idx) {
+      const e = trace && trace.endpoints ? trace.endpoints[idx] : null;
+      if (!e) return;
+      document.getElementById('configModalTitle').textContent = `${e.hostname || ''} · ${e.interface || ''}  (reconstruída)`;
+      document.getElementById('configModalBody').textContent = buildInterfaceConfig(e);
+      document.getElementById('configModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeInterfaceConfig() {
+      document.getElementById('configModal').classList.add('hidden');
+    }
+
+    // Config da VLAN por ativo (cor distinta por equipamento). Busca direto das
+    // linhas Vlan (/configs) — funciona mesmo sem mapeamento de interface (l2vc/vsi).
+    async function openVlanConfigsModal(vid) {
+      const body = document.getElementById('configModalBody');
+      document.getElementById('configModalTitle').textContent = `VLAN ${vid} · configuração`;
+      body.textContent = 'Carregando…';
+      document.getElementById('configModal').classList.remove('hidden');
+      let rows;
+      try { rows = await AtlasData.loadVlanConfigs(curGid, vid); }
+      catch (e) { body.textContent = 'Falha ao carregar a config: ' + e.message; return; }
+      if (!rows || !rows.length) { body.textContent = 'Sem config extraída para esta VLAN.'; return; }
+      const HC = ['var(--cyan)', 'var(--magenta)', 'var(--emerald)', 'var(--amber)', 'var(--rose)', 'var(--cyan-dim)'];
+      body.innerHTML = rows.map((r, i) => {
+        const cfg = r.config ? r.config : `vlan ${vid}${r.name ? '\n name ' + r.name : ''}`;
+        const tag = r.config ? '' : '  (sem config capturada)';
+        return `<span style="color:${HC[i % HC.length]};font-weight:700">! ===== ${esc(r.hostname)} · ${esc(r.vlan_type || 'L2')}${tag} =====</span>\n${esc(cfg)}`;
+      }).join('\n\n');
+    }
+
+    // Badge do tipo da VLAN (VSI/L2VC/ROUTED/L2).
+    function vlanTypeBadge(t) {
+      const lbl = t ? t : 'L2';
+      const col = t === 'routed' ? 'var(--magenta)' : (t === 'vsi' ? 'var(--cyan)' : (t === 'l2vc' ? 'var(--amber)' : 'var(--text-muted)'));
+      return `<span style="font:600 9px 'JetBrains Mono';text-transform:uppercase;letter-spacing:.5px;color:${col};border:1px solid color-mix(in oklab, ${col} 50%, transparent);border-radius:5px;padding:2px 6px">${esc(lbl)}</span>`;
+    }
+
+    // Fallback: reconstrói um bloco de config quando o ativo não tem config bruta
+    // capturada. Sintaxe por fabricante vem de AtlasData.helpers — nenhum driver
+    // guarda o bloco L2 access/trunk, então isso é SEMPRE reconstruído para o
+    // caso comum; usar sintaxe fixa (ex.: Cisco) para outro fabricante mostraria
+    // um comando que nunca existiu no equipamento.
+    function buildVlanConfig(hostname) {
+      const v = NET.vlans.find(x => x.vid === selVid);
+      const eps = (trace && trace.endpoints) ? trace.endpoints.filter(x => x.hostname === hostname) : [];
+      const type = (eps[0] || {}).vlan_type;
+      const name = (v && v.name) || ('VLAN ' + selVid);
+      const lines = [`vlan ${selVid}`, ` name ${name}`];
+      if (type === 'routed') {
+        const ipep = eps.find(x => x.host_ip) || eps[0] || {};
+        lines.push('!', ...AtlasData.helpers.reconstructRoutedInterfaceLines(ipep.vendor, selVid, ipep));
+      } else if (type === 'vsi') {
+        // vsi/l2vc só existem no driver Huawei hoje — sintaxe fixa é segura aqui.
+        lines.push('!', `vsi VPLS-${selVid} static`, ` vsi-id ${selVid}`);
+        eps.forEach(x => lines.push(`interface ${x.interface}`, ` encapsulation vlan ${selVid}`, ` xconnect vsi VPLS-${selVid}`));
+      } else if (type === 'l2vc') {
+        eps.forEach(x => lines.push(`interface ${x.interface}`, ` mpls l2vc <peer> <vc-id> vlan ${selVid}`));
+      } else {
+        eps.forEach(x => {
+          const md = String(x.mode || '').toLowerCase();
+          const buckets = md === 'access'
+            ? { access: [selVid], native: null, trunk: [] }
+            : { access: [], native: md === 'native' ? selVid : null, trunk: [selVid] };
+          lines.push(`interface ${x.interface}`, ...AtlasData.helpers.reconstructPortVlanLines(x.vendor, x.interface, buckets));
+        });
+      }
+      return lines.join('\n');
+    }
+
+    function openVlanConfig(hostname) {
+      const eps = (trace && trace.endpoints) ? trace.endpoints.filter(x => x.hostname === hostname) : [];
+      const e0 = eps[0] || {};
+      const cfg = e0.vlan_config ? e0.vlan_config : buildVlanConfig(hostname);
+      const tag = e0.vlan_config ? '' : '  (reconstruída — pode não refletir a sintaxe exata do equipamento)';
+      document.getElementById('configModalTitle').textContent = `${hostname} · VLAN ${selVid}${e0.vlan_type ? ' · ' + e0.vlan_type : ''}${tag}`;
+      document.getElementById('configModalBody').textContent = cfg;
+      document.getElementById('configModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function render() {
+      content.innerHTML = kpis() + enrichedWarning() + `<div class="cols"><div>${vlanList()}</div><div style="display:flex;flex-direction:column;gap:18px">${ranges()}${path()}</div></div>`;
+      const search = document.getElementById('vlanSearch');
+      if (search) {
+        search.oninput = (e) => {
+          vlanQ = e.target.value;
+          const pos = search.selectionStart;
+          render();
+          const next = document.getElementById('vlanSearch');
+          if (next) { next.focus(); next.setSelectionRange(pos, pos); }
+        };
+      }
+      const onAssetChange = (e) => {
+        selAssetId = e.target.value;
+        // só o card de faixas muda — re-render total mataria o foco da busca
+        const card = document.getElementById('rangesCard');
+        if (!card) return;
+        card.outerHTML = ranges();
+        const again = document.getElementById('freeAssetSel');
+        if (again) { again.onchange = onAssetChange; again.focus(); }
+      };
+      const assetSel = document.getElementById('freeAssetSel');
+      if (assetSel) assetSel.onchange = onAssetChange;
+      content.querySelectorAll('.vlan-row').forEach(el => el.onclick = () => { selVid = +el.dataset.vid; render(); loadTrace(selVid); });
+      lucide.createIcons();
+    }
+
+    init();
+  </script>
+</body>
+</html>

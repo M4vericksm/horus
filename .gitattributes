@@ -1,0 +1,2 @@
+# Shell scripts sempre com LF — CRLF quebra /bin/sh na VM
+*.sh text eol=lf

@@ -1,0 +1,334 @@
+/* NetworkAtlas — component classes. Depends on colors_and_type.css */
+
+/* ─────────── Surfaces ─────────── */
+.surface {
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+
+/* ─────────── Buttons ─────────── */
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyan-dim), var(--cyan));
+  color: #051017;
+  border: none;
+  padding: 9px 16px;
+  border-radius: var(--r-md);
+  font: 600 13px 'Space Grotesk', sans-serif;
+  display: inline-flex; align-items: center; gap: 8px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-cyan);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px color-mix(in oklab, var(--cyan) 35%, transparent); }
+html.light .btn-primary { color: #fff; }
+
+.btn-ghost {
+  background: var(--bg-elev);
+  color: var(--text-primary);
+  border: 1px solid var(--line-strong);
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  font: 500 13px 'Space Grotesk', sans-serif;
+  display: inline-flex; align-items: center; gap: 7px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-ghost:hover { background: var(--bg-hover); }
+.btn-ghost:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.btn-danger {
+  background: color-mix(in oklab, var(--rose) 10%, transparent);
+  color: var(--rose);
+  border: 1px solid color-mix(in oklab, var(--rose) 25%, transparent);
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  font: 600 13px 'Space Grotesk', sans-serif;
+  display: inline-flex; align-items: center; gap: 7px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-danger:hover { background: color-mix(in oklab, var(--rose) 18%, transparent); }
+
+.icon-btn {
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  padding: 6px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { color: var(--text-primary); background: var(--bg-elev); }
+
+/* ─────────── Chips ─────────── */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-sm);
+  font: 600 11px 'JetBrains Mono', monospace;
+  letter-spacing: 0.02em;
+  border: 1px solid;
+}
+.chip-cyan    { background: color-mix(in oklab, var(--cyan) 12%, transparent);    color: var(--cyan);    border-color: color-mix(in oklab, var(--cyan) 28%, transparent); }
+.chip-magenta { background: color-mix(in oklab, var(--magenta) 12%, transparent); color: var(--magenta); border-color: color-mix(in oklab, var(--magenta) 28%, transparent); }
+.chip-amber   { background: color-mix(in oklab, var(--amber) 12%, transparent);   color: var(--amber);   border-color: color-mix(in oklab, var(--amber) 28%, transparent); }
+.chip-emerald { background: color-mix(in oklab, var(--emerald) 12%, transparent); color: var(--emerald); border-color: color-mix(in oklab, var(--emerald) 28%, transparent); }
+.chip-rose    { background: color-mix(in oklab, var(--rose) 12%, transparent);    color: var(--rose);    border-color: color-mix(in oklab, var(--rose) 30%, transparent); }
+.chip-slate   { background: rgba(148,163,184,0.06); color: var(--text-secondary); border-color: rgba(148,163,184,0.15); }
+
+/* In light mode, push fill stronger so the chip reads as a proper badge against the white surface */
+html.light .chip-cyan    { background: color-mix(in oklab, var(--cyan) 14%, white);    border-color: color-mix(in oklab, var(--cyan) 35%, white); }
+html.light .chip-magenta { background: color-mix(in oklab, var(--magenta) 14%, white); border-color: color-mix(in oklab, var(--magenta) 35%, white); }
+html.light .chip-amber   { background: color-mix(in oklab, var(--amber) 16%, white);   border-color: color-mix(in oklab, var(--amber) 38%, white); }
+html.light .chip-emerald { background: color-mix(in oklab, var(--emerald) 14%, white); border-color: color-mix(in oklab, var(--emerald) 35%, white); }
+html.light .chip-rose    { background: color-mix(in oklab, var(--rose) 14%, white);    border-color: color-mix(in oklab, var(--rose) 38%, white); }
+
+/* ─────────── Status live ─────────── */
+.status-live {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--emerald) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--emerald) 28%, transparent);
+  color: var(--emerald);
+  font: 600 11px 'Space Grotesk', sans-serif;
+  letter-spacing: 0;
+}
+.status-live .dot {
+  width: 6px; height: 6px;
+  background: var(--emerald);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--emerald) 70%, transparent);
+  animation: pulseDot 2s infinite;
+}
+@keyframes pulseDot {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--emerald) 70%, transparent); }
+  70%  { box-shadow: 0 0 0 6px color-mix(in oklab, var(--emerald) 0%,  transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--emerald) 0%,  transparent); }
+}
+
+/* ─────────── Inputs ─────────── */
+.input, .select, textarea.input {
+  background: var(--bg-elev);
+  border: 1px solid var(--line-strong);
+  color: var(--text-primary);
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  font: 400 13px 'Space Grotesk', sans-serif;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+.input:focus, .select:focus, textarea.input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cyan) 20%, transparent);
+}
+.input::placeholder { color: var(--text-muted); }
+.input.mono-field { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+
+/* ─────────── KPI card ─────────── */
+.kpi-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.18s;
+}
+.kpi-card:hover { border-color: var(--line-strong); }
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle at top right, var(--accent, transparent) 0%, transparent 60%);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* ─────────── Client card ─────────── */
+.client-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.client-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--accent-color, var(--cyan));
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.25s;
+}
+.client-card:hover {
+  border-color: var(--line-strong);
+  background: var(--bg-elev);
+  transform: translateY(-2px);
+}
+.client-card:hover::before { transform: scaleY(1); }
+
+/* ─────────── Modal ─────────── */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(5, 11, 20, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+html.light .modal-backdrop { background: rgba(15,23,42,0.3); }
+.modal-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  animation: modalIn 0.2s ease-out;
+}
+@keyframes modalIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+
+/* ─────────── Log row ─────────── */
+.log-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 150px 90px 60px;
+  gap: 16px;
+  padding: 12px 20px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.12s;
+  position: relative;
+}
+.log-row > .chip { justify-self: start; }
+.log-row:hover { background: var(--bg-elev); }
+.log-row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--row-accent, transparent);
+}
+.log-row.err { --row-accent: var(--rose); }
+.log-row.ok  { --row-accent: var(--emerald); }
+.log-row.warn{ --row-accent: var(--amber); }
+@media (max-width: 900px) {
+  .log-row { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* ─────────── Tables ─────────── */
+.table-head, .table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr 1fr 1fr 0.8fr;
+  gap: 16px;
+  padding: 12px 20px;
+  align-items: center;
+}
+.table-head {
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--line);
+  font: 600 12px 'Space Grotesk', sans-serif;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+.table-row {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.12s;
+}
+.table-row:hover { background: var(--bg-elev); }
+.table-row:last-child { border-bottom: 0; }
+
+/* ─────────── Nav ─────────── */
+.nav-btn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 18px;
+  margin: 2px 10px;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  position: relative;
+  text-decoration: none;
+  font: 500 13px 'Space Grotesk', sans-serif;
+}
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translate(-10px, -50%);
+  width: 3px; height: 18px;
+  background: var(--cyan);
+  border-radius: 0 3px 3px 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.nav-btn:hover { color: var(--text-primary); background: var(--bg-elev); }
+.nav-btn.active { color: var(--text-primary); background: var(--bg-elev); }
+.nav-btn.active::before { opacity: 1; }
+.nav-btn.active i, .nav-btn.active svg { color: var(--cyan); }
+
+/* ─────────── Topbar ─────────── */
+.topbar {
+  background: var(--bg-deep);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+.dot-sep { width: 3px; height: 3px; background: var(--text-muted); border-radius: 50%; display: inline-block; }
+
+/* ─────────── Skeleton / shimmer ─────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skel {
+  background: linear-gradient(90deg, var(--bg-surface) 0%, var(--bg-elev) 50%, var(--bg-surface) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite linear;
+  border-radius: var(--r-sm);
+}
+
+/* ─────────── Fade up & spin ─────────── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* `both` + explicit opacity fallback so cards are never stuck invisible if the
+   animation fails to start (e.g. background tab, reduced-motion override). */
+.fade-up { opacity: 1; animation: fadeUp 0.4s ease-out both; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.animate-spin { animation: spin 1s linear infinite; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ─────────── Scrollbar fina estilo pílula ─────────── */
+/* Substitui a barra genérica do SO em todas as telas por uma "pílula" discreta. */
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); background-clip: padding-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* ─────────── Focus visible ─────────── */
+:focus { outline: none; }
+.btn-primary:focus-visible,
+.btn-ghost:focus-visible,
+.btn-danger:focus-visible,
+.icon-btn:focus-visible,
+.nav-btn:focus-visible,
+.input:focus-visible,
+.select:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.input:focus-visible, .select:focus-visible { outline-offset: 0; }
