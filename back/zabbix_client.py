@@ -1,6 +1,6 @@
 """Cliente da API JSON-RPC do Zabbix (integração de monitoramento por provedor).
 
-Modelo A do plano (docs/PLANO_ZABBIX_PORTAL_PROVEDOR.md): o Atlas consulta, em
+Modelo A do plano (docs/PLANO_ZABBIX_PORTAL_PROVEDOR.md): o Horus consulta, em
 modo leitura, o Zabbix que cada provedor já opera. Nada é instalado no provedor.
 
 Autenticação: Zabbix >= 5.4 usa token de API via header `Authorization: Bearer`.
@@ -151,7 +151,7 @@ class ZabbixClient:
 
     async def get_active_problems(self) -> list[dict]:
         """Problemas ativos via trigger.get (traz host + severidade + descrição),
-        útil para correlacionar alarme→ativo→VLAN no Atlas."""
+        útil para correlacionar alarme→ativo→VLAN no Horus."""
         rows = await self._call("trigger.get", {
             "output": ["triggerid", "description", "priority", "lastchange"],
             "selectHosts": ["hostid", "host", "name"],

@@ -2,7 +2,7 @@ import logging
 import sys
 
 
-def setup_logger(name: str = "networkatlas") -> logging.Logger:
+def setup_logger(name: str = "horus") -> logging.Logger:
     """
     Configura e retorna um logger estruturado com saída para stdout.
     Idempotente: se o logger já estiver configurado, retorna o existente.
@@ -32,4 +32,4 @@ def setup_logger(name: str = "networkatlas") -> logging.Logger:
 
 # Logger padrão — importe diretamente nos outros módulos:
 # from logger import logger
-logger = setup_logger("networkatlas")
+logger = setup_logger("horus")

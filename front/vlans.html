@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Atlas — Mapa de VLANs</title>
+  <title>Horus — Mapa de VLANs</title>
   <link rel="stylesheet" href="styles/colors_and_type.css"/>
   <link rel="stylesheet" href="styles/components.css"/>
   <link rel="stylesheet" href="styles/atmosphere.css"/>
@@ -11,8 +11,8 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script>
     tailwind.config = { darkMode: 'class' };
-    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
-    function toggleAtlasTheme(){ const h=document.documentElement; const n=h.classList.contains('dark')?'light':'dark'; h.classList.remove('dark','light'); h.classList.add(n); localStorage.setItem('atlas-theme',n); }
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('horus-theme')||'dark')+(e?' embed':''); })();
+    function toggleHorusTheme(){ const h=document.documentElement; const n=h.classList.contains('dark')?'light':'dark'; h.classList.remove('dark','light'); h.classList.add(n); localStorage.setItem('horus-theme',n); }
   </script>
   <script>(function(){ if(new URLSearchParams(location.search).get('embed')==='1') document.documentElement.classList.add('embed'); })();</script>
   <style>
@@ -72,7 +72,7 @@
         <h1 class="t-h1">Mapa de VLANs</h1>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <button type="button" onclick="AtlasVlanFinder.open()" title="Buscar uma VLAN em todos os provedores (atalho: /)"
+        <button type="button" onclick="HorusVlanFinder.open()" title="Buscar uma VLAN em todos os provedores (atalho: /)"
                 style="height:38px;padding:0 14px;border-radius:10px;background:var(--bg-elev);border:1px solid var(--line-strong);color:var(--text-secondary);font-size:13px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:7px;">
           <i data-lucide="search" style="width:14px;height:14px;"></i> Buscar VLAN em todos
         </button>
@@ -105,9 +105,9 @@
   <script src="js/nav.js"></script>
   <script src="js/data_api.js"></script>
   <script>
-    AtlasAPI.requireSession();
-    AtlasAPI.installAuthFetch();
-    AtlasNav.render('vlans');
+    HorusAPI.requireSession();
+    HorusAPI.installAuthFetch();
+    HorusNav.render('vlans');
 
     const content = document.getElementById('content');
     const groupSel = document.getElementById('groupSel');
@@ -126,20 +126,20 @@
     async function init() {
       showState('Carregando grupos…', 'loader-2', 'var(--cyan)');
       let groups;
-      try { groups = await AtlasData.loadGroups(); }
+      try { groups = await HorusData.loadGroups(); }
       catch (e) { showState('Falha ao listar grupos: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
       if (!groups.length) { showState('Nenhum grupo cadastrado.', 'inbox'); return; }
       groupSel.innerHTML = groups.map(g => `<option value="${g.id}">${esc(g.name)} · ${(g.vlan_count || 0).toLocaleString('pt-BR')} VLANs</option>`).join('');
       const qid = new URLSearchParams(location.search).get('client_id');
       if (qid && groups.some(g => String(g.id) === qid)) groupSel.value = qid;
-      AtlasPicker.enhance(groupSel, { placeholder: "Digite o nome do provedor…" });
+      HorusPicker.enhance(groupSel, { placeholder: "Digite o nome do provedor…" });
       // "/" abre a busca de VLAN entre provedores (menos dentro de um campo).
       document.addEventListener('keydown', (e) => {
         if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
         const t = e.target;
         if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
         e.preventDefault();
-        AtlasVlanFinder.open();
+        HorusVlanFinder.open();
       });
       groupSel.onchange = () => loadGroup(groupSel.value);
       loadGroup(groupSel.value);
@@ -147,7 +147,7 @@
 
     async function loadGroup(id) {
       showState('Carregando VLANs…', 'loader-2', 'var(--cyan)');
-      try { NET = await AtlasData.loadGroup(id); }
+      try { NET = await HorusData.loadGroup(id); }
       catch (e) { showState('Falha ao carregar o grupo: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
       curGid = id;
       for (const k in traceCache) delete traceCache[k];
@@ -167,7 +167,7 @@
       if (traceCache[vid]) { trace = traceCache[vid]; traceVid = vid; traceLoading = false; renderPath(); return; }
       traceLoading = true; traceVid = vid; trace = null; renderPath();
       try {
-        const t = await AtlasData.loadVlanTrace(curGid, vid);
+        const t = await HorusData.loadVlanTrace(curGid, vid);
         traceCache[vid] = t;
         if (selVid === vid) { trace = t; traceLoading = false; renderPath(); }
       } catch (e) {
@@ -358,9 +358,9 @@
     // access/trunk de uma porta NUNCA é capturado (nenhum driver guarda), então a
     // sintaxe tem que sair do fabricante do ativo — sintaxe fixa (ex.: Cisco)
     // mostraria ao operador um comando que nunca existiu num Huawei/MikroTik/
-    // Juniper. Ver AtlasData.helpers.
+    // Juniper. Ver HorusData.helpers.
     function buildInterfaceConfig(e) {
-      const H = AtlasData.helpers;
+      const H = HorusData.helpers;
       const mode = String(e.mode || '').toLowerCase();
       let lines;
 
@@ -414,7 +414,7 @@
       body.textContent = 'Carregando…';
       document.getElementById('configModal').classList.remove('hidden');
       let rows;
-      try { rows = await AtlasData.loadVlanConfigs(curGid, vid); }
+      try { rows = await HorusData.loadVlanConfigs(curGid, vid); }
       catch (e) { body.textContent = 'Falha ao carregar a config: ' + e.message; return; }
       if (!rows || !rows.length) { body.textContent = 'Sem config extraída para esta VLAN.'; return; }
       const HC = ['var(--cyan)', 'var(--magenta)', 'var(--emerald)', 'var(--amber)', 'var(--rose)', 'var(--cyan-dim)'];
@@ -433,7 +433,7 @@
     }
 
     // Fallback: reconstrói um bloco de config quando o ativo não tem config bruta
-    // capturada. Sintaxe por fabricante vem de AtlasData.helpers — nenhum driver
+    // capturada. Sintaxe por fabricante vem de HorusData.helpers — nenhum driver
     // guarda o bloco L2 access/trunk, então isso é SEMPRE reconstruído para o
     // caso comum; usar sintaxe fixa (ex.: Cisco) para outro fabricante mostraria
     // um comando que nunca existiu no equipamento.
@@ -445,7 +445,7 @@
       const lines = [`vlan ${selVid}`, ` name ${name}`];
       if (type === 'routed') {
         const ipep = eps.find(x => x.host_ip) || eps[0] || {};
-        lines.push('!', ...AtlasData.helpers.reconstructRoutedInterfaceLines(ipep.vendor, selVid, ipep));
+        lines.push('!', ...HorusData.helpers.reconstructRoutedInterfaceLines(ipep.vendor, selVid, ipep));
       } else if (type === 'vsi') {
         // vsi/l2vc só existem no driver Huawei hoje — sintaxe fixa é segura aqui.
         lines.push('!', `vsi VPLS-${selVid} static`, ` vsi-id ${selVid}`);
@@ -458,7 +458,7 @@
           const buckets = md === 'access'
             ? { access: [selVid], native: null, trunk: [] }
             : { access: [], native: md === 'native' ? selVid : null, trunk: [selVid] };
-          lines.push(`interface ${x.interface}`, ...AtlasData.helpers.reconstructPortVlanLines(x.vendor, x.interface, buckets));
+          lines.push(`interface ${x.interface}`, ...HorusData.helpers.reconstructPortVlanLines(x.vendor, x.interface, buckets));
         });
       }
       return lines.join('\n');

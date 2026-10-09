@@ -179,7 +179,7 @@ class HuaweiDriver(NetworkDriver):
                     add_cfg(current_vlan, f" {line}")
 
         # 3. Segunda passagem: tipos (routed/vsi/l2vc) + captura do bloco de config.
-        #    Cobre a sintaxe REAL dos equipamentos (validada no BackupCenter):
+        #    Cobre a sintaxe REAL dos equipamentos (validada na Backup API):
         #    sub-interface dot1q + 'mpls l2vc <peer> <vc-id>' (L2VC) ou
         #    'l2 binding vsi <nome>' (VSI). Mantém Vlanif routed e os padrões antigos.
         def ensure_vlan(vid, name=None):

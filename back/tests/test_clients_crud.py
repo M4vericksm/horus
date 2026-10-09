@@ -62,10 +62,10 @@ def test_create_client_requires_name(client):
 
 def test_get_client_by_id(client):
     c, h = client
-    created = c.post("/api/clients", headers=h, json={"name": "AtlasTest"}).json()
+    created = c.post("/api/clients", headers=h, json={"name": "HorusTest"}).json()
     r = c.get(f"/api/clients/{created['id']}", headers=h)
     assert r.status_code == 200
-    assert r.json()["name"] == "AtlasTest"
+    assert r.json()["name"] == "HorusTest"
 
 
 def test_get_client_not_found(client):

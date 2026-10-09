@@ -1,4 +1,4 @@
-# NetworkAtlas
+# Horus
 
 > Orquestrador de rede para provedores (ISP): lê a configuração dos equipamentos, extrai VLANs, subnets e interfaces, e mantém o IPAM (phpIPAM / NetBox) sincronizado — sem planilha e sem cadastro manual.
 
@@ -15,17 +15,17 @@
 
 Em um provedor, a "verdade" da rede mora na configuração dos roteadores e switches — e o IPAM fica sempre atrasado em relação a ela. VLANs criadas às pressas, subnets sem documentação, conflitos de VID entre equipamentos: tudo isso só aparece quando algo quebra.
 
-O NetworkAtlas fecha esse ciclo automaticamente:
+O Horus fecha esse ciclo automaticamente:
 
 ```
 equipamentos ──► coleta de configs ──► parse por fabricante ──► banco ──► phpIPAM / NetBox
- (backup/SSH)                          (10 drivers)                       + topologia, busca, monitoramento
+                 (Backup API / SSH)    (10 drivers)                       + topologia, busca
 ```
 
 ## Funcionalidades
 
 **Coleta**
-- Descoberta de ativos a partir de um servidor de backup de configurações (BackupCenter, via REST, com paginação e retry)
+- Conector genérico de **Backup API**: puxa as configs de qualquer servidor de backup que exponha o contrato REST abaixo — Oxidized, RANCID, coletores NETCONF/RESTCONF ou ferramentas próprias, com um adaptador fino (paginação, retry e token criptografado)
 - Extração direta por **SSH**, inclusive através de **jump host / VPN** (hierarquia ativo → cliente → direto), com verificação de host key em modo TOFU (anti-MITM)
 - Job global "extrair tudo" com acompanhamento por `job_id` e **sync diário automático**
 
@@ -49,13 +49,25 @@ equipamentos ──► coleta de configs ──► parse por fabricante ──�
 - Segredos (tokens, senhas de VPN/IPAM) criptografados no banco com **Fernet** e mascarados nas respostas da API
 - Proteção **anti-SSRF** em toda URL externa cadastrada
 
+## Backup API
+
+O Horus não depende de um produto de backup específico. Qualquer fonte de configurações entra por um contrato REST simples, autenticado com `Authorization: Bearer <token>`:
+
+| Método | Caminho | Retorno |
+|---|---|---|
+| `GET` | `{base}/groups` | grupos/sites com seus ativos |
+| `GET` | `{base}/groups/{id}/backups` | backups disponíveis de um grupo (paginado) |
+| `GET` | `{base}/backups/{id}/download` | texto da configuração |
+
+Para fontes sem API (ou sem backup centralizado), a coleta é feita direto por **SSH**, com jump host opcional. O texto coletado, venha de onde vier, passa pelo mesmo pipeline de drivers.
+
 ## Stack
 
 | Camada | Tecnologia |
 |---|---|
 | API | FastAPI · Pydantic v2 · uvicorn |
 | Persistência | PostgreSQL 15 · SQLAlchemy 2 (async) · asyncpg · Alembic |
-| Integrações | httpx (BackupCenter, phpIPAM, NetBox, Zabbix JSON-RPC) · Paramiko (SSH) |
+| Integrações | httpx (Backup API, phpIPAM, NetBox, Zabbix JSON-RPC) · Paramiko (SSH) |
 | Segurança | cryptography (Fernet) · TOTP · PBKDF2-SHA256 |
 | Front-end | HTML + JavaScript puro · Tailwind · Lucide, servido por nginx |
 | Testes | pytest · pytest-asyncio · respx · SQLite em memória |
@@ -85,7 +97,7 @@ Fluxo de uma rota: `main.py` (fina) → função de negócio em `auto_discovery.
 **Stack completa (Docker):**
 
 ```bash
-cp .env.example .env      # preencha banco, FERNET_KEY e ATLAS_API_KEY (instruções no arquivo)
+cp .env.example .env      # preencha banco, FERNET_KEY e HORUS_API_KEY (instruções no arquivo)
 docker compose up --build -d
 # front: http://localhost · API: http://localhost:8000 · docs: http://localhost:8000/docs
 ```
@@ -102,7 +114,7 @@ PYTHONPATH='back:.' DATABASE_URL='sqlite+aiosqlite:///local_dev.db' \
 
 ```bash
 pip install -r back/requirements.txt -r back/requirements-dev.txt
-PYTHONPATH='back:.' DATABASE_URL='sqlite+aiosqlite:///:memory:' ATLAS_API_KEY=test-key \
+PYTHONPATH='back:.' DATABASE_URL='sqlite+aiosqlite:///:memory:' HORUS_API_KEY=test-key \
   FERNET_KEY="$(python -c 'from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())')" \
   APP_ENV=test python -m pytest back/tests/ -q --no-cov
 ```

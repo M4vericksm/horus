@@ -1,4 +1,4 @@
-/* NetworkAtlas — Command Deck
+/* Horus — Command Deck
  * Single-file foundation: color vars + semantic typography.
  * Usage: <link rel="stylesheet" href="colors_and_type.css"/>
  *        <html class="dark"> or <html class="light">
@@ -163,7 +163,7 @@ html.dark.t-amb {
 }
 
 /* O polvo (logo) recolore conforme o tema ativo. */
-img[src$="atlas-logo.png"] { filter: var(--logo-filter, none); transition: filter .2s ease; }
+img[src$="horus-logo.png"] { filter: var(--logo-filter, none); transition: filter .2s ease; }
 
 /* ─────────────────────────────────────────────────────────
    GLOBAL BASE

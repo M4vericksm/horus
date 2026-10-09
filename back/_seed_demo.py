@@ -1,6 +1,6 @@
 """Seed de DEMONSTRAÇÃO para validação local (NÃO usar em produção).
 
-Cria o grupo "Grupo Demo Atlas" com 3 equipamentos, VLANs, interfaces,
+Cria o grupo "Grupo Demo Horus" com 3 equipamentos, VLANs, interfaces,
 associações VLAN↔interface e subnets — incluindo um enlace /30 (MPLS) entre
 borda e core e descrições que citam os vizinhos, para exercitar o trace de VLAN.
 
@@ -14,7 +14,7 @@ import models
 from sqlalchemy import delete
 from sqlalchemy.future import select
 
-DEMO_NAME = "Grupo Demo Atlas"
+DEMO_NAME = "Grupo Demo Horus"
 DEMO_HOSTS = ["RT-BORDA-01", "SW-CORE-01", "SW-ACESSO-01"]
 
 

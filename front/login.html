@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Atlas — Network Sync</title>
+  <title>Horus — Network Sync</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles/colors_and_type.css"/>
   <script src="config.js"></script>
@@ -13,8 +13,8 @@
     const API_BASE = `http://${window.location.hostname}:${window.API_PORT || '8000'}/api`;
 
     tailwind.config = { darkMode: 'class' };
-    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
-    // toggleAtlasTheme é provido por js/ui.js (abre o seletor de 10 temas / Aparência).
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('horus-theme')||'dark')+(e?' embed':''); })();
+    // toggleHorusTheme é provido por js/ui.js (abre o seletor de 10 temas / Aparência).
 
     // ─── Proteção anti-loop de login (portada da linha do colaborador, UTF-8 limpo) ───
     // Regra de ouro: NUNCA redireciona para fora do login sem antes validar o token no
@@ -31,11 +31,11 @@
       // precisa ver o formulário de nova senha mesmo com (ou sem) token salvo.
       if (params.get('reset')) return;
       if (params.get('expired') === '1') {
-        localStorage.removeItem('atlas-api-key');
-        localStorage.removeItem('atlas-username');
+        localStorage.removeItem('horus-api-key');
+        localStorage.removeItem('horus-username');
         return; // cenário A
       }
-      const token = localStorage.getItem('atlas-api-key');
+      const token = localStorage.getItem('horus-api-key');
       if (!token) return; // cenário B
       document.addEventListener('DOMContentLoaded', function() {
         fetch(`${API_BASE}/clients`, { headers: { 'X-API-Key': token } })
@@ -43,8 +43,8 @@
             if (r.ok) {
               window.location.replace('dashboard.html');            // cenário C
             } else if (r.status === 401 || r.status === 403) {
-              localStorage.removeItem('atlas-api-key');             // cenário D
-              localStorage.removeItem('atlas-username');
+              localStorage.removeItem('horus-api-key');             // cenário D
+              localStorage.removeItem('horus-username');
             }
             // cenário E (5xx etc): não faz nada
           })
@@ -119,23 +119,23 @@
     }
 
     /* input */
-    .atlas-input {
+    .horus-input {
       background: rgba(15,23,42,0.05);
       border: 1px solid rgba(15,23,42,0.1);
       color: #0F172A;
       transition: border-color 0.2s, box-shadow 0.2s, background 0.4s, color 0.4s;
     }
-    html.dark .atlas-input {
+    html.dark .horus-input {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.1);
       color: #F8FAFC;
     }
-    .atlas-input:focus {
+    .horus-input:focus {
       outline: none;
       border-color: var(--cyan-dim);
       box-shadow: 0 0 0 3px rgba(94,180,199,0.2);
     }
-    .atlas-input::placeholder { color: #4A5F7A; }
+    .horus-input::placeholder { color: #4A5F7A; }
 
     /* btn */
     .btn-primary {
@@ -170,7 +170,7 @@
 <body class="min-h-screen flex items-center justify-center relative transition-colors duration-300">
 
   <!-- Toggle -->
-  <button class="absolute top-6 right-6 z-50 p-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 shadow-sm border border-slate-300 dark:border-slate-700 hover:scale-105 transition-all" onclick="toggleAtlasTheme()">
+  <button class="absolute top-6 right-6 z-50 p-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 shadow-sm border border-slate-300 dark:border-slate-700 hover:scale-105 transition-all" onclick="toggleHorusTheme()">
     <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
     <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
   </button>
@@ -195,9 +195,9 @@
     <!-- Logo -->
     <div class="flex flex-col items-center justify-center mb-8 fade-up delay-1">
       <div class="octo-login">
-        <img src="assets/atlas-logo.png" width="86" height="86" alt="Atlas" class="mb-4" style="filter: var(--logo-filter, none) drop-shadow(0 8px 18px rgba(0,0,0,0.30));"/>
+        <img src="assets/horus-logo.png" width="86" height="86" alt="Horus" class="mb-4" style="filter: var(--logo-filter, none) drop-shadow(0 8px 18px rgba(0,0,0,0.30));"/>
       </div>
-      <h1 class="font-spartan text-slate-800 dark:text-white tracking-tight transition-colors duration-400" style="font-size:54px; font-weight:700; margin-top:-8px; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">Atlas</h1>
+      <h1 class="font-spartan text-slate-800 dark:text-white tracking-tight transition-colors duration-400" style="font-size:54px; font-weight:700; margin-top:-8px; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">Horus</h1>
     </div>
 
     <!-- Card -->
@@ -210,11 +210,11 @@
         <form onsubmit="doLogin(event)" class="space-y-4">
           <div>
             <label class="block text-xs font-medium mb-1.5 text-slate-500 dark:text-slate-400">E-mail</label>
-            <input type="email" id="login-email" autocomplete="username" placeholder="voce@example.com" class="atlas-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
+            <input type="email" id="login-email" autocomplete="username" placeholder="voce@example.com" class="horus-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
           </div>
           <div>
             <label class="block text-xs font-medium mb-1.5 text-slate-500 dark:text-slate-400">Senha</label>
-            <input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••" class="atlas-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
+            <input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••" class="horus-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
           </div>
           <button type="submit" class="btn-primary w-full py-2.5 rounded-xl text-sm font-semibold text-white mt-2 font-sora">Entrar</button>
         </form>
@@ -227,7 +227,7 @@
         <h2 class="font-sora text-lg font-semibold text-slate-800 dark:text-white mb-1">Verificação em 2 etapas</h2>
         <p class="text-xs mb-6 text-slate-500 dark:text-slate-400">Digite o código de 6 dígitos do seu app autenticador.</p>
         <form onsubmit="doMfa(event)" class="space-y-4">
-          <input id="mfa-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" class="atlas-input w-full px-4 py-3 rounded-xl text-center text-lg font-mono" style="letter-spacing:0.4em"/>
+          <input id="mfa-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" class="horus-input w-full px-4 py-3 rounded-xl text-center text-lg font-mono" style="letter-spacing:0.4em"/>
           <button type="submit" class="btn-primary w-full py-2.5 rounded-xl text-sm font-semibold text-white font-sora">Verificar</button>
         </form>
         <p class="text-center text-xs mt-5"><a href="#" onclick="showPanel('login');return false" style="color:var(--cyan)">Voltar</a></p>
@@ -238,9 +238,9 @@
         <h2 class="font-sora text-lg font-semibold text-slate-800 dark:text-white mb-1">Criar conta</h2>
         <p class="text-xs mb-6 text-slate-500 dark:text-slate-400">Use seu e-mail corporativo (@example.com).</p>
         <form onsubmit="doRegister(event)" class="space-y-4">
-          <input type="email" id="reg-email" autocomplete="username" placeholder="voce@example.com" class="atlas-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
-          <input type="password" id="reg-pass" autocomplete="new-password" oninput="checkPwd()" placeholder="crie uma senha forte" class="atlas-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
-          <input type="password" id="reg-pass2" autocomplete="new-password" placeholder="confirme a senha" class="atlas-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
+          <input type="email" id="reg-email" autocomplete="username" placeholder="voce@example.com" class="horus-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
+          <input type="password" id="reg-pass" autocomplete="new-password" oninput="checkPwd()" placeholder="crie uma senha forte" class="horus-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
+          <input type="password" id="reg-pass2" autocomplete="new-password" placeholder="confirme a senha" class="horus-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
           <div id="pwd-hints" style="display:flex;flex-wrap:wrap;gap:6px 10px;font-size:11px"></div>
           <button type="submit" class="btn-primary w-full py-2.5 rounded-xl text-sm font-semibold text-white font-sora">Continuar</button>
         </form>
@@ -254,7 +254,7 @@
         <div id="qrcode" style="display:flex;justify-content:center;align-items:center;background:#fff;padding:12px;border-radius:14px;width:fit-content;margin:0 auto 10px"></div>
         <p class="text-center text-xs mb-4 text-slate-500 dark:text-slate-400">Ou insira a chave manualmente:<br><span id="qr-secret" class="font-mono" style="font-size:11px;color:var(--cyan);word-break:break-all"></span></p>
         <form onsubmit="doConfirm(event)" class="space-y-4">
-          <input id="conf-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" class="atlas-input w-full px-4 py-3 rounded-xl text-center text-lg font-mono" style="letter-spacing:0.4em"/>
+          <input id="conf-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" class="horus-input w-full px-4 py-3 rounded-xl text-center text-lg font-mono" style="letter-spacing:0.4em"/>
           <button type="submit" class="btn-primary w-full py-2.5 rounded-xl text-sm font-semibold text-white font-sora">Ativar e entrar</button>
         </form>
       </div>
@@ -264,7 +264,7 @@
         <h2 class="font-sora text-lg font-semibold text-slate-800 dark:text-white mb-1">Redefinir senha</h2>
         <p class="text-xs mb-6 text-slate-500 dark:text-slate-400">Informe seu e-mail corporativo. Se houver uma conta, enviaremos um link para criar uma nova senha.</p>
         <form onsubmit="doForgot(event)" class="space-y-4">
-          <input type="email" id="forgot-email" autocomplete="username" placeholder="voce@example.com" class="atlas-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
+          <input type="email" id="forgot-email" autocomplete="username" placeholder="voce@example.com" class="horus-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
           <button type="submit" class="btn-primary w-full py-2.5 rounded-xl text-sm font-semibold text-white font-sora">Enviar link</button>
         </form>
         <p class="text-center text-xs mt-5"><a href="#" onclick="showPanel('login');return false" style="color:var(--cyan)">Voltar</a></p>
@@ -275,8 +275,8 @@
         <h2 class="font-sora text-lg font-semibold text-slate-800 dark:text-white mb-1">Criar nova senha</h2>
         <p class="text-xs mb-6 text-slate-500 dark:text-slate-400">Defina sua nova senha de acesso.</p>
         <form onsubmit="doReset(event)" class="space-y-4">
-          <input type="password" id="reset-pass" autocomplete="new-password" oninput="checkPwd('reset-pass','reset-hints')" placeholder="crie uma senha forte" class="atlas-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
-          <input type="password" id="reset-pass2" autocomplete="new-password" placeholder="confirme a senha" class="atlas-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
+          <input type="password" id="reset-pass" autocomplete="new-password" oninput="checkPwd('reset-pass','reset-hints')" placeholder="crie uma senha forte" class="horus-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
+          <input type="password" id="reset-pass2" autocomplete="new-password" placeholder="confirme a senha" class="horus-input w-full px-4 py-2.5 rounded-xl text-sm font-medium"/>
           <div id="reset-hints" style="display:flex;flex-wrap:wrap;gap:6px 10px;font-size:11px"></div>
           <button type="submit" class="btn-primary w-full py-2.5 rounded-xl text-sm font-semibold text-white font-sora">Salvar e ir para o login</button>
         </form>
@@ -286,7 +286,7 @@
 
     <!-- Footer -->
     <p class="text-center text-xs mt-6 fade-up delay-3" style="color:#4A5F7A;">
-      Atlas Enterprise — Network Sync v2.0
+      Horus Enterprise — Network Sync v2.0
     </p>
   </div>
 
@@ -344,8 +344,8 @@
     }
     function fail(d, fb) { UI.showToast((d && d._net) ? 'Não foi possível contatar a API.' : ((d && d.detail && d.detail.message) || fb), 'error'); }
     function enter(d) {
-      localStorage.setItem('atlas-api-key', d.session_token);
-      if (d.username) localStorage.setItem('atlas-username', d.username);
+      localStorage.setItem('horus-api-key', d.session_token);
+      if (d.username) localStorage.setItem('horus-username', d.username);
       window.location.href = 'dashboard.html';
     }
 

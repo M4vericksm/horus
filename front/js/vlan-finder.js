@@ -1,11 +1,11 @@
 /**
- * AtlasVlanFinder — busca uma VLAN em TODOS os provedores.
+ * HorusVlanFinder — busca uma VLAN em TODOS os provedores.
  *
  * Responde "onde essa VLAN passa": uma VLAN 100 que nasce num provedor, transita
  * por outro e termina num terceiro aparece como uma trilha, agrupada por
  * provedor e com os ativos onde foi extraída.
  *
- * Uso: AtlasVlanFinder.open()  — ou com termo inicial: .open('100')
+ * Uso: HorusVlanFinder.open()  — ou com termo inicial: .open('100')
  */
 (function () {
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => (
@@ -17,7 +17,7 @@
   const selecionados = new Set();
 
   /** Base da API. Só o dashboard declara API_BASE no escopo do script; as demais
-   *  telas usam AtlasData. Por isso o componente deriva a base por conta própria
+   *  telas usam HorusData. Por isso o componente deriva a base por conta própria
    *  (mesma fórmula do dashboard) em vez de depender de uma global. */
   function apiBase() {
     try {
@@ -27,9 +27,9 @@
   }
 
   function ensureStyles() {
-    if (document.getElementById('atlas-vf-styles')) return;
+    if (document.getElementById('horus-vf-styles')) return;
     const s = document.createElement('style');
-    s.id = 'atlas-vf-styles';
+    s.id = 'horus-vf-styles';
     s.textContent = `
       .vf-back { position:fixed; inset:0; z-index:300; background:rgba(5,11,20,.72);
         backdrop-filter:blur(8px); display:flex; align-items:flex-start;
@@ -228,5 +228,5 @@
     lastQuery = '';
   }
 
-  window.AtlasVlanFinder = { open, close };
+  window.HorusVlanFinder = { open, close };
 })();

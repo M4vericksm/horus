@@ -1,4 +1,4 @@
-"""Testes da sincronizacao de ativos descobertos via BackupCenter."""
+"""Testes da sincronizacao de ativos descobertos via Backup API."""
 from types import SimpleNamespace
 
 import httpx
@@ -358,7 +358,7 @@ async def test_extract_client_configs_bc_returns_error_without_link(session):
     await session.commit()
 
     result = await auto_discovery.extract_client_configs_bc(client.id, session)
-    assert result == {"error": "Sem servidor BackupCenter vinculado."}
+    assert result == {"error": "Sem servidor Backup API vinculado."}
 
 
 async def test_extract_client_configs_combines_bc_and_manual_messages(session, monkeypatch):

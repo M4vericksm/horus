@@ -1,4 +1,4 @@
-"""Orquestracao dos jobs globais de BackupCenter e do scheduler diario."""
+"""Orquestracao dos jobs globais de Backup API e do scheduler diario."""
 
 import asyncio
 from datetime import datetime, timezone
@@ -18,7 +18,7 @@ GLOBAL_JOBS: dict[str, dict] = {}
 
 
 async def unique_client_name(db: AsyncSession, desired: str, *, exclude_id: int | None = None) -> str:
-    base = (desired or "Grupo BackupCenter").strip() or "Grupo BackupCenter"
+    base = (desired or "Grupo Backup API").strip() or "Grupo Backup API"
     candidate = base
     suffix = 2
     while True:
@@ -59,7 +59,7 @@ async def sync_bc_groups_and_assets(
     if not servers:
         return {
             "status": "warning",
-            "message": "Nenhum servidor BackupCenter cadastrado.",
+            "message": "Nenhum servidor Backup API cadastrado.",
             "servers": 0,
             "groups_seen": 0,
             "clients_created": 0,
@@ -94,17 +94,17 @@ async def sync_bc_groups_and_assets(
                     # Antes esta falha so virava um contador no resumo ("N erro(s)"),
                     # sem status nem corpo em lugar nenhum: o sync diario podia ficar
                     # quebrado em silencio por semanas (foi o caso do HTTP 429 do
-                    # BackupCenter). Agora loga o suficiente para diagnosticar na hora
+                    # Backup API). Agora loga o suficiente para diagnosticar na hora
                     # (status + inicio do corpo). O token vai no header, nunca no corpo.
                     body_snippet = (res_api.text or "")[:300].replace("\n", " ")
                     logger.warning(
-                        "[BackupCenter] Falha ao listar grupos no servidor %s (%s): HTTP %s — %s",
+                        "[Backup API] Falha ao listar grupos no servidor %s (%s): HTTP %s — %s",
                         srv_id, srv_name, res_api.status_code, body_snippet,
                     )
                     stats["errors"].append({
                         "server_id": srv_id,
                         "server_name": srv_name,
-                        "message": f"BackupCenter respondeu HTTP {res_api.status_code} ao listar grupos.",
+                        "message": f"Backup API respondeu HTTP {res_api.status_code} ao listar grupos.",
                         "detail": body_snippet,
                     })
                     continue
@@ -246,7 +246,7 @@ async def run_global_extract_job(
     job.update({
         "status": "running",
         "phase": "sync_groups_assets",
-        "message": "Sincronizando grupos e ativos do BackupCenter...",
+        "message": "Sincronizando grupos e ativos da Backup API...",
         "started_at": datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
     })
     try:

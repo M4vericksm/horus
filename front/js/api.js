@@ -1,5 +1,5 @@
 (function () {
-  const SESSION_KEY = 'atlas-api-key';
+  const SESSION_KEY = 'horus-api-key';
 
   function getSessionToken() {
     return localStorage.getItem(SESSION_KEY) || '';
@@ -27,7 +27,7 @@
       } catch (e) { /* ignora: revogação é best-effort, segue limpando o local */ }
     }
     clearSession();
-    try { localStorage.removeItem('atlas-is-admin'); } catch (e) {}
+    try { localStorage.removeItem('horus-is-admin'); } catch (e) {}
     window.location.href = 'login.html';
   }
 
@@ -35,7 +35,7 @@
   let _authRedirecting = false;
 
   function installAuthFetch() {
-    if (window.fetch.__atlasAuthFetch) return;
+    if (window.fetch.__horusAuthFetch) return;
 
     const nativeFetch = window.fetch.bind(window);
     const authFetch = async (input, init = {}) => {
@@ -58,14 +58,14 @@
       return response;
     };
 
-    authFetch.__atlasAuthFetch = true;
+    authFetch.__horusAuthFetch = true;
     window.fetch = authFetch;
   }
 
-  window.AtlasAPI = window.AtlasAPI || {};
-  window.AtlasAPI.getSessionToken = getSessionToken;
-  window.AtlasAPI.clearSession = clearSession;
-  window.AtlasAPI.requireSession = requireSession;
-  window.AtlasAPI.installAuthFetch = installAuthFetch;
-  window.AtlasAPI.logout = logout;
+  window.HorusAPI = window.HorusAPI || {};
+  window.HorusAPI.getSessionToken = getSessionToken;
+  window.HorusAPI.clearSession = clearSession;
+  window.HorusAPI.requireSession = requireSession;
+  window.HorusAPI.installAuthFetch = installAuthFetch;
+  window.HorusAPI.logout = logout;
 })();

@@ -1,7 +1,7 @@
 """Gestão de usuários restrita ao administrador.
 
 Regras de aceite:
-- Admin é designado pelo e-mail (ATLAS_ADMIN_EMAIL, default admin@example.com).
+- Admin é designado pelo e-mail (HORUS_ADMIN_EMAIL, default admin@example.com).
 - GET /api/me devolve is_admin para o front decidir exibir a gestão.
 - GET/PATCH/DELETE /api/users só respondem ao admin (403 para os demais).
 - Admin não pode se desativar nem ser excluído.
@@ -11,7 +11,7 @@ import os
 
 from helpers import login_completo
 
-SEED_PWD = os.environ["ATLAS_SEED_MAVERICK_PASSWORD"]
+SEED_PWD = os.environ["HORUS_SEED_MAVERICK_PASSWORD"]
 ADMIN_MAIL = "admin@example.com"
 
 

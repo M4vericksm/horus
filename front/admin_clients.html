@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Atlas — Administração</title>
+  <title>Horus — Administração</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     tailwind.config = { darkMode: 'class' };
-    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
-    function toggleAtlasTheme() {
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('horus-theme')||'dark')+(e?' embed':''); })();
+    function toggleHorusTheme() {
       const html = document.documentElement;
       if (html.classList.contains('light')) {
         html.classList.remove('light');
         html.classList.add('dark');
-        localStorage.setItem('atlas-theme', 'dark');
+        localStorage.setItem('horus-theme', 'dark');
       } else {
         html.classList.remove('dark');
         html.classList.add('light');
-        localStorage.setItem('atlas-theme', 'light');
+        localStorage.setItem('horus-theme', 'light');
       }
     }
   </script>
@@ -33,41 +33,41 @@
     .font-sora { font-family: 'Space Grotesk', sans-serif; }
     .font-spartan { font-family: 'League Spartan', sans-serif; }
     body { background: var(--bg-void); color: var(--text-primary); }
-    .atlas-sidebar { background: var(--bg-deep); border-right: 1px solid var(--line); }
+    .horus-sidebar { background: var(--bg-deep); border-right: 1px solid var(--line); }
     .nav-item { color: var(--text-muted); transition: all 0.18s; }
     .nav-item:hover { color: var(--text-primary); background: var(--bg-hover); }
     .nav-item.active { color: var(--text-primary); background: var(--bg-hover); border: 1px solid var(--line-strong); }
     .nav-item.active i { color: var(--cyan); }
-    .atlas-surface  { background: var(--bg-surface); border: 1px solid var(--line); }
-    .atlas-card     { background: var(--bg-surface); border: 1px solid var(--line); transition: all 0.2s; }
-    .atlas-card:hover { border-color: var(--cyan-dim); }
-    .atlas-header   { background: var(--bg-deep); border-bottom: 1px solid var(--line); padding:20px 28px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:30; backdrop-filter:blur(12px); }
+    .horus-surface  { background: var(--bg-surface); border: 1px solid var(--line); }
+    .horus-card     { background: var(--bg-surface); border: 1px solid var(--line); transition: all 0.2s; }
+    .horus-card:hover { border-color: var(--cyan-dim); }
+    .horus-header   { background: var(--bg-deep); border-bottom: 1px solid var(--line); padding:20px 28px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:30; backdrop-filter:blur(12px); }
     .module-tag { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--cyan); font-weight:600; letter-spacing:0.05em; margin-bottom:4px; }
     
     /* Theme toggle — light overrides handled by colors_and_type.css vars */
-    html.light .atlas-header { background: var(--bg-deep); border-bottom: 1px solid var(--line); }
+    html.light .horus-header { background: var(--bg-deep); border-bottom: 1px solid var(--line); }
     
     /* Text transition */
     html.light h1, html.light h2, html.light h3, html.light h4, html.light h4.text-white, html.light p.text-white, html.light i.text-white, html.light td.text-white { color: #0F172A !important; }
     html.light .text-slate-300 { color: #475569 !important; }
     html.light .text-slate-400 { color: #64748B !important; }
     
-    html.light .atlas-input { background: #FFFFFF; border-color: rgba(0,0,0,0.1); color: #0F172A; }
-    html.light .atlas-input option { background: #FFFFFF; color: #0F172A; }
-    html.light .atlas-tr { border-bottom-color: rgba(0,0,0,0.06) !important; color: #334155 !important; }
-    html.light .atlas-table-head { background: #E2E8F0 !important; color: #475569 !important; }
-    html.light .atlas-surface { background: #FFFFFF; border-color: #E2E8F0; }
-    html.light .atlas-card { background: #FFFFFF !important; border-color: #E2E8F0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    html.light .atlas-card:hover { border-color: #93C5FD !important; box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
+    html.light .horus-input { background: #FFFFFF; border-color: rgba(0,0,0,0.1); color: #0F172A; }
+    html.light .horus-input option { background: #FFFFFF; color: #0F172A; }
+    html.light .horus-tr { border-bottom-color: rgba(0,0,0,0.06) !important; color: #334155 !important; }
+    html.light .horus-table-head { background: #E2E8F0 !important; color: #475569 !important; }
+    html.light .horus-surface { background: #FFFFFF; border-color: #E2E8F0; }
+    html.light .horus-card { background: #FFFFFF !important; border-color: #E2E8F0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    html.light .horus-card:hover { border-color: #93C5FD !important; box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
     html.light .user-icon-bg { background: rgba(0,0,0,0.05) !important; }
     
-    html.light .atlas-btn-ghost { background: transparent; color: #475569; border-color: #E2E8F0; }
-    html.light .atlas-btn-ghost:hover { background: #F1F5F9; color: #0F172A; }
-    html.light .atlas-btn-indigo { background: #EEF2FF; color: #4338CA; border-color: #C7D2FE; box-shadow:none; }
-    html.light .atlas-btn-indigo:hover { background: #E0E7FF; }
+    html.light .horus-btn-ghost { background: transparent; color: #475569; border-color: #E2E8F0; }
+    html.light .horus-btn-ghost:hover { background: #F1F5F9; color: #0F172A; }
+    html.light .horus-btn-indigo { background: #EEF2FF; color: #4338CA; border-color: #C7D2FE; box-shadow:none; }
+    html.light .horus-btn-indigo:hover { background: #E0E7FF; }
     
-    .atlas-input[disabled], .atlas-input[readonly] { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); color: #8FA4C2; cursor: not-allowed; }
-    html.light .atlas-input[disabled], html.light .atlas-input[readonly] { background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #94A3B8 !important; }
+    .horus-input[disabled], .horus-input[readonly] { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); color: #8FA4C2; cursor: not-allowed; }
+    html.light .horus-input[disabled], html.light .horus-input[readonly] { background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #94A3B8 !important; }
     
     .empty-state { color: #8FA4C2; border: 1px dashed rgba(255,255,255,0.08); }
     html.light .empty-state { color: #64748B; border-color: #CBD5E1; }
@@ -75,18 +75,18 @@
     .alert-danger { background: rgba(239,68,68,0.1); color: #F87171; border: 1px solid rgba(239,68,68,0.2); }
     html.light .alert-danger { background: #FEF2F2 !important; color: #DC2626 !important; border-color: #FECACA !important; }
     
-    .atlas-bc-link-item { background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.15); }
-    html.light .atlas-bc-link-item { background: #EEF2FF !important; border-color: #C7D2FE !important; }
+    .horus-bc-link-item { background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.15); }
+    html.light .horus-bc-link-item { background: #EEF2FF !important; border-color: #C7D2FE !important; }
     
     .icon-blue-bg { background: rgba(37,99,235,0.12); color: #93C5FD; }
     html.light .icon-blue-bg { background: #EFF6FF !important; color: #3B82F6 !important; }
     .icon-indigo-bg { background: rgba(99,102,241,0.12); color: #A5B4FC; }
     html.light .icon-indigo-bg { background: #EEF2FF !important; color: #4F46E5 !important; }
     
-    .atlas-card-divider { border-top: 1px solid rgba(255,255,255,0.06); }
-    html.light .atlas-card-divider { border-top-color: rgba(0,0,0,0.06) !important; }
+    .horus-card-divider { border-top: 1px solid rgba(255,255,255,0.06); }
+    html.light .horus-card-divider { border-top-color: rgba(0,0,0,0.06) !important; }
     
-    .atlas-table-head { background: var(--bg-elev); color: var(--text-muted); }
+    .horus-table-head { background: var(--bg-elev); color: var(--text-muted); }
     
     /* Stat chips */
     .chip-blue   { background: rgba(37,99,235,0.12);  color: #93C5FD; border: 1px solid rgba(37,99,235,0.2); }
@@ -108,25 +108,25 @@
     .chip-red { background: rgba(239,68,68,0.12); color: #F87171; border: 1px solid rgba(239,68,68,0.2); }
     html.light .chip-red { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
     
-    .atlas-modal    { background: var(--bg-elev); border: 1px solid var(--line-strong); }
-    .atlas-input {
+    .horus-modal    { background: var(--bg-elev); border: 1px solid var(--line-strong); }
+    .horus-input {
       background: var(--bg-surface);
       border: 1px solid var(--line-strong);
       color: var(--text-primary);
       transition: border-color 0.2s;
     }
-    .atlas-input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(94,180,199,0.15); }
-    .atlas-input::placeholder { color: var(--text-muted); }
-    .atlas-input option { background: var(--bg-elev); color: var(--text-primary); }
-    .atlas-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #8FA4C2; display: block; margin-bottom: 5px; }
-    .atlas-btn-primary { background: linear-gradient(135deg,#2563EB,#1D4ED8); color: white; border: 1px solid rgba(37,99,235,0.5); transition: all 0.2s; box-shadow: 0 4px 14px rgba(37,99,235,0.25); }
-    .atlas-btn-primary:hover { box-shadow: 0 6px 20px rgba(37,99,235,0.4); transform: translateY(-1px); }
-    .atlas-btn-ghost { background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; }
-    .atlas-btn-ghost:hover { background: rgba(255,255,255,0.09); color: white; }
-    .atlas-btn-danger { background: rgba(239,68,68,0.1); color: #F87171; border: 1px solid rgba(239,68,68,0.2); transition: all 0.2s; }
-    .atlas-btn-danger:hover { background: rgba(239,68,68,0.2); }
-    .atlas-btn-indigo { background: rgba(99,102,241,0.12); color: #A5B4FC; border: 1px solid rgba(99,102,241,0.25); transition: all 0.2s; }
-    .atlas-btn-indigo:hover { background: rgba(99,102,241,0.2); }
+    .horus-input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(94,180,199,0.15); }
+    .horus-input::placeholder { color: var(--text-muted); }
+    .horus-input option { background: var(--bg-elev); color: var(--text-primary); }
+    .horus-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #8FA4C2; display: block; margin-bottom: 5px; }
+    .horus-btn-primary { background: linear-gradient(135deg,#2563EB,#1D4ED8); color: white; border: 1px solid rgba(37,99,235,0.5); transition: all 0.2s; box-shadow: 0 4px 14px rgba(37,99,235,0.25); }
+    .horus-btn-primary:hover { box-shadow: 0 6px 20px rgba(37,99,235,0.4); transform: translateY(-1px); }
+    .horus-btn-ghost { background: rgba(255,255,255,0.05); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; }
+    .horus-btn-ghost:hover { background: rgba(255,255,255,0.09); color: white; }
+    .horus-btn-danger { background: rgba(239,68,68,0.1); color: #F87171; border: 1px solid rgba(239,68,68,0.2); transition: all 0.2s; }
+    .horus-btn-danger:hover { background: rgba(239,68,68,0.2); }
+    .horus-btn-indigo { background: rgba(99,102,241,0.12); color: #A5B4FC; border: 1px solid rgba(99,102,241,0.25); transition: all 0.2s; }
+    .horus-btn-indigo:hover { background: rgba(99,102,241,0.2); }
     .modal-enter { animation: fadeIn 0.2s ease-out; }
     @keyframes fadeIn { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
     @keyframes slideInToast { from { opacity:0; transform:translateX(24px); } to { opacity:1; transform:translateX(0); } }
@@ -135,10 +135,10 @@
     .toggle-checkbox:checked + .toggle-label { background-color: #2563EB; }
     .toggle-checkbox { top: 0; }
     /* Tab styles */
-    .atlas-tab { color: #8FA4C2; border-bottom: 2px solid transparent; padding: 10px 0; font-size: 13px; font-weight: 600; transition: all 0.18s; cursor: pointer; background: none; }
-    .atlas-tab:hover { color: #CBD5E1; }
-    .atlas-tab.active { color: #60A5FA; border-bottom-color: #2563EB; }
-    .atlas-embed { width: 100%; height: calc(100vh - 180px); min-height: 660px; border: 0; border-radius: 16px; background: var(--bg-deep); display: block; }
+    .horus-tab { color: #8FA4C2; border-bottom: 2px solid transparent; padding: 10px 0; font-size: 13px; font-weight: 600; transition: all 0.18s; cursor: pointer; background: none; }
+    .horus-tab:hover { color: #CBD5E1; }
+    .horus-tab.active { color: #60A5FA; border-bottom-color: #2563EB; }
+    .horus-embed { width: 100%; height: calc(100vh - 180px); min-height: 660px; border: 0; border-radius: 16px; background: var(--bg-deep); display: block; }
     .network-jump-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
     @media (max-width: 900px) { .network-jump-grid { grid-template-columns:1fr; } }
     .network-jump-card {
@@ -151,7 +151,7 @@
     html.light .network-jump-card { background:#F8FAFC; border-color:#E2E8F0; }
     html.light .network-jump-card:hover { border-color:#93C5FD; background:#EFF6FF; }
     /* Table row hover */
-    .atlas-tr:hover { background: rgba(37,99,235,0.05); }
+    .horus-tr:hover { background: rgba(37,99,235,0.05); }
     /* Logo nodes */
     @keyframes nodePulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
     .np { animation: nodePulse 2.4s ease-in-out infinite; }
@@ -167,8 +167,8 @@
   <!-- ── SIDEBAR ──────────────────────────────── -->
   <aside class="sidebar">
     <div style="display:flex;align-items:center;gap:10px;padding:22px 20px;border-bottom:1px solid var(--line);">
-      <img src="assets/atlas-logo.png" width="36" height="36" alt="Atlas" class="octo-idle"/>
-      <span class="brand" style="font-size:28px;color:var(--text-primary);line-height:1;">Atlas</span>
+      <img src="assets/horus-logo.png" width="36" height="36" alt="Horus" class="octo-idle"/>
+      <span class="brand" style="font-size:28px;color:var(--text-primary);line-height:1;">Horus</span>
     </div>
     <nav style="flex:1;padding:14px 0;">
       <a href="dashboard.html" class="nav-btn">
@@ -200,10 +200,10 @@
       <div style="flex:1;">
         <p style="font:600 11px 'Space Grotesk';color:var(--text-secondary);margin:0;">Sistema</p>
       </div>
-      <button onclick="toggleAtlasTheme()" class="icon-btn" title="Alternar tema">
+      <button onclick="toggleHorusTheme()" class="icon-btn" title="Alternar tema">
         <i data-lucide="sun-moon" style="width:15px;height:15px;"></i>
       </button>
-      <button onclick="AtlasAPI.logout()" class="icon-btn" title="Sair">
+      <button onclick="HorusAPI.logout()" class="icon-btn" title="Sair">
         <i data-lucide="log-out" style="width:15px;height:15px;"></i>
       </button>
     </div>
@@ -214,7 +214,7 @@
 
     <!-- VIEW 1: Lista -->
     <div id="view-list" class="block">
-      <header class="atlas-header">
+      <header class="horus-header">
         <div>
           <div class="module-tag">// admin_clients</div>
           <h1 class="t-h1">Grupos e ativos</h1>
@@ -222,11 +222,11 @@
         </div>
         <div class="flex gap-3">
           <button onclick="openBCServerModal()"
-            class="atlas-btn-ghost flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold">
+            class="horus-btn-ghost flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold">
             <i data-lucide="server" class="w-4 h-4"></i> Conectar API
           </button>
           <button onclick="openManualClientModal()"
-            class="atlas-btn-primary flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold">
+            class="horus-btn-primary flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold">
             <i data-lucide="plus" class="w-4 h-4"></i> Novo Grupo
           </button>
         </div>
@@ -240,7 +240,7 @@
               <i data-lucide="cloud-lightning" class="w-4 h-4"></i> Conectores Ativos
             </h2>
             <button onclick="runGlobalDiscovery(this)"
-              class="atlas-btn-indigo text-xs font-semibold px-3 py-1.5 rounded-xl">
+              class="horus-btn-indigo text-xs font-semibold px-3 py-1.5 rounded-xl">
               Sincronizar Todos os Grupos
             </button>
           </div>
@@ -254,9 +254,9 @@
           <h2 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2 mb-4 text-slate-400">
             <i data-lucide="folder-tree" class="w-4 h-4"></i> Grupos no Painel
           </h2>
-          <div class="atlas-surface rounded-2xl overflow-hidden">
+          <div class="horus-surface rounded-2xl overflow-hidden">
             <table class="w-full text-left text-sm">
-              <thead class="atlas-table-head text-xs font-semibold uppercase tracking-wide">
+              <thead class="horus-table-head text-xs font-semibold uppercase tracking-wide">
                 <tr>
                   <th class="px-6 py-4">Nome do Grupo</th>
                   <th class="px-6 py-4">Origem</th>
@@ -273,7 +273,7 @@
 
     <!-- VIEW 2: Configuração do Grupo -->
     <div id="view-config" class="hidden pb-24">
-      <header class="atlas-header">
+      <header class="horus-header">
         <div class="flex items-center gap-4">
           <button onclick="showListView()" class="icon-btn" style="color:var(--cyan);">
             <i data-lucide="arrow-left" class="w-5 h-5"></i>
@@ -285,7 +285,7 @@
         </div>
         <div class="flex gap-2 items-center">
           <select id="wsProviderSel" onchange="switchProviderWorkspace(this.value)" title="Trocar de provedor"
-            class="atlas-input rounded-xl text-sm font-medium px-3" style="min-width:210px;height:42px;cursor:pointer;"></select>
+            class="horus-input rounded-xl text-sm font-medium px-3" style="min-width:210px;height:42px;cursor:pointer;"></select>
           <button id="btnSyncIPAM" onclick="runIPAMSync(this)"
             class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition"
             style="background:linear-gradient(135deg,var(--cyan),var(--cyan-dim));box-shadow:0 4px 14px color-mix(in oklab, var(--cyan) 30%, transparent);color:#04121a;">
@@ -297,18 +297,18 @@
       <div class="p-7 max-w-7xl mx-auto">
         <!-- Tabs -->
         <div class="flex gap-6 mb-8" style="border-bottom:1px solid rgba(255,255,255,0.07);">
-          <button onclick="switchTab('tab-config')" id="btn-tab-config" class="atlas-tab active">Configuração e Vínculos</button>
-          <button onclick="switchTab('tab-assets')" id="btn-tab-assets" class="atlas-tab">Gerenciar Ativos</button>
-          <button id="btn-tab-vlans" onclick="openClientNetwork('vlans')" class="atlas-tab">VLANs</button>
-          <button id="btn-tab-topo" onclick="openClientNetwork('topo')" class="atlas-tab">Topologia</button>
-          <button id="btn-tab-ips" onclick="openClientNetwork('ips')" class="atlas-tab">IPs</button>
-          <button onclick="switchTab('tab-logs'); loadInlineLogs()" id="btn-tab-logs" class="atlas-tab">Logs</button>
+          <button onclick="switchTab('tab-config')" id="btn-tab-config" class="horus-tab active">Configuração e Vínculos</button>
+          <button onclick="switchTab('tab-assets')" id="btn-tab-assets" class="horus-tab">Gerenciar Ativos</button>
+          <button id="btn-tab-vlans" onclick="openClientNetwork('vlans')" class="horus-tab">VLANs</button>
+          <button id="btn-tab-topo" onclick="openClientNetwork('topo')" class="horus-tab">Topologia</button>
+          <button id="btn-tab-ips" onclick="openClientNetwork('ips')" class="horus-tab">IPs</button>
+          <button onclick="switchTab('tab-logs'); loadInlineLogs()" id="btn-tab-logs" class="horus-tab">Logs</button>
         </div>
 
         <!-- Tab: Configuração -->
         <div id="tab-config" class="tab-content block grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Col 1: phpIPAM config -->
-          <div class="atlas-surface rounded-2xl p-6">
+          <div class="horus-surface rounded-2xl p-6">
             <div class="flex justify-between items-center mb-5">
               <h3 class="font-semibold flex items-center gap-2" style="color:#93C5FD;">
                 <i data-lucide="database" class="w-4 h-4"></i> <span id="ipam_card_title">Local & phpIPAM</span>
@@ -320,29 +320,29 @@
             </div>
             <form onsubmit="saveClientConfig(event)" class="space-y-4">
               <div>
-                <label class="atlas-label">Sistema IPAM</label>
-                <select id="c_system" onchange="onSystemChange()" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+                <label class="horus-label">Sistema IPAM</label>
+                <select id="c_system" onchange="onSystemChange()" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm">
                   <option value="phpIPAM">phpIPAM</option>
                   <option value="netbox">NetBox</option>
                 </select>
               </div>
               <div>
-                <label class="atlas-label">Nome do Grupo</label>
-                <input type="text" id="c_name" placeholder="Nome do Grupo" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                <label class="horus-label">Nome do Grupo</label>
+                <input type="text" id="c_name" placeholder="Nome do Grupo" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/>
               </div>
               <div>
-                <label class="atlas-label" id="lbl_ip">URL phpIPAM</label>
-                <input type="text" id="c_ip" placeholder="https://phpipam.minharede.com" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+                <label class="horus-label" id="lbl_ip">URL phpIPAM</label>
+                <input type="text" id="c_ip" placeholder="https://phpipam.minharede.com" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
                 <p class="text-xs mt-1.5" id="ssl_hint_ip" style="color:#4A5F7A;">⚠️ phpIPAM geralmente exige HTTPS com certificado SSL válido.</p>
               </div>
               <div id="row_token_name">
-                <label class="atlas-label">App ID</label>
-                <input type="text" id="c_token_name" placeholder="App ID" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                <label class="horus-label">App ID</label>
+                <input type="text" id="c_token_name" placeholder="App ID" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/>
               </div>
               <div>
-                <label class="atlas-label">Token</label>
+                <label class="horus-label">Token</label>
                 <div class="flex gap-2 items-center" style="overflow:hidden;">
-                  <input type="password" id="c_token" placeholder="Token" class="atlas-input flex-1 px-3 py-2.5 rounded-xl text-sm" style="min-width:0;"/>
+                  <input type="password" id="c_token" placeholder="Token" class="horus-input flex-1 px-3 py-2.5 rounded-xl text-sm" style="min-width:0;"/>
                   <button type="button" id="btn_probe" onclick="probeIPAM()" class="text-xs font-semibold px-3 py-2.5 rounded-xl transition flex-shrink-0" style="background:rgba(37,99,235,0.15);color:#93C5FD;border:1px solid rgba(37,99,235,0.3);cursor:pointer;">Testar</button>
                 </div>
                 <p id="nb_token_hint" class="text-xs mt-1" style="color:#4A5F7A; display:none;">Token v2: <code>nbt_key.secret</code> — Token v1: string de 40 caracteres</p>
@@ -359,12 +359,12 @@
                   <p class="text-xs" style="color:#8FA4C2;">Usuário e senha para renovar o token antes de cada sync.</p>
                   <div class="grid grid-cols-2 gap-3">
                     <div>
-                      <label class="atlas-label">Usuário phpIPAM</label>
-                      <input type="text" id="c_phpipam_user" placeholder="admin" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                      <label class="horus-label">Usuário phpIPAM</label>
+                      <input type="text" id="c_phpipam_user" placeholder="admin" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/>
                     </div>
                     <div>
-                      <label class="atlas-label">Senha phpIPAM</label>
-                      <input type="password" id="c_phpipam_pass" placeholder="••••••••" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                      <label class="horus-label">Senha phpIPAM</label>
+                      <input type="password" id="c_phpipam_pass" placeholder="••••••••" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/>
                     </div>
                   </div>
                 </div>
@@ -372,9 +372,9 @@
               </div>
               <div class="grid grid-cols-2 gap-4 pt-3" style="border-top:1px solid rgba(255,255,255,0.07);">
                 <div>
-                  <label class="atlas-label" id="lbl_l2">L2 Domain (VLANs)</label>
+                  <label class="horus-label" id="lbl_l2">L2 Domain (VLANs)</label>
                   <div class="flex gap-2 items-center">
-                    <select id="c_l2_domain" class="atlas-input flex-1 px-3 py-2.5 rounded-xl text-sm">
+                    <select id="c_l2_domain" class="horus-input flex-1 px-3 py-2.5 rounded-xl text-sm">
                       <option value="1">Padrão (ID: 1)</option>
                     </select>
                     <button type="button" onclick="onCreateIPAMGroup()" class="text-xs font-semibold px-2.5 py-2.5 rounded-xl transition flex-shrink-0" style="background:rgba(37,99,235,0.15);color:#93C5FD;border:1px solid rgba(37,99,235,0.3);cursor:pointer;" title="Criar novo grupo">+</button>
@@ -390,15 +390,15 @@
                   </div>
                 </div>
                 <div>
-                  <label class="atlas-label" id="lbl_section">Section (Subnets)</label>
-                  <select id="c_section_id" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+                  <label class="horus-label" id="lbl_section">Section (Subnets)</label>
+                  <select id="c_section_id" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm">
                     <option value="1">Padrão (ID: 1)</option>
                   </select>
                 </div>
               </div>
               <div>
-                <label class="atlas-label">Prefixo de VLAN</label>
-                <input type="text" id="c_vlan_prefix" placeholder="Ex: [Provedor X]" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+                <label class="horus-label">Prefixo de VLAN</label>
+                <input type="text" id="c_vlan_prefix" placeholder="Ex: [Provedor X]" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
                 <p class="text-xs mt-1" style="color:#4A5F7A;">Adicionado no início da descrição de VLANs e Subnets.</p>
               </div>
               <!-- Banner de erro phpIPAM -->
@@ -411,7 +411,7 @@
                   </div>
                 </div>
               </div>
-              <button type="submit" id="phpipam_cfg_submit_btn" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Salvar Informações</button>
+              <button type="submit" id="phpipam_cfg_submit_btn" class="horus-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Salvar Informações</button>
             </form>
 
             <!-- VPN / Jump Host -->
@@ -426,22 +426,22 @@
                   <p class="text-xs" style="color:#8FA4C2;">Servidor proxy/bastion para alcançar equipamentos via SSH. Se configurado, a extração SSH passará por este jump host.</p>
                   <div class="grid grid-cols-3 gap-3">
                     <div class="col-span-2">
-                      <label class="atlas-label">Host VPN</label>
-                      <input type="text" id="c_vpn_host" placeholder="192.168.1.1" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+                      <label class="horus-label">Host VPN</label>
+                      <input type="text" id="c_vpn_host" placeholder="192.168.1.1" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
                     </div>
                     <div>
-                      <label class="atlas-label">Porta</label>
-                      <input type="number" id="c_vpn_port" value="22" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                      <label class="horus-label">Porta</label>
+                      <input type="number" id="c_vpn_port" value="22" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/>
                     </div>
                   </div>
                   <div class="grid grid-cols-2 gap-3">
                     <div>
-                      <label class="atlas-label">Usuário VPN</label>
-                      <input type="text" id="c_vpn_user" placeholder="admin" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                      <label class="horus-label">Usuário VPN</label>
+                      <input type="text" id="c_vpn_user" placeholder="admin" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/>
                     </div>
                     <div>
-                      <label class="atlas-label">Senha VPN</label>
-                      <input type="password" id="c_vpn_pass" placeholder="••••••••" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                      <label class="horus-label">Senha VPN</label>
+                      <input type="password" id="c_vpn_pass" placeholder="••••••••" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/>
                     </div>
                   </div>
                 </div>
@@ -450,43 +450,43 @@
           </div>
 
           <!-- Col 2: BC Links -->
-          <div class="atlas-surface rounded-2xl p-6 flex flex-col gap-5">
+          <div class="horus-surface rounded-2xl p-6 flex flex-col gap-5">
             <div>
               <h3 class="font-semibold mb-1 flex items-center gap-2" style="color:#A5B4FC;">
-                <i data-lucide="cloud" class="w-4 h-4"></i> Origens BackupCenter
+                <i data-lucide="cloud" class="w-4 h-4"></i> Origens Backup API
               </h3>
             </div>
             <div id="bcLinksContainer" class="space-y-2">
               <p class="text-xs italic" style="color:#8FA4C2;">Carregando vínculos...</p>
             </div>
             <div class="space-y-3 pt-4" style="border-top:1px solid rgba(255,255,255,0.07);">
-              <p class="atlas-label">Adicionar vínculo</p>
+              <p class="horus-label">Adicionar vínculo</p>
               <div>
-                <label class="atlas-label">Servidor BC</label>
-                <select id="c_bc_server" onchange="loadBCGroupsForSelect(this.value)" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+                <label class="horus-label">Servidor BC</label>
+                <select id="c_bc_server" onchange="loadBCGroupsForSelect(this.value)" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm">
                   <option value="">-- Selecione o Servidor --</option>
                 </select>
               </div>
               <div>
-                <label class="atlas-label">Grupo no Servidor</label>
-                <select id="c_external_group" onchange="syncGroupInput(this.value)" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+                <label class="horus-label">Grupo no Servidor</label>
+                <select id="c_external_group" onchange="syncGroupInput(this.value)" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm">
                   <option value="">-- Selecione o Grupo --</option>
                 </select>
                 <input type="text" id="c_external_group_manual" placeholder="Ou insira o ID do grupo manualmente"
-                  class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono mt-2"/>
+                  class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-mono mt-2"/>
               </div>
               <div>
-                <label class="atlas-label">Rótulo (opcional)</label>
+                <label class="horus-label">Rótulo (opcional)</label>
                 <input type="text" id="c_bc_label" placeholder="Ex: Rede POP, Rede Core..."
-                  class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/>
+                  class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/>
               </div>
-              <button onclick="addBCLink()" class="atlas-btn-indigo w-full py-2 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
+              <button onclick="addBCLink()" class="horus-btn-indigo w-full py-2 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
                 <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Vínculo
               </button>
             </div>
             <button id="btn-discover-bc-tab1" onclick="runAction('discover-assets', this)"
-              class="atlas-btn-primary w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
-              <i data-lucide="search" class="w-4 h-4"></i> Descobrir via BackupCenter (todos)
+              class="horus-btn-primary w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
+              <i data-lucide="search" class="w-4 h-4"></i> Descobrir via Backup API (todos)
             </button>
           </div>
         </div>
@@ -499,12 +499,12 @@
               style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.2);color:#FCD34D;">
               <i data-lucide="cloud-download" class="w-5 h-5 flex-shrink-0"></i>
               <div class="text-left">
-                <p class="font-semibold">Extração via BackupCenter</p>
+                <p class="font-semibold">Extração via Backup API</p>
                 <p class="text-xs opacity-70 mt-0.5">Baixa configs e extrai VLANs/Subnets</p>
               </div>
             </button>
             <button onclick="runAction('extract-configs-manual', this)"
-              class="atlas-btn-ghost p-5 rounded-2xl font-medium text-sm flex items-center gap-4">
+              class="horus-btn-ghost p-5 rounded-2xl font-medium text-sm flex items-center gap-4">
               <i data-lucide="terminal" class="w-5 h-5 flex-shrink-0"></i>
               <div class="text-left">
                 <p class="font-semibold">Extração via SSH Direto</p>
@@ -525,13 +525,13 @@
         <div id="tab-logs" class="tab-content hidden space-y-4">
           <div class="flex justify-between items-center">
             <h2 class="font-semibold text-white">Últimas execuções</h2>
-            <a href="logs.html" class="text-xs font-semibold flex items-center gap-1 atlas-link">
+            <a href="logs.html" class="text-xs font-semibold flex items-center gap-1 horus-link">
               <i data-lucide="external-link" class="w-3 h-3"></i> Ver todos os logs
             </a>
           </div>
-          <div class="atlas-surface rounded-2xl overflow-hidden">
+          <div class="horus-surface rounded-2xl overflow-hidden">
             <table class="w-full text-left text-sm">
-              <thead class="atlas-table-head text-xs font-semibold uppercase tracking-wide">
+              <thead class="horus-table-head text-xs font-semibold uppercase tracking-wide">
                 <tr>
                   <th class="px-5 py-3">Data/Hora</th>
                   <th class="px-5 py-3">Operação</th>
@@ -549,15 +549,15 @@
 
         <!-- Tab: VLANs (embutido) -->
         <div id="tab-vlans" class="tab-content hidden">
-          <iframe id="frame-vlans" class="atlas-embed" title="VLANs do provedor"></iframe>
+          <iframe id="frame-vlans" class="horus-embed" title="VLANs do provedor"></iframe>
         </div>
         <!-- Tab: Topologia (embutido) -->
         <div id="tab-topo" class="tab-content hidden">
-          <iframe id="frame-topo" class="atlas-embed" title="Topologia do provedor"></iframe>
+          <iframe id="frame-topo" class="horus-embed" title="Topologia do provedor"></iframe>
         </div>
         <!-- Tab: IPs (embutido) -->
         <div id="tab-ips" class="tab-content hidden">
-          <iframe id="frame-ips" class="atlas-embed" title="IPs do provedor"></iframe>
+          <iframe id="frame-ips" class="horus-embed" title="IPs do provedor"></iframe>
         </div>
       </div>
     </div>
@@ -566,19 +566,19 @@
   <!-- ── MODALS ──────────────────────────────── -->
   <!-- Modal: BC Server -->
   <div id="bcServerModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="atlas-modal rounded-2xl w-full max-w-md shadow-2xl modal-enter">
+    <div class="horus-modal rounded-2xl w-full max-w-md shadow-2xl modal-enter">
       <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
-        <h3 class="font-sora font-semibold flex items-center gap-2" style="color:#A5B4FC;"><i data-lucide="server" class="w-4 h-4"></i> Nova API BackupCenter</h3>
+        <h3 class="font-sora font-semibold flex items-center gap-2" style="color:#A5B4FC;"><i data-lucide="server" class="w-4 h-4"></i> Nova API Backup API</h3>
         <button onclick="closeBCServerModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="saveBCServer(event)" class="p-6 space-y-4">
-        <div><label class="atlas-label">Nome do Servidor</label><input type="text" id="bc_s_name" placeholder="Ex: Servidor Principal" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+        <div><label class="horus-label">Nome do Servidor</label><input type="text" id="bc_s_name" placeholder="Ex: Servidor Principal" required class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
         <div>
-          <label class="atlas-label">URL da API</label>
-          <input type="url" id="bc_s_url" placeholder="http://host:8050/api/v1/external" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
-          <p class="text-xs mt-1.5" style="color:#4A5F7A;">⚠️ A maioria das APIs BackupCenter e phpIPAM exige HTTPS com certificado SSL válido.</p>
+          <label class="horus-label">URL da API</label>
+          <input type="url" id="bc_s_url" placeholder="http://host:8050/api/v1/external" required class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+          <p class="text-xs mt-1.5" style="color:#4A5F7A;">⚠️ A maioria das APIs Backup API e phpIPAM exige HTTPS com certificado SSL válido.</p>
         </div>
-        <div><label class="atlas-label">Token</label><input type="password" id="bc_s_token" placeholder="Token de autenticação" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/></div>
+        <div><label class="horus-label">Token</label><input type="password" id="bc_s_token" placeholder="Token de autenticação" required class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/></div>
         <!-- Banner de erro de conectividade -->
         <div id="bc_create_error" class="hidden rounded-xl p-3 text-xs" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#FCA5A5;">
           <div class="flex items-start gap-2">
@@ -589,38 +589,38 @@
             </div>
           </div>
         </div>
-        <button type="submit" id="bc_s_submit_btn" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Cadastrar Servidor</button>
+        <button type="submit" id="bc_s_submit_btn" class="horus-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Cadastrar Servidor</button>
       </form>
     </div>
   </div>
 
   <!-- Modal: Novo Grupo Manual -->
   <div id="manualClientModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="atlas-modal rounded-2xl w-full max-w-md shadow-2xl modal-enter">
+    <div class="horus-modal rounded-2xl w-full max-w-md shadow-2xl modal-enter">
       <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
         <h3 class="font-sora font-semibold flex items-center gap-2 text-white"><i data-lucide="folder-plus" class="w-4 h-4" style="color:#60A5FA;"></i> Novo Grupo Manual</h3>
         <button onclick="closeManualClientModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="createClientManual(event)" class="p-6 space-y-4">
-        <div><label class="atlas-label">Nome do Grupo</label><input type="text" id="m_name" placeholder="Ex: Provedor X - POP" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
-        <button type="submit" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Criar Grupo</button>
+        <div><label class="horus-label">Nome do Grupo</label><input type="text" id="m_name" placeholder="Ex: Provedor X - POP" required class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+        <button type="submit" class="horus-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Criar Grupo</button>
       </form>
     </div>
   </div>
 
   <!-- Modal: Novo Ativo Manual -->
   <div id="manualAssetModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="atlas-modal rounded-2xl w-full max-w-lg shadow-2xl modal-enter">
+    <div class="horus-modal rounded-2xl w-full max-w-lg shadow-2xl modal-enter">
       <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
         <h3 class="font-sora font-semibold flex items-center gap-2 text-white"><i data-lucide="router" class="w-4 h-4" style="color:#60A5FA;"></i> Novo Equipamento</h3>
         <button onclick="closeManualAssetModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="createAssetManual(event)" class="p-6 space-y-4">
-        <div><label class="atlas-label">Hostname</label><input type="text" id="ma_hostname" placeholder="switch-core-01" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-bold"/></div>
+        <div><label class="horus-label">Hostname</label><input type="text" id="ma_hostname" placeholder="switch-core-01" required class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-bold"/></div>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="atlas-label">Vendor</label>
-            <select id="ma_vendor" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+            <label class="horus-label">Vendor</label>
+            <select id="ma_vendor" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm">
               <option value="cisco">Cisco</option>
               <option value="datacom">Datacom</option>
               <option value="huawei">Huawei</option>
@@ -628,8 +628,8 @@
             </select>
           </div>
           <div>
-            <label class="atlas-label">Categoria</label>
-            <select id="ma_category" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm">
+            <label class="horus-label">Categoria</label>
+            <select id="ma_category" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm">
               <option value="acesso">Switch de Acesso</option>
               <option value="autenticador">Autenticador</option>
               <option value="borda">Roteador de Borda</option>
@@ -639,33 +639,33 @@
           </div>
         </div>
         <div class="grid grid-cols-3 gap-4">
-          <div class="col-span-2"><label class="atlas-label">IP de Acesso</label><input type="text" id="ma_ip" placeholder="192.168.1.1" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/></div>
-          <div><label class="atlas-label">Porta</label><input type="number" id="ma_port" value="22" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+          <div class="col-span-2"><label class="horus-label">IP de Acesso</label><input type="text" id="ma_ip" placeholder="192.168.1.1" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/></div>
+          <div><label class="horus-label">Porta</label><input type="number" id="ma_port" value="22" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
         </div>
-        <div><label class="atlas-label">Autoridade na Categoria (1-10)</label><input type="number" id="ma_authority" min="1" max="10" value="5" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
-        <button type="submit" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Salvar Ativo</button>
+        <div><label class="horus-label">Autoridade na Categoria (1-10)</label><input type="number" id="ma_authority" min="1" max="10" value="5" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+        <button type="submit" class="horus-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Salvar Ativo</button>
       </form>
     </div>
   </div>
 
   <!-- Modal: Editar BC Server -->
   <div id="editBCServerModal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="atlas-modal rounded-2xl w-full max-w-md shadow-2xl modal-enter">
+    <div class="horus-modal rounded-2xl w-full max-w-md shadow-2xl modal-enter">
       <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
         <h3 class="font-sora font-semibold flex items-center gap-2 text-white"><i data-lucide="pencil" class="w-4 h-4" style="color:#60A5FA;"></i> Editar Conector BC</h3>
         <button onclick="closeEditBCServerModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="saveEditBCServer(event)" class="p-6 space-y-4">
         <input type="hidden" id="edit_bc_s_id"/>
-        <div><label class="atlas-label">Nome do Servidor</label><input type="text" id="edit_bc_s_name" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
+        <div><label class="horus-label">Nome do Servidor</label><input type="text" id="edit_bc_s_name" required class="horus-input w-full px-3 py-2.5 rounded-xl text-sm"/></div>
         <div>
-          <label class="atlas-label">URL da API</label>
-          <input type="url" id="edit_bc_s_url" required class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
-          <p class="text-xs mt-1.5" style="color:#4A5F7A;">⚠️ A maioria das APIs BackupCenter e phpIPAM exige HTTPS com certificado SSL válido.</p>
+          <label class="horus-label">URL da API</label>
+          <input type="url" id="edit_bc_s_url" required class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+          <p class="text-xs mt-1.5" style="color:#4A5F7A;">⚠️ A maioria das APIs Backup API e phpIPAM exige HTTPS com certificado SSL válido.</p>
         </div>
         <div>
-          <label class="atlas-label">Token <span class="font-normal" style="color:#4A5F7A;">(obrigatório para validar)</span></label>
-          <input type="password" id="edit_bc_s_token" placeholder="••••••••" class="atlas-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
+          <label class="horus-label">Token <span class="font-normal" style="color:#4A5F7A;">(obrigatório para validar)</span></label>
+          <input type="password" id="edit_bc_s_token" placeholder="••••••••" class="horus-input w-full px-3 py-2.5 rounded-xl text-sm font-mono"/>
         </div>
         <!-- Banner de erro de conectividade -->
         <div id="bc_edit_error" class="hidden rounded-xl p-3 text-xs" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#FCA5A5;">
@@ -677,14 +677,14 @@
             </div>
           </div>
         </div>
-        <button type="submit" id="bc_edit_submit_btn" class="atlas-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Salvar Alterações</button>
+        <button type="submit" id="bc_edit_submit_btn" class="horus-btn-primary w-full py-2.5 rounded-xl font-semibold text-sm">Salvar Alterações</button>
       </form>
     </div>
   </div>
 
   <!-- Modal: Detalhe de Erro Inline -->
   <div id="inlineDetailModal" class="fixed inset-0 bg-black/70 hidden z-[150] flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="atlas-modal rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden modal-enter">
+    <div class="horus-modal rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden modal-enter">
       <div class="px-5 py-4 flex justify-between items-center" style="background:rgba(239,68,68,0.08);border-bottom:1px solid rgba(239,68,68,0.15);">
         <h3 class="font-semibold flex items-center gap-2 text-sm" style="color:#F87171;"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Detalhe do Erro</h3>
         <button onclick="closeInlineDetail()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -695,14 +695,14 @@
 
   <!-- Modal: Configurações -->
   <div id="settingsModal" class="fixed inset-0 bg-black/60 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="atlas-modal rounded-2xl shadow-2xl w-full max-w-sm modal-enter">
+    <div class="horus-modal rounded-2xl shadow-2xl w-full max-w-sm modal-enter">
       <div class="px-6 py-5 flex justify-between items-center" style="border-bottom:1px solid rgba(255,255,255,0.07);">
         <h3 class="font-sora font-semibold text-white">Configurações</h3>
         <button onclick="closeSettingsModal()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div class="p-6 space-y-5">
         <div class="p-4 rounded-xl text-sm" style="background:rgba(255,255,255,0.04); color:#8FA4C2; border:1px solid rgba(255,255,255,0.06);">
-          Mais opções de usuário estarão disponíveis na próxima atualização do Atlas. O tema agora pode ser alterado no painel rápido.
+          Mais opções de usuário estarão disponíveis na próxima atualização do Horus. O tema agora pode ser alterado no painel rápido.
         </div>
       </div>
       <div class="px-6 pb-5 flex justify-end">
@@ -713,7 +713,7 @@
 
   <!-- Modal: Conflitos de VLAN -->
   <div id="vlanConflictModal" class="fixed inset-0 bg-black/70 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="atlas-modal rounded-2xl w-full max-w-3xl shadow-2xl modal-enter" style="max-height:90vh; display:flex; flex-direction:column;">
+    <div class="horus-modal rounded-2xl w-full max-w-3xl shadow-2xl modal-enter" style="max-height:90vh; display:flex; flex-direction:column;">
       <div class="px-6 py-5 flex justify-between items-center flex-shrink-0" style="background:rgba(245,158,11,0.08); border-bottom:1px solid rgba(245,158,11,0.2);">
         <div>
           <h3 class="font-sora font-semibold flex items-center gap-2" style="color:#FCD34D;">
@@ -726,7 +726,7 @@
       <div class="p-6 space-y-4 overflow-y-auto flex-1" id="conflictsList"></div>
       <div class="px-6 pb-5 pt-3 flex justify-between items-center flex-shrink-0" style="border-top:1px solid rgba(255,255,255,0.07);">
         <p class="text-xs" style="color:#8FA4C2;">Escolha a ação para cada conflito antes de aplicar.</p>
-        <button onclick="applyConflictResolutions()" class="atlas-btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2">
+        <button onclick="applyConflictResolutions()" class="horus-btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2">
           <i data-lucide="check" class="w-4 h-4"></i> Aplicar Resoluções
         </button>
       </div>
@@ -740,8 +740,8 @@
   <script>
     lucide.createIcons();
     const API_BASE = `http://${window.location.hostname}:${window.API_PORT || '8000'}/api`;
-    AtlasAPI.requireSession();
-    AtlasAPI.installAuthFetch();
+    HorusAPI.requireSession();
+    HorusAPI.installAuthFetch();
 
     // Escapa dados externos (nomes de grupo/ativo, hostnames de equipamento,
     // URLs e nomes de phpIPAM/NetBox) antes de ir para innerHTML — evita XSS
@@ -755,7 +755,7 @@
     let globalSections = [];
     const OP_LABELS = {
       sync_assets: 'Descoberta', discover_assets: 'Descoberta (link)',
-      extract_bc: 'Extração BC', extract_manual: 'Extração manual',
+      extract_bc: 'Extração via Backup API', extract_manual: 'Extração manual',
       extract_all: 'Extração global', extract_ssh: 'Extração SSH',
       sync_phpipam: 'Sync phpIPAM', sync_netbox: 'Sync NetBox',
       daily_sync: 'Sync diário',
@@ -849,11 +849,11 @@
         if (!res.ok) throw new Error();
         const clients = (await res.json()).slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' }));
         document.getElementById('clientsTable').innerHTML = clients.length ? clients.map(c => `
-          <tr class="atlas-tr" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <tr class="horus-tr" style="border-bottom:1px solid rgba(255,255,255,0.05);">
             <td class="px-6 py-4 font-semibold text-white text-sm">${esc(c.name)}</td>
             <td class="px-6 py-4">
               <span class="text-xs font-semibold px-2 py-0.5 rounded-lg ${(c.external_group_id || c.has_bc_link) ? 'chip-indigo' : 'chip-slate'}">
-                ${(c.external_group_id || c.has_bc_link) ? 'BackupCenter' : 'Manual'}
+                ${(c.external_group_id || c.has_bc_link) ? 'Backup API' : 'Manual'}
               </span>
             </td>
             <td class="px-6 py-4 text-center font-mono text-xs" style="color:#8FA4C2;">${c.asset_count || 0}</td>
@@ -873,7 +873,7 @@
 
     async function loadBCServers() {
       try {
-        const res = await fetch(`${API_BASE}/backupcenter/servers`);
+        const res = await fetch(`${API_BASE}/backup/servers`);
         if (!res.ok) throw new Error();
         const servers = (await res.json()).slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' }));
         const grid = document.getElementById('bcServersGrid');
@@ -882,7 +882,7 @@
           return;
         }
         grid.innerHTML = servers.map(s => `
-          <div class="atlas-card p-4 rounded-2xl flex justify-between items-center group">
+          <div class="horus-card p-4 rounded-2xl flex justify-between items-center group">
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 rounded-xl flex items-center justify-center icon-indigo-bg"><i data-lucide="database" class="w-4 h-4"></i></div>
               <div>
@@ -1117,12 +1117,12 @@
         document.getElementById('c_vpn_port').value = c.vpn_port || 22;
         document.getElementById('c_vpn_user').value = c.vpn_user || '';
         document.getElementById('c_vpn_pass').value = c.vpn_pass || '';
-        document.getElementById('badgeGroupStatus').innerHTML = `<span class="text-xs font-semibold px-2 py-0.5 rounded-lg ${hasBC ? 'chip-indigo' : 'chip-slate'}">${hasBC ? 'Sincronização BC' : 'Grupo Manual'}</span>`;
+        document.getElementById('badgeGroupStatus').innerHTML = `<span class="text-xs font-semibold px-2 py-0.5 rounded-lg ${hasBC ? 'chip-indigo' : 'chip-slate'}">${hasBC ? 'Sincronização via Backup API' : 'Grupo Manual'}</span>`;
 
         await fetchRemoteIPAMData();
         populateIPAMSelects(isNB ? c.netbox_vlan_group_id : c.l2_domain_id, isNB ? c.netbox_site_id : c.section_id);
 
-        const resS = await fetch(`${API_BASE}/backupcenter/servers`);
+        const resS = await fetch(`${API_BASE}/backup/servers`);
         const servers = await resS.json();
         const bcServerSel = document.getElementById('c_bc_server');
         bcServerSel.innerHTML = `<option value="">-- Selecione o Servidor --</option>` + servers.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' })).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
@@ -1142,7 +1142,7 @@
     async function loadBCGroupsForSelect(serverId, currentId = null) {
       if (!serverId) return;
       try {
-        const res = await fetch(`${API_BASE}/backupcenter/servers/${serverId}/groups`);
+        const res = await fetch(`${API_BASE}/backup/servers/${serverId}/groups`);
         const groups = await res.json();
         document.getElementById('c_external_group').innerHTML = `<option value="">-- Selecione o Grupo --</option>` + groups.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' })).map(g => `<option value="${g.id}" ${g.id == currentId ? 'selected' : ''}>${esc(g.name)}</option>`).join('');
       } catch (e) {}
@@ -1156,7 +1156,7 @@
         const links = await res.json();
         if (!links.length) { container.innerHTML = `<p class="text-xs italic py-2 text-slate-400">Nenhum vínculo BC configurado.</p>`; return links; }
         container.innerHTML = links.map(lnk => `
-          <div class="atlas-bc-link-item flex items-center justify-between rounded-xl px-3 py-2.5 group">
+          <div class="horus-bc-link-item flex items-center justify-between rounded-xl px-3 py-2.5 group">
             <div class="flex items-center gap-2 min-w-0">
               <i data-lucide="cloud" class="w-4 h-4 flex-shrink-0 text-slate-400"></i>
               <div class="min-w-0">
@@ -1184,10 +1184,10 @@
       const serverId = document.getElementById('c_bc_server').value;
       const groupId  = document.getElementById('c_external_group').value || document.getElementById('c_external_group_manual').value.trim();
       const label    = document.getElementById('c_bc_label').value;
-      if (!serverId || !groupId) { UI.showToast('Selecione o servidor e informe o grupo BC.', 'warning'); return; }
+      if (!serverId || !groupId) { UI.showToast('Selecione o servidor e informe o grupo de backup.', 'warning'); return; }
       try {
         const res = await fetch(`${API_BASE}/clients/${activeClientId}/bc-links`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bc_server_id: parseInt(serverId), external_group_id: groupId, label: label || null }) });
-        if (res.status === 409) { UI.showToast('Este grupo BC já está vinculado.', 'warning'); return; }
+        if (res.status === 409) { UI.showToast('Este grupo de backup já está vinculado.', 'warning'); return; }
         if (!res.ok) throw new Error();
         document.getElementById('c_bc_server').value = '';
         document.getElementById('c_external_group').innerHTML = '<option value="">-- Selecione o Grupo --</option>';
@@ -1199,7 +1199,7 @@
     }
 
     async function removeBCLink(linkId) {
-      if (!(await UI.showConfirm({ message: 'Remover este vínculo BC?', danger: true, confirmText: 'Remover' }))) return;
+      if (!(await UI.showConfirm({ message: 'Remover este vínculo de backup?', danger: true, confirmText: 'Remover' }))) return;
       await fetch(`${API_BASE}/clients/${activeClientId}/bc-links/${linkId}`, { method: 'DELETE' });
       UI.showToast('Vínculo removido.', 'success');
       await loadBCLinks();
@@ -1217,7 +1217,7 @@
     }
 
     async function fetchBCAssets(extId) {
-      try { const res = await fetch(`${API_BASE}/backupcenter/groups/${extId}/assets`); bcAssetsRef = await res.json(); }
+      try { const res = await fetch(`${API_BASE}/backup/groups/${extId}/assets`); bcAssetsRef = await res.json(); }
       catch (e) { bcAssetsRef = []; }
     }
 
@@ -1239,9 +1239,9 @@
 
         const renderAssetCard = (a) => {
           const syncBadge = UI.syncBadge(a.last_sync_status, a.last_sync_error, a.last_sync_at);
-          let bcOpts = `<option value="">-- Vincular a Ativo BC --</option>` + safeBC.map(ba => `<option value="${ba.id}" ${a.backup_id == ba.id ? 'selected' : ''}>${esc(ba.device_name || ba.hostname)}</option>`).join('');
+          let bcOpts = `<option value="">-- Vincular a Ativo do backup --</option>` + safeBC.map(ba => `<option value="${ba.id}" ${a.backup_id == ba.id ? 'selected' : ''}>${esc(ba.device_name || ba.hostname)}</option>`).join('');
           return `
-            <div class="atlas-surface rounded-xl p-5">
+            <div class="horus-surface rounded-xl p-5">
               <div class="flex justify-between items-center mb-4">
                 <div class="flex gap-3 items-center">
                   <div class="w-9 h-9 rounded-xl flex items-center justify-center icon-blue-bg"><i data-lucide="router" class="w-4 h-4"></i></div>
@@ -1262,25 +1262,25 @@
                       </div>
                     </div>
               </div>
-              <form onsubmit="updateAssetFull(event, ${a.id})" class="pt-4 space-y-3 atlas-card-divider">
+              <form onsubmit="updateAssetFull(event, ${a.id})" class="pt-4 space-y-3 horus-card-divider">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
-                    <label class="atlas-label flex items-center gap-1">IP SSH <i data-lucide="lock" class="w-3 h-3"></i></label>
+                    <label class="horus-label flex items-center gap-1">IP SSH <i data-lucide="lock" class="w-3 h-3"></i></label>
                     <input type="text" id="ip_${a.id}" value="${esc(a.ip_address || 'Extraindo...')}" readonly tabindex="-1"
-                      class="atlas-input w-full px-3 py-2 rounded-xl text-xs font-mono" disabled />
+                      class="horus-input w-full px-3 py-2 rounded-xl text-xs font-mono" disabled />
                   </div>
                   <div>
-                    <label class="atlas-label flex items-center gap-1">Porta SSH <i data-lucide="lock" class="w-3 h-3"></i></label>
+                    <label class="horus-label flex items-center gap-1">Porta SSH <i data-lucide="lock" class="w-3 h-3"></i></label>
                     <input type="number" id="port_${a.id}" value="${a.port || 22}" readonly tabindex="-1"
-                      class="atlas-input w-full px-3 py-2 rounded-xl text-xs" disabled />
+                      class="horus-input w-full px-3 py-2 rounded-xl text-xs" disabled />
                   </div>
                   <div id="div_bc_${a.id}" style="display:${a.sync_mode === 'auto' ? 'block' : 'none'}">
-                    <label class="atlas-label">Vínculo BC</label>
-                    <select id="bc_id_${a.id}" class="atlas-input w-full px-3 py-2 rounded-xl text-xs">${bcOpts}</select>
+                    <label class="horus-label">Vínculo BC</label>
+                    <select id="bc_id_${a.id}" class="horus-input w-full px-3 py-2 rounded-xl text-xs">${bcOpts}</select>
                   </div>
                   <div>
-                    <label class="atlas-label">L2 Domain (override)</label>
-                    <select id="l2_${a.id}" class="atlas-input w-full px-3 py-2 rounded-xl text-xs">
+                    <label class="horus-label">L2 Domain (override)</label>
+                    <select id="l2_${a.id}" class="horus-input w-full px-3 py-2 rounded-xl text-xs">
                       <option value="">Usar padrão do grupo</option>
                       ${globalL2Domains.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '', 'pt', { sensitivity: 'base' })).map(d => `<option value="${d.id}" ${a.override_l2_domain_id == d.id ? 'selected' : ''}>${esc(d.name)} (${d.id})</option>`).join('')}
                     </select>
@@ -1303,32 +1303,32 @@
                   <div class="mt-3 space-y-2">
                     <div class="grid grid-cols-2 gap-3">
                       <div>
-                        <label class="atlas-label">SSH Usuário</label>
-                        <input type="text" id="ssh_user_${a.id}" value="${esc(a.ssh_user || '')}" placeholder="admin" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                        <label class="horus-label">SSH Usuário</label>
+                        <input type="text" id="ssh_user_${a.id}" value="${esc(a.ssh_user || '')}" placeholder="admin" class="horus-input w-full px-3 py-2 rounded-xl text-xs"/>
                       </div>
                       <div>
-                        <label class="atlas-label">SSH Senha</label>
-                        <input type="password" id="ssh_pass_${a.id}" value="${esc(a.ssh_pass || '')}" placeholder="••••••" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                        <label class="horus-label">SSH Senha</label>
+                        <input type="password" id="ssh_pass_${a.id}" value="${esc(a.ssh_pass || '')}" placeholder="••••••" class="horus-input w-full px-3 py-2 rounded-xl text-xs"/>
                       </div>
                     </div>
                     <div class="grid grid-cols-3 gap-3">
                       <div class="col-span-2">
-                        <label class="atlas-label">VPN Host (override)</label>
-                        <input type="text" id="ovpn_host_${a.id}" value="${esc(a.override_vpn_host || '')}" placeholder="Usar global do grupo" class="atlas-input w-full px-3 py-2 rounded-xl text-xs font-mono"/>
+                        <label class="horus-label">VPN Host (override)</label>
+                        <input type="text" id="ovpn_host_${a.id}" value="${esc(a.override_vpn_host || '')}" placeholder="Usar global do grupo" class="horus-input w-full px-3 py-2 rounded-xl text-xs font-mono"/>
                       </div>
                       <div>
-                        <label class="atlas-label">Porta VPN</label>
-                        <input type="number" id="ovpn_port_${a.id}" value="${esc(a.override_vpn_port || '')}" placeholder="22" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                        <label class="horus-label">Porta VPN</label>
+                        <input type="number" id="ovpn_port_${a.id}" value="${esc(a.override_vpn_port || '')}" placeholder="22" class="horus-input w-full px-3 py-2 rounded-xl text-xs"/>
                       </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                       <div>
-                        <label class="atlas-label">VPN Usuário (override)</label>
-                        <input type="text" id="ovpn_user_${a.id}" value="${esc(a.override_vpn_user || '')}" placeholder="Usar global" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                        <label class="horus-label">VPN Usuário (override)</label>
+                        <input type="text" id="ovpn_user_${a.id}" value="${esc(a.override_vpn_user || '')}" placeholder="Usar global" class="horus-input w-full px-3 py-2 rounded-xl text-xs"/>
                       </div>
                       <div>
-                        <label class="atlas-label">VPN Senha (override)</label>
-                        <input type="password" id="ovpn_pass_${a.id}" value="${esc(a.override_vpn_pass || '')}" placeholder="Usar global" class="atlas-input w-full px-3 py-2 rounded-xl text-xs"/>
+                        <label class="horus-label">VPN Senha (override)</label>
+                        <input type="password" id="ovpn_pass_${a.id}" value="${esc(a.override_vpn_pass || '')}" placeholder="Usar global" class="horus-input w-full px-3 py-2 rounded-xl text-xs"/>
                       </div>
                     </div>
                   </div>
@@ -1343,12 +1343,12 @@
                   </label>
                   <div class="flex gap-2">
                     ${a.bc_device_id ? '' : `<button type="button" onclick="deleteAsset(${a.id}, ${JSON.stringify(a.hostname || '')}, event)"
-                            class="atlas-btn-ghost px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap"
+                            class="horus-btn-ghost px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap"
                             style="color:var(--rose,#ef4444);border-color:color-mix(in oklab,var(--rose,#ef4444) 35%,transparent);"
                             title="Excluir este ativo cadastrado manualmente">Excluir</button>`}
                     <button type="button" onclick="testAssetSSH(${a.id}, event)"
-                            class="atlas-btn-ghost px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap">Testar SSH</button>
-                    <button type="submit" class="atlas-btn-ghost px-4 py-2 rounded-xl text-xs font-semibold">Atualizar</button>
+                            class="horus-btn-ghost px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap">Testar SSH</button>
+                    <button type="submit" class="horus-btn-ghost px-4 py-2 rounded-xl text-xs font-semibold">Atualizar</button>
                   </div>
                 </div>
               </form>
@@ -1390,7 +1390,7 @@
       fetchAssetsList();
     }
 
-    /** Exclui um ativo cadastrado manualmente. Ativos vindos do BackupCenter não
+    /** Exclui um ativo cadastrado manualmente. Ativos vindos da Backup API não
      *  expõem este botão — o backend também recusa, porque o próximo discover os
      *  recriaria e a remoção só destruiria o histórico no intervalo. */
     async function deleteAsset(id, hostname, evt) {
@@ -1649,7 +1649,7 @@
       btn.disabled = true;
       btn.innerHTML = 'Sincronizando...';
       try {
-        const res = await fetch(`${API_BASE}/backupcenter/discover-all-groups`, { method: 'POST' });
+        const res = await fetch(`${API_BASE}/backup/discover-all-groups`, { method: 'POST' });
         const d = await res.json();
         if (!res.ok) {
           UI.showToast(d.message || d.detail || 'Falha ao sincronizar grupos e ativos.', 'error');
@@ -1684,7 +1684,7 @@
             ? `<span class="px-2 py-0.5 rounded-lg text-xs font-bold chip-red">ERRO</span>`
             : `<span class="px-2 py-0.5 rounded-lg text-xs font-bold chip-emerald">OK</span>`;
           const detailBtn = isError && l.detail ? `<button type="button" class="inline-detail-btn ml-1 text-[10px] font-medium hover:underline text-red-500" data-detail="${encodeURIComponent(l.detail)}">ver detalhe</button>` : '';
-          return `<tr class="atlas-tr">
+          return `<tr class="horus-tr">
             <td class="px-5 py-3 text-xs font-mono text-slate-400">${dt}</td>
             <td class="px-5 py-3 text-xs text-slate-300 pointer-events-none">${opLabel}</td>
             <td class="px-5 py-3">${badge}</td>
@@ -1725,7 +1725,7 @@
       const url = document.getElementById('bc_s_url').value;
       const token = document.getElementById('bc_s_token').value;
       try {
-        const testRes = await fetch(`${API_BASE}/backupcenter/servers/test`, {
+        const testRes = await fetch(`${API_BASE}/backup/servers/test`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, token })
         });
@@ -1740,7 +1740,7 @@
       }
       // Conexão OK — salvar
       const p = { name: document.getElementById('bc_s_name').value, url, token };
-      await fetch(`${API_BASE}/backupcenter/servers`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      await fetch(`${API_BASE}/backup/servers`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
       closeBCServerModal();
       ['bc_s_name','bc_s_url','bc_s_token'].forEach(id => document.getElementById(id).value = '');
       loadBCServers();
@@ -1756,7 +1756,7 @@
 
     async function deleteBCServer(id) {
       if (!(await UI.showConfirm({ message: 'Apagar este servidor do painel?', danger: true, confirmText: 'Apagar' }))) return;
-      await fetch(`${API_BASE}/backupcenter/servers/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/backup/servers/${id}`, { method: 'DELETE' });
       loadBCServers();
     }
 
@@ -1780,7 +1780,7 @@
       if (!newToken) { UI.showToast('Informe o token para validar e salvar (campo obrigatório).', 'warning'); return; }
       _setBtnLoading('bc_edit_submit_btn', 'Testando conexão...');
       try {
-        const testRes = await fetch(`${API_BASE}/backupcenter/servers/test`, {
+        const testRes = await fetch(`${API_BASE}/backup/servers/test`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, token: newToken })
         });
@@ -1795,7 +1795,7 @@
       }
       // Conexão OK — salvar
       const p = { name: document.getElementById('edit_bc_s_name').value, url: document.getElementById('edit_bc_s_url').value, token: newToken };
-      const res = await fetch(`${API_BASE}/backupcenter/servers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      const res = await fetch(`${API_BASE}/backup/servers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
       if (res.ok) { UI.showToast('Conector atualizado!', 'success'); closeEditBCServerModal(); loadBCServers(); }
       else UI.showToast('Erro ao atualizar conector.', 'error');
     }
@@ -1899,32 +1899,32 @@
                 </label>
                 <div id="l2_opts_${idx}" class="hidden ml-6 space-y-2">
                   <div>
-                    <label class="atlas-label">L2 Domain existente ou novo</label>
-                    <select id="l2_sel_${idx}" class="atlas-input w-full px-3 py-2 rounded-xl text-xs" onchange="toggleL2NameInput(${idx})">
+                    <label class="horus-label">L2 Domain existente ou novo</label>
+                    <select id="l2_sel_${idx}" class="horus-input w-full px-3 py-2 rounded-xl text-xs" onchange="toggleL2NameInput(${idx})">
                       ${l2Opts}
                     </select>
                   </div>
                   <div id="l2_name_div_${idx}">
-                    <label class="atlas-label">Nome do novo L2 Domain</label>
-                    <input type="text" id="l2_name_${idx}" value="${esc(c.asset_hostname)}" placeholder="Nome sugerido" class="atlas-input w-full px-3 py-2 rounded-xl text-xs" />
+                    <label class="horus-label">Nome do novo L2 Domain</label>
+                    <input type="text" id="l2_name_${idx}" value="${esc(c.asset_hostname)}" placeholder="Nome sugerido" class="horus-input w-full px-3 py-2 rounded-xl text-xs" />
                     <button type="button" onclick="suggestL2Name(${idx}, ${esc(JSON.stringify(c.asset_hostname))})" class="text-[10px] mt-1 font-medium" style="color:#60A5FA;">Sugerir nome automático</button>
                   </div>
                 </div>
                 <label class="flex items-center gap-2 p-2 rounded-lg cursor-pointer transition hover:bg-white/5" style="border:1px solid rgba(255,255,255,0.08);">
                   <input type="radio" name="conflict_${idx}" value="create_group" class="accent-purple-400" />
                   <div class="flex-1">
-                    <span class="text-xs font-semibold text-white">Criar novo grupo Atlas + L2 Domain</span>
+                    <span class="text-xs font-semibold text-white">Criar novo grupo Horus + L2 Domain</span>
                     <p class="text-[10px]" style="color:#8FA4C2;">Move o ativo para um novo grupo separado</p>
                   </div>
                 </label>
                 <div id="grp_opts_${idx}" class="hidden ml-6 space-y-2">
                   <div>
-                    <label class="atlas-label">Nome do novo grupo Atlas</label>
-                    <input type="text" id="grp_name_${idx}" placeholder="Ex: Provedor X - POP 2" class="atlas-input w-full px-3 py-2 rounded-xl text-xs" />
+                    <label class="horus-label">Nome do novo grupo Horus</label>
+                    <input type="text" id="grp_name_${idx}" placeholder="Ex: Provedor X - POP 2" class="horus-input w-full px-3 py-2 rounded-xl text-xs" />
                   </div>
                   <div>
-                    <label class="atlas-label">Nome do L2 Domain</label>
-                    <input type="text" id="grp_l2_name_${idx}" value="${esc(c.asset_hostname)}" class="atlas-input w-full px-3 py-2 rounded-xl text-xs" />
+                    <label class="horus-label">Nome do L2 Domain</label>
+                    <input type="text" id="grp_l2_name_${idx}" value="${esc(c.asset_hostname)}" class="horus-input w-full px-3 py-2 rounded-xl text-xs" />
                   </div>
                 </div>
               </div>
@@ -1956,7 +1956,7 @@
 
     function suggestL2Name(idx, hostname) {
       const titleEl = document.getElementById('titleGroupName');
-      const groupName = titleEl ? titleEl.innerText : 'Atlas';
+      const groupName = titleEl ? titleEl.innerText : 'Horus';
       document.getElementById(`l2_name_${idx}`).value = `${groupName} - ${hostname}`;
     }
 

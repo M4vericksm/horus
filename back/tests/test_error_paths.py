@@ -17,7 +17,7 @@ def client(headers):
 
 def test_fetch_bc_groups_server_not_found(client):
     c, h = client
-    r = c.get("/api/backupcenter/servers/99999/groups", headers=h)
+    r = c.get("/api/backup/servers/99999/groups", headers=h)
     assert r.status_code == 404
     assert r.json()["detail"]["code"] == "bc_server_not_found"
 
@@ -34,7 +34,7 @@ def test_fetch_bc_groups_server_not_found(client):
 def test_bc_test_blocks_private_urls(client, url):
     c, h = client
     r = c.post(
-        "/api/backupcenter/servers/test",
+        "/api/backup/servers/test",
         headers=h,
         json={"url": url, "token": "any"},
     )

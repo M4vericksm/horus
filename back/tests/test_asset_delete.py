@@ -1,6 +1,6 @@
 """Exclusão de ativos: permitida só para os cadastrados manualmente.
 
-Ativo descoberto pelo BackupCenter tem `bc_device_id` preenchido e não pode ser
+Ativo descoberto pela Backup API tem `bc_device_id` preenchido e não pode ser
 removido — o próximo discover o recriaria, então a exclusão seria só aparente e
 destruiria as VLANs/subnets dele no intervalo.
 """
@@ -51,15 +51,15 @@ def test_ativo_manual_pode_ser_excluido(client):
     assert c.delete(f"/api/assets/{aid}", headers=h).status_code == 404, "deve sumir de fato"
 
 
-def test_ativo_do_backupcenter_nao_pode_ser_excluido(client):
+def test_ativo_do_backup_nao_pode_ser_excluido(client):
     c, h = client
     aid = _run(_seed(bc_device_id="bc-dev-991"))
     r = c.delete(f"/api/assets/{aid}", headers=h)
     assert r.status_code == 409
-    assert r.json()["detail"]["code"] == "asset_from_backupcenter"
+    assert r.json()["detail"]["code"] == "asset_from_backup"
 
 
-def test_ativo_do_backupcenter_sobrevive_a_tentativa(client):
+def test_ativo_do_backup_sobrevive_a_tentativa(client):
     """A recusa não pode ter efeito colateral: o ativo continua íntegro."""
     c, h = client
     aid = _run(_seed(bc_device_id="bc-dev-992", com_dados=True))
@@ -90,7 +90,7 @@ def test_exclusao_reporta_o_que_foi_removido_em_cascata(client):
 
 def test_origem_nao_pode_ser_forjada_pela_api(client):
     """bc_device_id fica fora do schema de entrada: um PUT não converte um ativo
-    do BackupCenter em 'manual' para liberar a exclusão."""
+    da Backup API em 'manual' para liberar a exclusão."""
     c, h = client
     aid = _run(_seed(bc_device_id="bc-dev-993"))
 

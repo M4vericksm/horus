@@ -22,9 +22,9 @@ def test_session_token_malformed_rejected():
 
 def test_session_token_other_secret_rejected(monkeypatch):
     """Token assinado com um segredo não vale sob outro — é o que garante que
-    todos os workers precisam compartilhar o mesmo ATLAS_API_KEY (stateless)."""
+    todos os workers precisam compartilhar o mesmo HORUS_API_KEY (stateless)."""
     token = main._create_session("maverick")
-    monkeypatch.setenv("ATLAS_API_KEY", "outro-segredo-diferente")
+    monkeypatch.setenv("HORUS_API_KEY", "outro-segredo-diferente")
     assert main._validate_session(token) is False
 
 

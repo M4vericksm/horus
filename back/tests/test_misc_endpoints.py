@@ -22,7 +22,7 @@ def group_id(client):
 def bc_server_id(client):
     c, h = client
     r = c.post(
-        "/api/backupcenter/servers",
+        "/api/backup/servers",
         headers=h,
         json={"name": "BC-Misc", "url": "https://bc.local", "token": "tok"},
     )

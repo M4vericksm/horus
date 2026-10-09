@@ -375,9 +375,9 @@ async def _download_backup(http_client, server, backup_id: str, timeout: float =
     try:
         return await http_client.get(url, headers=bc_headers(server), timeout=timeout)
     except httpx.TimeoutException as exc:
-        raise BCAPIError("Timeout ao baixar backup do BackupCenter", url) from exc
+        raise BCAPIError("Timeout ao baixar backup da Backup API", url) from exc
     except httpx.HTTPError as exc:
-        raise BCAPIError(f"Falha ao baixar backup do BackupCenter: {exc}", url) from exc
+        raise BCAPIError(f"Falha ao baixar backup da Backup API: {exc}", url) from exc
 
 
 async def sync_discovered_assets(client_id: int, db: AsyncSession, link_id: int | None = None):
@@ -401,7 +401,7 @@ async def sync_discovered_assets(client_id: int, db: AsyncSession, link_id: int 
     if link_id:
         links = [lnk for lnk in client.bc_links if lnk.id == link_id]
         if not links:
-            return {"status": "error", "message": "Vinculo BackupCenter nao encontrado.", "added": 0, "restored": 0, "errors": []}
+            return {"status": "error", "message": "Vinculo Backup API nao encontrado.", "added": 0, "restored": 0, "errors": []}
     elif client.bc_links:
         links = list(client.bc_links)
     elif client.bc_server and client.external_group_id:
@@ -414,7 +414,7 @@ async def sync_discovered_assets(client_id: int, db: AsyncSession, link_id: int 
         )
         links = [fake_link]
     else:
-        return {"error": "Cliente não possui vínculo com servidor BackupCenter."}
+        return {"error": "Cliente não possui vínculo com servidor Backup API."}
 
     total_added = 0
     total_restored = 0
@@ -429,7 +429,7 @@ async def sync_discovered_assets(client_id: int, db: AsyncSession, link_id: int 
                     total_added += added
                     total_restored += restored
                 except BCAPIError as e:
-                    logger.warning(f"[sync_assets] Link {lnk.id} erro de API BackupCenter: {e}")
+                    logger.warning(f"[sync_assets] Link {lnk.id} erro de API Backup API: {e}")
                     errors.append({
                         "link_id": lnk.id,
                         "bc_server_id": getattr(lnk.bc_server, "id", None),
@@ -444,12 +444,12 @@ async def sync_discovered_assets(client_id: int, db: AsyncSession, link_id: int 
                         "bc_server_id": getattr(lnk.bc_server, "id", None),
                         "status_code": None,
                         "url": None,
-                        "message": f"Falha ao contatar BackupCenter: {e}",
+                        "message": f"Falha ao contatar Backup API: {e}",
                     })
 
         await db.commit()
         if errors:
-            msg = "Falha ao contatar o BackupCenter."
+            msg = "Falha ao contatar a Backup API."
             ctx["status"] = "error"
             ctx["message"] = msg
             ctx["detail"] = "; ".join(err["message"] for err in errors)
@@ -498,7 +498,7 @@ async def extract_client_configs_bc(client_id: int, db: AsyncSession):
         server_group_pairs.append((client.bc_server, client.external_group_id))
 
     if not server_group_pairs:
-        return {"error": "Sem servidor BackupCenter vinculado."}
+        return {"error": "Sem servidor Backup API vinculado."}
 
     # Monta lista de todos os servidores para tentar downloads
     all_servers = [srv for srv, _ in server_group_pairs]
@@ -1465,7 +1465,7 @@ async def resolve_vlan_conflicts(client_id: int, resolutions: list, db: AsyncSes
                             res_l2 = await http_client.post(
                                 f"{base_ip}/api/{client.token_name}/l2domains/",
                                 headers=headers,
-                                json={"name": l2_name, "description": f"Criado automaticamente pelo Atlas para resolver conflito de VLAN {vid}"}
+                                json={"name": l2_name, "description": f"Criado automaticamente pelo Horus para resolver conflito de VLAN {vid}"}
                             )
                             if res_l2.status_code in (200, 201):
                                 resp_json = res_l2.json()
@@ -1512,7 +1512,7 @@ async def resolve_vlan_conflicts(client_id: int, resolutions: list, db: AsyncSes
                                     )
 
                     elif action == "create_group":
-                        # Criar novo grupo Atlas + L2 Domain
+                        # Criar novo grupo Horus + L2 Domain
                         new_group_name = item.get("new_group_name", f"{client.name} - Separado")
                         l2_name = item.get("new_l2_name") or new_group_name
 
@@ -1520,7 +1520,7 @@ async def resolve_vlan_conflicts(client_id: int, resolutions: list, db: AsyncSes
                         res_l2 = await http_client.post(
                             f"{base_ip}/api/{client.token_name}/l2domains/",
                             headers=headers,
-                            json={"name": l2_name, "description": f"Grupo Atlas: {new_group_name}"}
+                            json={"name": l2_name, "description": f"Grupo Horus: {new_group_name}"}
                         )
                         if res_l2.status_code not in (200, 201):
                             if res_l2.status_code in (401, 403):
@@ -1538,7 +1538,7 @@ async def resolve_vlan_conflicts(client_id: int, resolutions: list, db: AsyncSes
                             target_l2_id = target_l2_id.get("id")
                         target_l2_id = int(target_l2_id) if target_l2_id else None
 
-                        # Criar novo grupo Atlas
+                        # Criar novo grupo Horus
                         new_client = models.Client(
                             name=new_group_name,
                             system=client.system,
@@ -1571,7 +1571,7 @@ async def resolve_vlan_conflicts(client_id: int, resolutions: list, db: AsyncSes
 
                         resolved += 1
                         logger.info(
-                            f"[Resolve] Novo grupo Atlas '{new_group_name}' criado com L2 Domain #{target_l2_id}. "
+                            f"[Resolve] Novo grupo Horus '{new_group_name}' criado com L2 Domain #{target_l2_id}. "
                             f"Ativo '{asset.hostname if asset else '?'}' movido."
                         )
 
@@ -1605,7 +1605,7 @@ async def create_l2_domain_phpipam(client_id: int, l2_name: str, db: AsyncSessio
         res = await http_client.post(
             f"{base_ip}/api/{client.token_name}/l2domains/",
             headers=headers,
-            json={"name": l2_name, "description": f"Criado pelo Atlas"}
+            json={"name": l2_name, "description": f"Criado pelo Horus"}
         )
         if res.status_code in (401, 403):
             return {
@@ -2333,7 +2333,7 @@ async def resolve_netbox_conflicts(client_id: int, resolutions: list, db: AsyncS
                                 json=_nb_clean_payload({
                                     "name": group_name,
                                     "slug": _nb_slug(group_name),
-                                    "description": f"Criado pelo Atlas para resolver conflito de VLAN {vid}",
+                                    "description": f"Criado pelo Horus para resolver conflito de VLAN {vid}",
                                 }),
                             )
                             if res_group.status_code not in (200, 201):
@@ -2397,7 +2397,7 @@ async def create_vlan_group_netbox(client_id: int, group_name: str, db: AsyncSes
         res = await http_client.post(
             f"{base_url}/api/ipam/vlan-groups/",
             headers=headers,
-            json=_nb_clean_payload({"name": group_name, "slug": slug, "description": "Criado pelo Atlas"}),
+            json=_nb_clean_payload({"name": group_name, "slug": slug, "description": "Criado pelo Horus"}),
         )
         if res.status_code in (401, 403):
             return {"error": "Sem permissão para criar VLAN Group no NetBox."}

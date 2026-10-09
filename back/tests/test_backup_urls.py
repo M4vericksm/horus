@@ -87,17 +87,17 @@ def _make_client(server_url):
 
 
 def test_bc_url_uses_persisted_api_prefix_without_duplication():
-    _, _, server = _make_client("https://backupcenter.example/api/v1/external")
+    _, _, server = _make_client("https://backup.example/api/v1/external")
 
     assert (
         bc_url(server, "groups", "grp-1", "backups")
-        == "https://backupcenter.example/api/v1/external/groups/grp-1/backups"
+        == "https://backup.example/api/v1/external/groups/grp-1/backups"
     )
 
 
 def test_discover_with_prefixed_url_fetches_all_pages_and_creates_assets(monkeypatch):
     async def run():
-        client, _, _ = _make_client("https://backupcenter.example/api/v1/external")
+        client, _, _ = _make_client("https://backup.example/api/v1/external")
         db = FakeDB(client)
 
         def handler(request):
@@ -136,7 +136,7 @@ def test_discover_with_prefixed_url_fetches_all_pages_and_creates_assets(monkeyp
 
 def test_discover_keeps_latest_backup_per_device(monkeypatch):
     async def run():
-        client, _, _ = _make_client("https://backupcenter.example/api/v1/external")
+        client, _, _ = _make_client("https://backup.example/api/v1/external")
         db = FakeDB(client)
 
         def handler(request):
@@ -184,7 +184,7 @@ def test_discover_keeps_latest_backup_per_device(monkeypatch):
 
 def test_discover_without_api_prefix_warns_and_returns_visible_error(monkeypatch):
     async def run():
-        client, _, _ = _make_client("https://backupcenter.example")
+        client, _, _ = _make_client("https://backup.example")
         db = FakeDB(client)
         warnings = []
 
@@ -208,7 +208,7 @@ def test_discover_without_api_prefix_warns_and_returns_visible_error(monkeypatch
 
 def test_discover_http_error_is_not_reported_as_success(monkeypatch):
     async def run():
-        client, _, _ = _make_client("https://backupcenter.example/api/v1/external")
+        client, _, _ = _make_client("https://backup.example/api/v1/external")
         db = FakeDB(client)
 
         def handler(request):
@@ -228,7 +228,7 @@ def test_discover_http_error_is_not_reported_as_success(monkeypatch):
 
 def test_discover_timeout_is_logged_as_error(monkeypatch):
     async def run():
-        client, _, _ = _make_client("https://backupcenter.example/api/v1/external")
+        client, _, _ = _make_client("https://backup.example/api/v1/external")
         db = FakeDB(client)
 
         def handler(request):
@@ -248,7 +248,7 @@ def test_discover_timeout_is_logged_as_error(monkeypatch):
 
 def test_backup_download_uses_helper_url_without_duplication():
     async def run():
-        _, _, server = _make_client("https://backupcenter.example/api/v1/external")
+        _, _, server = _make_client("https://backup.example/api/v1/external")
         seen = []
 
         async def handler(request):
@@ -259,7 +259,7 @@ def test_backup_download_uses_helper_url_without_duplication():
             response = await auto_discovery._download_backup(client, server, "bk-1")
 
         assert response.status_code == 200
-        assert seen == ["https://backupcenter.example/api/v1/external/backups/bk-1/download"]
+        assert seen == ["https://backup.example/api/v1/external/backups/bk-1/download"]
 
     asyncio.run(run())
 

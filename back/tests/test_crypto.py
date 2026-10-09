@@ -7,7 +7,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from crypto import decrypt_secret, encrypt_secret
-from exceptions import BackupSyncError
+from exceptions import HorusError
 
 
 def test_encrypt_decrypt_round_trip(monkeypatch):
@@ -38,5 +38,5 @@ def test_plain_legacy_secret_is_returned_without_key(monkeypatch):
 def test_corrupted_encrypted_secret_raises(monkeypatch):
     monkeypatch.setenv("FERNET_KEY", Fernet.generate_key().decode())
 
-    with pytest.raises(BackupSyncError):
+    with pytest.raises(HorusError):
         decrypt_secret("gAAAAcorrompido")

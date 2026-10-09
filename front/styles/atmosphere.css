@@ -1,4 +1,4 @@
-/* NetworkAtlas — atmospheric effects. Apply to <body> and sections. */
+/* Horus — atmospheric effects. Apply to <body> and sections. */
 
 body::before {
   content: '';

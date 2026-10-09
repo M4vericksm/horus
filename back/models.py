@@ -4,7 +4,7 @@ from sqlalchemy.orm import declarative_base, relationship
 Base = declarative_base()
 
 # ==========================================
-# TABELA: Servidores BackupCenter
+# TABELA: Servidores Backup API
 # ==========================================
 class BCServer(Base):
     __tablename__ = "bc_servers"
@@ -68,10 +68,10 @@ class Client(Base):
 
 
 # ==========================================
-# TABELA: Vínculos BackupCenter por Grupo (N:M)
+# TABELA: Vínculos Backup API por Grupo (N:M)
 # ==========================================
 class ClientBCLink(Base):
-    """Um grupo pode ter múltiplos vínculos com grupos do BackupCenter."""
+    """Um grupo pode ter múltiplos vínculos com grupos da Backup API."""
     __tablename__ = "client_bc_links"
     id = Column(Integer, primary_key=True, index=True)
     client_id = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False, index=True)
@@ -199,7 +199,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     # Administrador do sistema: único papel com acesso à gestão de usuários.
-    # A designação efetiva também considera o e-mail (ATLAS_ADMIN_EMAIL) — ver
+    # A designação efetiva também considera o e-mail (HORUS_ADMIN_EMAIL) — ver
     # _is_admin_user em main.py —, então contas antigas com a coluna nula
     # continuam sendo reconhecidas pelo e-mail.
     is_admin = Column(Boolean, default=False)

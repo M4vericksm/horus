@@ -1,18 +1,18 @@
-"""Exceções customizadas do NetworkAtlas."""
+"""Exceções customizadas do Horus."""
 
 from dataclasses import dataclass
 
 import httpx
 
 
-class BackupSyncError(Exception):
-    """Classe base para todas as exceções do NetworkAtlas."""
+class HorusError(Exception):
+    """Classe base para todas as exceções do Horus."""
     pass
 
 
-class BCConnectionError(BackupSyncError):
+class BCConnectionError(HorusError):
     """
-    Levantada quando não é possível estabelecer conexão com um servidor BackupCenter.
+    Levantada quando não é possível estabelecer conexão com um servidor Backup API.
     Exemplos: timeout, URL inválida, token expirado, servidor offline.
     """
     pass
@@ -38,15 +38,15 @@ class SSHTimeoutError(BCConnectionError):
         super().__init__(f"Timeout SSH em {ip}:{port}")
 
 
-class BCParseError(BackupSyncError):
+class BCParseError(HorusError):
     """
-    Levantada quando a resposta da API do BackupCenter não pode ser interpretada.
+    Levantada quando a resposta da API da Backup API não pode ser interpretada.
     Exemplos: JSON malformado, campos ausentes, formato inesperado de backup.
     """
     pass
 
 
-class IPAMSyncError(BackupSyncError):
+class IPAMSyncError(HorusError):
     """
     Levantada quando ocorre falha ao sincronizar dados com o phpIPAM.
     Exemplos: token inválido, endpoint inacessível, conflito de dados.
@@ -54,12 +54,12 @@ class IPAMSyncError(BackupSyncError):
     pass
 
 
-class NetBoxSyncError(BackupSyncError):
+class NetBoxSyncError(HorusError):
     """Levantada quando ocorre falha ao sincronizar dados com o NetBox."""
     pass
 
 
-class RetryableError(BackupSyncError):
+class RetryableError(HorusError):
     """Levantada para falhas transitórias que podem ser tentadas novamente."""
     pass
 
@@ -75,7 +75,7 @@ def _mask_url(url: str) -> str:
 
 
 @dataclass
-class BCAPIError(BackupSyncError):
+class BCAPIError(HorusError):
     message: str
     url: str
     status_code: int | None = None
@@ -87,7 +87,7 @@ class BCAPIError(BackupSyncError):
         return f"{self.message} ({status}) em {_mask_url(self.url)}{detail}"
 
 
-class VendorNotSupportedError(BackupSyncError):
+class VendorNotSupportedError(HorusError):
     """
     Levantada quando o fabricante identificado não possui driver implementado.
     Exemplos: vendor='mikrotik', vendor='juniper', vendor='unknown'.

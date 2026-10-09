@@ -21,7 +21,7 @@ import database
 import models
 from main import ADMIN_EMAIL, app, RATE_BUCKETS, _totp_at
 
-SENHA_FORTE = "Atlas@2026Seg"
+SENHA_FORTE = "Horus@2026Seg"
 
 
 def _codigo_atual(secret: str) -> str:

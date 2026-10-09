@@ -6,7 +6,7 @@ import os
 from helpers import login_completo
 from main import ADMIN_EMAIL
 
-SEED_PWD = os.environ["ATLAS_SEED_MAVERICK_PASSWORD"]  # definido no conftest
+SEED_PWD = os.environ["HORUS_SEED_MAVERICK_PASSWORD"]  # definido no conftest
 
 
 def test_admin_loga_por_email_e_e_reconhecido_como_admin(api_client):

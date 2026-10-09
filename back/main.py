@@ -73,7 +73,7 @@ GLOBAL_JOBS = sync_jobs.GLOBAL_JOBS
 RATE_BUCKETS: dict[tuple[str, str], list[float]] = {}
 
 # ── Sessões autenticadas (token assinado → stateless) ───────────────────────
-# Gerado no login, validado pelo middleware; nunca expõe o ATLAS_API_KEY ao front.
+# Gerado no login, validado pelo middleware; nunca expõe o HORUS_API_KEY ao front.
 # Stateless e assinado por HMAC-SHA256: sobrevive a restart e vale em qualquer
 # worker, pois todos compartilham o mesmo segredo. Sem store em memória — elimina
 # o risco de perder/dessincronizar sessões em deploy multi-worker.
@@ -81,9 +81,9 @@ SESSION_TTL_HOURS: int = 8
 
 
 def _session_secret() -> bytes:
-    """Segredo usado para assinar tokens de sessão. Reaproveita o ATLAS_API_KEY
+    """Segredo usado para assinar tokens de sessão. Reaproveita o HORUS_API_KEY
     (já obrigatório); o HMAC é unidirecional, então a chave nunca vaza no token."""
-    return os.getenv("ATLAS_API_KEY", "").encode()
+    return os.getenv("HORUS_API_KEY", "").encode()
 
 
 def _create_session(username: str, token_version: int = 0) -> str:
@@ -146,10 +146,10 @@ def api_error(code: str, message: str, hint: str | None = None) -> dict:
 
 
 # ── Identidade do usuário logado e papel de administrador ──────────────────────
-# O administrador é designado pelo e-mail (ATLAS_ADMIN_EMAIL). A coluna
+# O administrador é designado pelo e-mail (HORUS_ADMIN_EMAIL). A coluna
 # users.is_admin é honrada como reforço, mas o e-mail é a fonte canônica — assim
 # uma conta antiga sem a flag, ou recriada, continua sendo reconhecida.
-ADMIN_EMAIL = os.getenv("ATLAS_ADMIN_EMAIL", "admin@example.com").strip().lower()
+ADMIN_EMAIL = os.getenv("HORUS_ADMIN_EMAIL", "admin@example.com").strip().lower()
 
 
 def _username_from_token(token: str) -> str | None:
@@ -245,7 +245,7 @@ def _totp_verify(secret: str, code: str, window: int = 1) -> bool:
     return False
 
 
-def _otpauth_uri(email: str, secret: str, issuer: str = "NetworkAtlas") -> str:
+def _otpauth_uri(email: str, secret: str, issuer: str = "Horus") -> str:
     import urllib.parse as _u
     label = _u.quote(f"{issuer}:{email}")
     params = _u.urlencode({"secret": secret, "issuer": issuer, "algorithm": "SHA1", "digits": "6", "period": "30"})
@@ -459,9 +459,9 @@ async def _daily_sync_loop():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: aplica migrações e garante que tabelas existam
-    logger.info("Iniciando NetworkAtlas API...")
+    logger.info("Iniciando Horus API...")
     if os.getenv("APP_ENV", "development").lower() in ("prod", "production"):
-        missing = [name for name in ("ATLAS_API_KEY", "FERNET_KEY", "ALLOWED_ORIGINS") if not os.getenv(name)]
+        missing = [name for name in ("HORUS_API_KEY", "FERNET_KEY", "ALLOWED_ORIGINS") if not os.getenv(name)]
         if missing:
             raise RuntimeError(f"Variáveis obrigatórias ausentes em produção: {', '.join(missing)}")
 
@@ -536,7 +536,7 @@ async def lifespan(app: FastAPI):
     logger.info("Banco de dados pronto.")
 
     # 3. Seed de usuários padrão (cria apenas se não existirem).
-    #    Senhas NUNCA são hardcoded: vêm de ATLAS_SEED_<USERNAME>_PASSWORD.
+    #    Senhas NUNCA são hardcoded: vêm de HORUS_SEED_<USERNAME>_PASSWORD.
     #    Se a env estiver ausente, gera uma senha aleatória e a registra no log
     #    (uma vez) para o operador trocar no primeiro acesso.
     #    E-mail corporativo: habilita login por e-mail E o reconhecimento de admin
@@ -565,11 +565,11 @@ async def lifespan(app: FastAPI):
                         exists.email = seed_email
                         logger.info("E-mail preenchido para usuário existente: %s -> %s", uname, seed_email)
                 continue
-            pwd = os.getenv(f"ATLAS_SEED_{uname.upper()}_PASSWORD", "")
+            pwd = os.getenv(f"HORUS_SEED_{uname.upper()}_PASSWORD", "")
             if not pwd:
                 pwd = secrets.token_urlsafe(16)
                 logger.warning(
-                    "Senha de '%s' não definida (ATLAS_SEED_%s_PASSWORD). "
+                    "Senha de '%s' não definida (HORUS_SEED_%s_PASSWORD). "
                     "Gerada aleatoriamente: %s — troque após o primeiro login.",
                     uname, uname.upper(), pwd,
                 )
@@ -610,7 +610,7 @@ else:
     ALLOWED_ORIGINS = ["http://localhost:80", "http://localhost:5173"]
 
 app = FastAPI(
-    title="NetworkAtlas API v5 - IPAM Orchestrator (VLAN & Subnet)",
+    title="Horus API v5 - IPAM Orchestrator (VLAN & Subnet)",
     lifespan=lifespan
 )
 
@@ -630,11 +630,11 @@ async def api_key_middleware(request: Request, call_next):
                 content={"detail": api_error("rate_limited", "Muitas requisições em curto período.", "Aguarde alguns segundos e tente novamente.")},
             )
     if path.startswith("/api") and path not in public_paths:
-        # Garante que ATLAS_API_KEY está configurado (necessário para o servidor funcionar)
-        if not os.getenv("ATLAS_API_KEY", ""):
+        # Garante que HORUS_API_KEY está configurado (necessário para o servidor funcionar)
+        if not os.getenv("HORUS_API_KEY", ""):
             return JSONResponse(
                 status_code=500,
-                content={"detail": api_error("api_key_not_configured", "ATLAS_API_KEY não configurado.", "Defina ATLAS_API_KEY no .env do backend.")},
+                content={"detail": api_error("api_key_not_configured", "HORUS_API_KEY não configurado.", "Defina HORUS_API_KEY no .env do backend.")},
             )
         provided = request.headers.get("X-API-Key", "")
         # 1) Assinatura + expiração (stateless, sem I/O).
@@ -807,7 +807,7 @@ class ClientListResponse(ClientSchema):
     vlan_count: Optional[int] = 0  
     subnet_count: Optional[int] = 0
     bc_server_name: Optional[str] = None
-    has_bc_link: Optional[bool] = False   # tem vínculo em client_bc_links (origem BackupCenter)
+    has_bc_link: Optional[bool] = False   # tem vínculo em client_bc_links (origem Backup API)
     model_config = {"from_attributes": True}
 
 # A CORREÇÃO ESTÁ AQUI: Tudo o que pode vir vazio do DB está como Optional
@@ -865,7 +865,7 @@ class AssetUpdateSchema(BaseModel):
 class AssetResponse(AssetSchema):
     id: int
     client_id: int
-    # Origem do ativo, somente leitura: preenchido = descoberto pelo BackupCenter.
+    # Origem do ativo, somente leitura: preenchido = descoberto pela Backup API.
     # Fica fora do schema de entrada de propósito, para que a origem não possa ser
     # forjada num POST/PUT e liberar a exclusão de um ativo gerenciado.
     bc_device_id: Optional[str] = None
@@ -938,7 +938,7 @@ class ExecutionLogResponse(BaseModel):
 
 
 # ==========================================
-# ROTAS: SERVIDORES BACKUPCENTER
+# ROTAS: SERVIDORES BACKUP_API
 # ==========================================
 def _session_payload(user) -> dict:
     return {
@@ -951,10 +951,10 @@ def _session_payload(user) -> dict:
 
 @app.post("/api/login")
 async def login(data: LoginRequest, db: AsyncSession = Depends(database.get_db)):
-    if not os.getenv("ATLAS_API_KEY", ""):
+    if not os.getenv("HORUS_API_KEY", ""):
         raise HTTPException(
             status_code=500,
-            detail=api_error("api_key_not_configured", "ATLAS_API_KEY não configurado.", "Defina ATLAS_API_KEY no .env do backend."),
+            detail=api_error("api_key_not_configured", "HORUS_API_KEY não configurado.", "Defina HORUS_API_KEY no .env do backend."),
         )
     ident = (data.email or data.username or "").strip()
     if not ident or not data.password:
@@ -1102,12 +1102,12 @@ async def forgot_password(data: ForgotPasswordRequest, db: AsyncSession = Depend
     nome = user.full_name or user.username
     corpo = (
         f"Olá, {nome}.\n\n"
-        f"Recebemos um pedido para redefinir a senha da sua conta no NetworkAtlas.\n"
+        f"Recebemos um pedido para redefinir a senha da sua conta no Horus.\n"
         f"Para criar uma nova senha, acesse o link abaixo (válido por 2 horas):\n\n"
         f"{link}\n\n"
         f"Se você não solicitou, ignore este e-mail — sua senha atual continua valendo.\n"
     )
-    mailer.send_email(email, "NetworkAtlas — redefinição de senha", corpo)
+    mailer.send_email(email, "Horus — redefinição de senha", corpo)
     return generic
 
 
@@ -1213,12 +1213,12 @@ async def delete_user(user_id: int, admin: models.User = Depends(_require_admin)
     return {"message": "Usuário removido com sucesso."}
 
 
-@app.get("/api/backupcenter/servers", response_model=List[BCServerResponse])
+@app.get("/api/backup/servers", response_model=List[BCServerResponse])
 async def get_bc_servers(db: AsyncSession = Depends(database.get_db)):
     res = await db.execute(select(models.BCServer))
     return [_mask_attrs(server, {"token"}) for server in res.scalars().all()]
 
-@app.post("/api/backupcenter/servers", response_model=BCServerResponse)
+@app.post("/api/backup/servers", response_model=BCServerResponse)
 async def create_bc_server(server: BCServerSchema, db: AsyncSession = Depends(database.get_db)):
     db_server = models.BCServer(**_encrypt_payload(server.model_dump(), {"token"}))
     db.add(db_server)
@@ -1226,7 +1226,7 @@ async def create_bc_server(server: BCServerSchema, db: AsyncSession = Depends(da
     await db.refresh(db_server)
     return _mask_attrs(db_server, {"token"})
 
-@app.delete("/api/backupcenter/servers/{server_id}")
+@app.delete("/api/backup/servers/{server_id}")
 async def delete_bc_server(server_id: int, db: AsyncSession = Depends(database.get_db)):
     server = await db.get(models.BCServer, server_id)
     if server:
@@ -1238,9 +1238,9 @@ async def delete_bc_server(server_id: int, db: AsyncSession = Depends(database.g
 # ==========================================
 # ROTAS: TESTE DE CONECTIVIDADE (sem persistência)
 # ==========================================
-@app.post("/api/backupcenter/servers/test")
+@app.post("/api/backup/servers/test")
 async def test_bc_server_connection(data: BCServerTestSchema):
-    """Testa conectividade com um servidor BackupCenter antes de salvar."""
+    """Testa conectividade com um servidor Backup API antes de salvar."""
     _validate_external_url_or_400(_normalize_url(data.url))
     server = SimpleNamespace(id="test", url=data.url, token=data.token)
     try:
@@ -1255,7 +1255,7 @@ async def test_bc_server_connection(data: BCServerTestSchema):
         is_ssl = "ssl" in str(e).lower() or "certificate" in str(e).lower()
         logger.warning(f"[BC Test] Connect error (ssl={is_ssl}): {e}")
         if is_ssl:
-            return {"ok": False, "message": "Erro de SSL: o certificado do servidor não é válido ou não é confiável. A maioria das APIs BackupCenter exige HTTPS com certificado válido.", "ssl_error": True, "auth_error": False}
+            return {"ok": False, "message": "Erro de SSL: o certificado do servidor não é válido ou não é confiável. A maioria das APIs Backup API exige HTTPS com certificado válido.", "ssl_error": True, "auth_error": False}
         return {"ok": False, "message": "Não foi possível conectar ao servidor. Verifique se a URL está correta e se o servidor está acessível na rede.", "ssl_error": False, "auth_error": False}
     except httpx.TimeoutException:
         return {"ok": False, "message": "Timeout: o servidor demorou demais para responder (>8s). Verifique a URL e a disponibilidade do servidor.", "ssl_error": False, "auth_error": False}
@@ -1428,13 +1428,13 @@ async def sync_monitoring_ips(client_id: int, db: AsyncSession = Depends(databas
 # ==========================================
 # ROTAS: INTEGRAÇÃO DIRETA COM A API DO BC
 # ==========================================
-@app.get("/api/backupcenter/servers/{server_id}/groups")
+@app.get("/api/backup/servers/{server_id}/groups")
 async def fetch_bc_groups(server_id: int, db: AsyncSession = Depends(database.get_db)):
     server = await db.get(models.BCServer, server_id)
     if not server:
         raise HTTPException(
             status_code=404,
-            detail=api_error("bc_server_not_found", "Servidor BackupCenter não encontrado.", "Verifique o ID do servidor em /admin/bc-servers."),
+            detail=api_error("bc_server_not_found", "Servidor Backup API não encontrado.", "Verifique o ID do servidor em /admin/bc-servers."),
         )
     
     async with httpx.AsyncClient() as client_http:
@@ -1446,7 +1446,7 @@ async def fetch_bc_groups(server_id: int, db: AsyncSession = Depends(database.ge
             logger.warning(f"[BC Groups] Falha ao buscar grupos do servidor {server_id}: {e}")
     return []
 
-@app.get("/api/backupcenter/groups/{ext_group_id}/assets")
+@app.get("/api/backup/groups/{ext_group_id}/assets")
 async def fetch_bc_assets(ext_group_id: str, db: AsyncSession = Depends(database.get_db)):
     res_client = await db.execute(select(models.Client).where(models.Client.external_group_id == ext_group_id))
     client = res_client.scalars().first()
@@ -1469,7 +1469,7 @@ async def fetch_bc_assets(ext_group_id: str, db: AsyncSession = Depends(database
             logger.warning(f"[BC Assets] Falha ao buscar ativos do grupo {ext_group_id}: {e}")
     return []
 
-@app.post("/api/backupcenter/discover-all-groups")
+@app.post("/api/backup/discover-all-groups")
 async def discover_all_global_groups(db: AsyncSession = Depends(database.get_db)):
     result = await _sync_bc_groups_and_assets(db, extract_configs=False)
     if result.get("status") == "error":
@@ -1477,10 +1477,10 @@ async def discover_all_global_groups(db: AsyncSession = Depends(database.get_db)
     return result
 
 
-@app.post("/api/backupcenter/extract-all")
-async def extract_all_backupcenter(background_tasks: BackgroundTasks):
+@app.post("/api/backup/extract-all")
+async def extract_all_backup(background_tasks: BackgroundTasks):
     for job in GLOBAL_JOBS.values():
-        if job.get("type") == "backupcenter_extract_all" and job.get("status") in ("queued", "running"):
+        if job.get("type") == "backup_extract_all" and job.get("status") in ("queued", "running"):
             return {
                 "job_id": job["id"],
                 "status": job["status"],
@@ -1490,7 +1490,7 @@ async def extract_all_backupcenter(background_tasks: BackgroundTasks):
     job_id = str(uuid.uuid4())
     GLOBAL_JOBS[job_id] = {
         "id": job_id,
-        "type": "backupcenter_extract_all",
+        "type": "backup_extract_all",
         "status": "queued",
         "phase": "queued",
         "message": "Extração global adicionada à fila.",
@@ -1536,7 +1536,7 @@ async def discover_assets(client_id: int, db: AsyncSession = Depends(database.ge
         logger.warning(f"[discover_assets] Erro para cliente {client_id}: {e}")
         raise HTTPException(
             status_code=502,
-            detail=api_error("bc_unreachable", f"Falha na descoberta de ativos: {e}", "Verifique URL, token e vínculos BackupCenter do cliente."),
+            detail=api_error("bc_unreachable", f"Falha na descoberta de ativos: {e}", "Verifique URL, token e vínculos Backup API do cliente."),
         )
 
 @app.post("/api/clients/{client_id}/extract-configs")
@@ -2017,13 +2017,13 @@ async def delete_client(client_id: int, db: AsyncSession = Depends(database.get_
     await db.commit()
     return {"message": "Grupo removido com sucesso"}
 
-@app.put("/api/backupcenter/servers/{server_id}", response_model=BCServerResponse)
+@app.put("/api/backup/servers/{server_id}", response_model=BCServerResponse)
 async def update_bc_server(server_id: int, data: BCServerSchema, db: AsyncSession = Depends(database.get_db)):
     server = await db.get(models.BCServer, server_id)
     if not server:
         raise HTTPException(
             status_code=404,
-            detail=api_error("bc_server_not_found", "Servidor BackupCenter não encontrado.", "Atualize a lista de servidores e tente novamente."),
+            detail=api_error("bc_server_not_found", "Servidor Backup API não encontrado.", "Atualize a lista de servidores e tente novamente."),
         )
     server.name = data.name
     server.url = data.url
@@ -2037,11 +2037,11 @@ async def update_bc_server(server_id: int, data: BCServerSchema, db: AsyncSessio
 async def delete_asset(asset_id: int, db: AsyncSession = Depends(database.get_db)):
     """Remove um ativo cadastrado manualmente.
 
-    Ativo descoberto pelo BackupCenter (`bc_device_id` preenchido) NÃO pode ser
+    Ativo descoberto pela Backup API (`bc_device_id` preenchido) NÃO pode ser
     excluído: o próximo discover o recriaria, então a remoção seria só aparente,
     com a perda real das VLANs/subnets/interfaces dele no intervalo. Para tirar
     esses da operação, desative a aprovação (`is_approved`) ou remova o vínculo
-    com o grupo no BackupCenter.
+    com o grupo na Backup API.
     """
     asset = await db.get(models.Asset, asset_id)
     if not asset:
@@ -2053,9 +2053,9 @@ async def delete_asset(asset_id: int, db: AsyncSession = Depends(database.get_db
         raise HTTPException(
             status_code=409,
             detail=api_error(
-                "asset_from_backupcenter",
-                "Este ativo veio do BackupCenter e não pode ser excluído.",
-                "O próximo discover o recriaria. Para tirá-lo da operação, desmarque a aprovação ou ajuste o grupo no BackupCenter.",
+                "asset_from_backup",
+                "Este ativo veio da Backup API e não pode ser excluído.",
+                "O próximo discover o recriaria. Para tirá-lo da operação, desmarque a aprovação ou ajuste o grupo na Backup API.",
             ),
         )
 
@@ -2998,7 +2998,7 @@ async def remove_bc_link(client_id: int, link_id: int, db: AsyncSession = Depend
     if not link or link.client_id != client_id:
         raise HTTPException(
             status_code=404,
-            detail=api_error("bc_link_not_found", "Vínculo BackupCenter não encontrado.", "Atualize a lista de vínculos e tente novamente."),
+            detail=api_error("bc_link_not_found", "Vínculo Backup API não encontrado.", "Atualize a lista de vínculos e tente novamente."),
         )
     await db.delete(link)
     await db.commit()

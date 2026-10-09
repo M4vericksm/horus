@@ -201,12 +201,12 @@
     { cls: 'dark t-esm',   name: 'Esmeralda', mode: 'escuro',     dot: '#4FBF9B', bg: '#06140F' },
     { cls: 'dark t-amb',   name: 'Âmbar',     mode: 'pôr-do-sol', dot: '#D99A4E', bg: '#150F08' },
   ];
-  function currentTheme() { return localStorage.getItem('atlas-theme') || 'dark'; }
+  function currentTheme() { return localStorage.getItem('horus-theme') || 'dark'; }
   function applyTheme(cls) {
     const h = document.documentElement;
     const embed = h.classList.contains('embed');
     h.className = cls + (embed ? ' embed' : '');
-    localStorage.setItem('atlas-theme', cls);
+    localStorage.setItem('horus-theme', cls);
     if (window.lucide) lucide.createIcons();
   }
   function openThemePicker() {
@@ -247,8 +247,8 @@
   window.UI.updatePager = updatePager;
   window.UI.syncBadge = syncBadge;
   window.UI.exportCsv = exportCsv;
-  window.AtlasTheme = { THEMES, apply: applyTheme, current: currentTheme, open: openThemePicker };
-  // Todos os botões de tema das telas chamam toggleAtlasTheme(); aqui ele passa a
+  window.HorusTheme = { THEMES, apply: applyTheme, current: currentTheme, open: openThemePicker };
+  // Todos os botões de tema das telas chamam toggleHorusTheme(); aqui ele passa a
   // abrir o seletor de temas (em vez de só alternar dark/light).
-  window.toggleAtlasTheme = openThemePicker;
+  window.toggleHorusTheme = openThemePicker;
 })();

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Atlas — Topologia</title>
+  <title>Horus — Topologia</title>
   <link rel="stylesheet" href="styles/colors_and_type.css"/>
   <link rel="stylesheet" href="styles/components.css"/>
   <link rel="stylesheet" href="styles/atmosphere.css"/>
@@ -11,8 +11,8 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script>
     tailwind.config = { darkMode: 'class' };
-    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
-    function toggleAtlasTheme(){ const h=document.documentElement; const n=h.classList.contains('dark')?'light':'dark'; h.classList.remove('dark','light'); h.classList.add(n); localStorage.setItem('atlas-theme',n); }
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('horus-theme')||'dark')+(e?' embed':''); })();
+    function toggleHorusTheme(){ const h=document.documentElement; const n=h.classList.contains('dark')?'light':'dark'; h.classList.remove('dark','light'); h.classList.add(n); localStorage.setItem('horus-theme',n); }
   </script>
   <script>(function(){ if(new URLSearchParams(location.search).get('embed')==='1') document.documentElement.classList.add('embed'); })();</script>
   <style>
@@ -105,9 +105,9 @@
   <script src="js/nav.js"></script>
   <script src="js/data_api.js"></script>
   <script>
-    AtlasAPI.requireSession();
-    AtlasAPI.installAuthFetch();
-    AtlasNav.render('topo');
+    HorusAPI.requireSession();
+    HorusAPI.installAuthFetch();
+    HorusNav.render('topo');
 
     const content = document.getElementById('content');
     const groupSel = document.getElementById('groupSel');
@@ -126,13 +126,13 @@
     async function init() {
       showState('Carregando grupos…', 'loader-2', 'var(--cyan)');
       let groups;
-      try { groups = await AtlasData.loadGroups(); }
+      try { groups = await HorusData.loadGroups(); }
       catch (e) { showState('Falha ao listar grupos: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
       if (!groups.length) { showState('Nenhum grupo cadastrado.', 'inbox'); return; }
       groupSel.innerHTML = groups.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
       const qid = new URLSearchParams(location.search).get('client_id');
       if (qid && groups.some(g => String(g.id) === qid)) groupSel.value = qid;
-      AtlasPicker.enhance(groupSel, { placeholder: "Digite o nome do provedor…" });
+      HorusPicker.enhance(groupSel, { placeholder: "Digite o nome do provedor…" });
       groupSel.onchange = () => loadGroup(groupSel.value);
       vlanFlt.oninput = () => {
         if (!vlanFlt.value.trim()) { hotVid = null; hideSug(); paint(); renderSide(); return; }
@@ -186,9 +186,9 @@
     // de realce). NUNCA capturada de verdade — nenhum driver guarda o bloco L2
     // access/trunk de uma porta —, então a sintaxe tem que ser a do fabricante do
     // ativo; sintaxe fixa (ex.: Cisco) mostraria um comando que nunca existiu num
-    // Huawei/MikroTik/Juniper. Ver AtlasData.helpers.
+    // Huawei/MikroTik/Juniper. Ver HorusData.helpers.
     function buildTopoInterfaceConfig(ifc, vendor) {
-      const H = AtlasData.helpers;
+      const H = HorusData.helpers;
       // MikroTik/Juniper não têm modo de configuração de interface: o cabeçalho
       // "interface X" abriria um bloco que não cola no equipamento.
       const lines = H.reconstructInterfaceHeaderLines(vendor, ifc.name, ifc.description);
@@ -231,7 +231,7 @@
       document.getElementById('topoConfigModal').classList.remove('hidden');
       let rows = _traceCacheTopo[vid];
       if (!rows) {
-        try { rows = await AtlasData.loadVlanConfigs(curGid, vid); _traceCacheTopo[vid] = rows; }
+        try { rows = await HorusData.loadVlanConfigs(curGid, vid); _traceCacheTopo[vid] = rows; }
         catch (e) { body.textContent = 'Falha ao carregar a config: ' + e.message; return; }
       }
       if (!rows || !rows.length) { body.textContent = 'Sem config extraída para esta VLAN.'; return; }
@@ -248,7 +248,7 @@
     async function loadGroup(id) {
       curGid = id;
       showState('Carregando topologia…', 'loader-2', 'var(--cyan)');
-      try { NET = await AtlasData.loadGroup(id); }
+      try { NET = await HorusData.loadGroup(id); }
       catch (e) { showState('Falha ao carregar o grupo: ' + e.message, 'wifi-off', 'var(--rose)'); return; }
       selNode = null; hotVid = null; vlanFlt.value = ''; hideSug();
       render();

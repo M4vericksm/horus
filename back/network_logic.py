@@ -47,7 +47,7 @@ def _apply_host_key_policy(client: paramiko.SSHClient) -> None:
         rollback de emergência via env, sem precisar reverter código.
 
     SSH_KNOWN_HOSTS_FILE: caminho do known_hosts próprio do app, usado no modo
-    tofu. Default: ~/.ssh/networkatlas_known_hosts (gravável pelo usuário que
+    tofu. Default: ~/.ssh/horus_known_hosts (gravável pelo usuário que
     roda o processo).
 
     IMPORTANTE (não-quebrar): esta função NUNCA derruba uma conexão por causa de
@@ -68,7 +68,7 @@ def _apply_host_key_policy(client: paramiko.SSHClient) -> None:
 
     # Modo TOFU (default).
     path = os.getenv("SSH_KNOWN_HOSTS_FILE", "").strip() or os.path.expanduser(
-        "~/.ssh/networkatlas_known_hosts"
+        "~/.ssh/horus_known_hosts"
     )
     try:
         directory = os.path.dirname(path) or "."

@@ -14,7 +14,7 @@ def client(headers):
 
 
 # ──────────────────────────────────────────
-# /api/backupcenter/servers/test
+# /api/backup/servers/test
 # ──────────────────────────────────────────
 
 @respx.mock
@@ -24,7 +24,7 @@ def test_bc_server_test_success(client):
         return_value=httpx.Response(200, json={"groups": []})
     )
     r = c.post(
-        "/api/backupcenter/servers/test",
+        "/api/backup/servers/test",
         headers=h,
         json={"url": "https://8.8.8.8", "token": "t"},
     )
@@ -39,7 +39,7 @@ def test_bc_server_test_unauthorized(client):
         return_value=httpx.Response(401)
     )
     r = c.post(
-        "/api/backupcenter/servers/test",
+        "/api/backup/servers/test",
         headers=h,
         json={"url": "https://8.8.8.8", "token": "wrong"},
     )
@@ -55,7 +55,7 @@ def test_bc_server_test_500_returns_warning(client):
         return_value=httpx.Response(500)
     )
     r = c.post(
-        "/api/backupcenter/servers/test",
+        "/api/backup/servers/test",
         headers=h,
         json={"url": "https://8.8.8.8", "token": "t"},
     )
@@ -71,7 +71,7 @@ def test_bc_server_test_timeout(client):
         side_effect=httpx.TimeoutException("timeout")
     )
     r = c.post(
-        "/api/backupcenter/servers/test",
+        "/api/backup/servers/test",
         headers=h,
         json={"url": "https://8.8.8.8", "token": "t"},
     )
@@ -87,7 +87,7 @@ def test_bc_server_test_ssl_error(client):
         side_effect=httpx.ConnectError("SSL: CERTIFICATE_VERIFY_FAILED")
     )
     r = c.post(
-        "/api/backupcenter/servers/test",
+        "/api/backup/servers/test",
         headers=h,
         json={"url": "https://8.8.8.8", "token": "t"},
     )

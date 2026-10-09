@@ -35,7 +35,7 @@ class MikrotikDriver(NetworkDriver):
     Driver para equipamentos MikroTik (RouterOS).
 
     Extrai VLANs e subnets a partir do output do comando `/export terse`,
-    que é o formato compacto usado pelo BackupCenter para salvar configurações.
+    que é o formato compacto usado pela Backup API para salvar configurações.
 
     Formato esperado:
       /interface vlan add interface=ether1 name=VLAN-100-CLIENTES vlan-id=100

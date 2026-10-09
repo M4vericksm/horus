@@ -2,7 +2,7 @@ import os
 
 from cryptography.fernet import Fernet, InvalidToken
 
-from exceptions import BackupSyncError
+from exceptions import HorusError
 
 
 def _looks_encrypted(value: str | None) -> bool:
@@ -12,7 +12,7 @@ def _looks_encrypted(value: str | None) -> bool:
 def _fernet() -> Fernet:
     key = os.getenv("FERNET_KEY")
     if not key:
-        raise BackupSyncError("FERNET_KEY não definido no ambiente.")
+        raise HorusError("FERNET_KEY não definido no ambiente.")
     return Fernet(key.encode())
 
 
@@ -30,4 +30,4 @@ def decrypt_secret(value: str | None) -> str | None:
     try:
         return _fernet().decrypt(value.encode()).decode()
     except InvalidToken as exc:
-        raise BackupSyncError("Token criptografado inválido ou chave FERNET_KEY incorreta.") from exc
+        raise HorusError("Token criptografado inválido ou chave FERNET_KEY incorreta.") from exc

@@ -111,7 +111,7 @@ def test_sync_bc_groups_and_assets_warns_when_no_servers():
     result = _run(main._sync_bc_groups_and_assets(db))
 
     assert result["status"] == "warning"
-    assert result["message"] == "Nenhum servidor BackupCenter cadastrado."
+    assert result["message"] == "Nenhum servidor Backup API cadastrado."
     assert result["servers"] == 0
 
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Atlas — Atividade</title>
+  <title>Horus — Atividade</title>
   <link rel="stylesheet" href="styles/colors_and_type.css"/>
   <link rel="stylesheet" href="styles/components.css"/>
   <link rel="stylesheet" href="styles/atmosphere.css"/>
@@ -11,13 +11,13 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script>
     tailwind.config = { darkMode: 'class' };
-    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
-    function toggleAtlasTheme() {
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('horus-theme')||'dark')+(e?' embed':''); })();
+    function toggleHorusTheme() {
       const html = document.documentElement;
       const next = html.classList.contains('dark') ? 'light' : 'dark';
       html.classList.remove('dark','light');
       html.classList.add(next);
-      localStorage.setItem('atlas-theme', next);
+      localStorage.setItem('horus-theme', next);
     }
   </script>
   <style>
@@ -46,8 +46,8 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div style="display:flex;align-items:center;gap:12px;padding:22px 20px;border-bottom:1px solid var(--line);">
-      <img src="assets/atlas-logo.png" width="36" height="36" alt="Atlas" class="octo-idle"/>
-      <span class="brand" style="font-size:28px;color:var(--text-primary);line-height:1;">Atlas</span>
+      <img src="assets/horus-logo.png" width="36" height="36" alt="Horus" class="octo-idle"/>
+      <span class="brand" style="font-size:28px;color:var(--text-primary);line-height:1;">Horus</span>
     </div>
     <nav style="flex:1;padding:14px 0;">
       <a href="dashboard.html" class="nav-btn">
@@ -83,10 +83,10 @@
         <p style="font:600 12px 'Space Grotesk';color:var(--text-primary);margin:0;">Administrador</p>
         <p style="font-size:11px;color:var(--text-muted);margin:0;">Sistema</p>
       </div>
-      <button onclick="toggleAtlasTheme()" class="icon-btn" title="Alternar tema">
+      <button onclick="toggleHorusTheme()" class="icon-btn" title="Alternar tema">
         <i data-lucide="sun-moon" style="width:15px;height:15px;"></i>
       </button>
-      <button onclick="AtlasAPI.logout()" class="icon-btn" title="Sair">
+      <button onclick="HorusAPI.logout()" class="icon-btn" title="Sair">
         <i data-lucide="log-out" style="width:15px;height:15px;"></i>
       </button>
     </div>
@@ -208,8 +208,8 @@
   <script>
     lucide.createIcons();
     const API_BASE = `http://${window.location.hostname}:${window.API_PORT || '8000'}/api`;
-    AtlasAPI.requireSession();
-    AtlasAPI.installAuthFetch();
+    HorusAPI.requireSession();
+    HorusAPI.installAuthFetch();
     let currentPage = 1;
     const PAGE_LIMIT = 50;
     let clientMap = {};
@@ -230,7 +230,7 @@
     const OP_LABELS = {
       sync_assets:     'Descoberta',
       discover_assets: 'Descoberta (link)',
-      extract_bc:      'Extração BC',
+      extract_bc:      'Extração via Backup API',
       extract_manual:  'Extração manual',
       extract_all:     'Extração global',
       sync_phpipam:    'Sync phpIPAM',
@@ -321,7 +321,7 @@
 
     function openSettingsModal()  { document.getElementById('settingsModal').classList.remove('hidden'); lucide.createIcons(); }
     function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
-    function toggleTheme() { toggleAtlasTheme(); }
+    function toggleTheme() { toggleHorusTheme(); }
 
     window.onclick = e => {
       if (e.target === document.getElementById('detailModal'))   closeDetail();

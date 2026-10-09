@@ -9,8 +9,8 @@
 //   GET /api/clients/{id}/topology       -> nós, enlaces, VLANs, IPs (interfaces)
 //   GET /api/clients/{id}/vlans-enriched -> subnets por VLAN
 //
-// Expõe window.AtlasData.{ loadGroups, loadGroup, CAT_META, helpers }.
-window.AtlasData = (function () {
+// Expõe window.HorusData.{ loadGroups, loadGroup, CAT_META, helpers }.
+window.HorusData = (function () {
   function apiBase() {
     return "http://" + window.location.hostname + ":" + (window.API_PORT || "8000") + "/api";
   }

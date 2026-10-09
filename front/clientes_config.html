@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Atlas — Configuração do Cliente</title>
+  <title>Horus — Configuração do Cliente</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&family=League+Spartan:wght@700&display=swap" rel="stylesheet"/>
@@ -22,7 +22,7 @@
         }
       }
     };
-    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('atlas-theme')||'dark')+(e?' embed':''); })();
+    (function(){ var h=document.documentElement, e=h.classList.contains('embed'); h.className=(localStorage.getItem('horus-theme')||'dark')+(e?' embed':''); })();
   </script>
   <style>
     * { font-family: 'Space Grotesk', 'Inter', sans-serif; }
@@ -47,32 +47,32 @@
     .nav-item.active { background: rgba(37,99,235,0.2); color: #F8FAFC; border-left: 3px solid #2563EB; padding-left: 13px; }
     .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-    /* Atlas tab system */
-    .atlas-tab { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; font-size: 13.5px; font-weight: 500; color: #8FA4C2; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.18s ease; background: none; border-top: none; border-left: none; border-right: none; }
-    .atlas-tab:hover { color: #F8FAFC; border-bottom-color: rgba(37,99,235,0.4); }
-    .atlas-tab.active { color: #22D3EE; border-bottom-color: #22D3EE; }
+    /* Horus tab system */
+    .horus-tab { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; font-size: 13.5px; font-weight: 500; color: #8FA4C2; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.18s ease; background: none; border-top: none; border-left: none; border-right: none; }
+    .horus-tab:hover { color: #F8FAFC; border-bottom-color: rgba(37,99,235,0.4); }
+    .horus-tab.active { color: #22D3EE; border-bottom-color: #22D3EE; }
 
     /* Inputs */
-    .atlas-input { width: 100%; background: rgba(15,23,42,0.8); border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 9px 12px; color: #F8FAFC; font-size: 13.5px; transition: border-color 0.18s; outline: none; }
-    .atlas-input:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
-    .atlas-input option { background: #0F172A; }
-    .dark .atlas-input { background: rgba(15,23,42,0.8); }
-    html:not(.dark) .atlas-input { background: #fff; border-color: #CBD5E1; color: #0F172A; }
+    .horus-input { width: 100%; background: rgba(15,23,42,0.8); border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 9px 12px; color: #F8FAFC; font-size: 13.5px; transition: border-color 0.18s; outline: none; }
+    .horus-input:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+    .horus-input option { background: #0F172A; }
+    .dark .horus-input { background: rgba(15,23,42,0.8); }
+    html:not(.dark) .horus-input { background: #fff; border-color: #CBD5E1; color: #0F172A; }
 
     /* Buttons */
-    .atlas-btn-primary { background: #2563EB; color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background 0.18s; }
-    .atlas-btn-primary:hover { background: #1D4ED8; }
-    .atlas-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-    .atlas-btn-ghost { background: rgba(37,99,235,0.1); color: #8FA4C2; border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.18s; }
-    .atlas-btn-ghost:hover { background: rgba(37,99,235,0.2); color: #F8FAFC; }
-    .atlas-btn-success { background: #059669; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.18s; }
-    .atlas-btn-success:hover { background: #047857; }
-    .atlas-btn-purple { background: rgba(124,58,237,0.15); color: #A78BFA; border: 1px solid rgba(124,58,237,0.3); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; display:flex; align-items:center; gap:6px; }
-    .atlas-btn-purple:hover { background: rgba(124,58,237,0.25); }
-    .atlas-btn-amber { background: rgba(217,119,6,0.15); color: #FCD34D; border: 1px solid rgba(217,119,6,0.3); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; display:flex; align-items:center; gap:6px; }
-    .atlas-btn-amber:hover { background: rgba(217,119,6,0.25); }
-    .atlas-btn-emerald { background: rgba(5,150,105,0.15); color: #6EE7B7; border: 1px solid rgba(5,150,105,0.3); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; display:flex; align-items:center; gap:6px; }
-    .atlas-btn-emerald:hover { background: rgba(5,150,105,0.25); }
+    .horus-btn-primary { background: #2563EB; color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background 0.18s; }
+    .horus-btn-primary:hover { background: #1D4ED8; }
+    .horus-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .horus-btn-ghost { background: rgba(37,99,235,0.1); color: #8FA4C2; border: 1px solid rgba(37,99,235,0.2); border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.18s; }
+    .horus-btn-ghost:hover { background: rgba(37,99,235,0.2); color: #F8FAFC; }
+    .horus-btn-success { background: #059669; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.18s; }
+    .horus-btn-success:hover { background: #047857; }
+    .horus-btn-purple { background: rgba(124,58,237,0.15); color: #A78BFA; border: 1px solid rgba(124,58,237,0.3); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; display:flex; align-items:center; gap:6px; }
+    .horus-btn-purple:hover { background: rgba(124,58,237,0.25); }
+    .horus-btn-amber { background: rgba(217,119,6,0.15); color: #FCD34D; border: 1px solid rgba(217,119,6,0.3); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; display:flex; align-items:center; gap:6px; }
+    .horus-btn-amber:hover { background: rgba(217,119,6,0.25); }
+    .horus-btn-emerald { background: rgba(5,150,105,0.15); color: #6EE7B7; border: 1px solid rgba(5,150,105,0.3); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; display:flex; align-items:center; gap:6px; }
+    .horus-btn-emerald:hover { background: rgba(5,150,105,0.25); }
 
     /* Toggle switch */
     .toggle-checkbox:checked { right: 0; border-color: #2563EB; }
@@ -81,10 +81,10 @@
     /* Light mode */
     html:not(.dark) body { background: #F1F5F9; color: #0F172A; }
     html:not(.dark) .sidebar { background: #F8FAFC; }
-    html:not(.dark) .atlas-card { background: #fff; border-color: #E2E8F0; }
-    html:not(.dark) .atlas-section { background: #fff; }
-    html:not(.dark) .atlas-tab { color: #64748B; }
-    html:not(.dark) .atlas-tab.active { color: #2563EB; border-bottom-color: #2563EB; }
+    html:not(.dark) .horus-card { background: #fff; border-color: #E2E8F0; }
+    html:not(.dark) .horus-section { background: #fff; }
+    html:not(.dark) .horus-tab { color: #64748B; }
+    html:not(.dark) .horus-tab.active { color: #2563EB; border-bottom-color: #2563EB; }
     html:not(.dark) .page-header { background: rgba(255,255,255,0.95); border-bottom-color: #E2E8F0; }
     html:not(.dark) .nav-item { color: #475569; }
     html:not(.dark) .nav-item:hover { background: rgba(0,0,0,0.05); color: #0F172A; }
@@ -94,9 +94,9 @@
     html:not(.dark) .user-text-color { color: #0F172A !important; }
     html:not(.dark) .font-spartan { color: #0F172A !important; }
 
-    /* Atlas section card */
-    .atlas-section { background: rgba(15,23,42,0.7); border: 1px solid rgba(37,99,235,0.15); border-radius: 12px; }
-    html:not(.dark) .atlas-section { background: #fff; border-color: #E2E8F0; }
+    /* Horus section card */
+    .horus-section { background: rgba(15,23,42,0.7); border: 1px solid rgba(37,99,235,0.15); border-radius: 12px; }
+    html:not(.dark) .horus-section { background: #fff; border-color: #E2E8F0; }
 
     /* Pending/managed asset cards */
     .asset-row { background: rgba(30,41,59,0.5); border: 1px solid rgba(37,99,235,0.12); border-radius: 10px; padding: 14px 18px; }
@@ -140,7 +140,7 @@
           <path d="M70 42 C66 45 68 50 72 52 C74 48 72 44 70 42 Z" fill="#0B1220"/>
         </svg>
         <div>
-          <div class="font-spartan" style="font-size:30px; font-weight:700; color:#F8FAFC; letter-spacing:-0.3px; line-height:1.1;">Atlas</div>
+          <div class="font-spartan" style="font-size:30px; font-weight:700; color:#F8FAFC; letter-spacing:-0.3px; line-height:1.1;">Horus</div>
         </div>
       </a>
     </div>
@@ -166,7 +166,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIcon"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         <span id="themeLabel">Tema Claro</span>
       </a>
-      <a href="#" onclick="AtlasAPI.logout(); return false;" class="nav-item" id="logoutBtn">
+      <a href="#" onclick="HorusAPI.logout(); return false;" class="nav-item" id="logoutBtn">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         <span>Sair</span>
       </a>
@@ -204,15 +204,15 @@
 
       <!-- Action buttons -->
       <div style="display:flex; gap:8px; align-items:center;">
-        <button onclick="runAction('discover-assets')" class="atlas-btn-purple">
+        <button onclick="runAction('discover-assets')" class="horus-btn-purple">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <span class="hidden sm:inline">1.</span> Descobrir Ativos
         </button>
-        <button onclick="runAction('extract-configs')" class="atlas-btn-amber">
+        <button onclick="runAction('extract-configs')" class="horus-btn-amber">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           <span class="hidden sm:inline">2.</span> Extrair Dados
         </button>
-        <button id="btn-sync-ipam" onclick="runSyncIPAM(event)" class="atlas-btn-emerald">
+        <button id="btn-sync-ipam" onclick="runSyncIPAM(event)" class="horus-btn-emerald">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
           <span class="hidden sm:inline">3.</span> <span id="btn-sync-label">Enviar ao IPAM</span>
         </button>
@@ -222,11 +222,11 @@
     <!-- Tabs bar -->
     <div style="background: rgba(11,18,32,0.6); border-bottom: 1px solid rgba(37,99,235,0.12); padding: 0 24px; backdrop-filter: blur(8px);">
       <div style="display:flex; gap:2px;" id="tabList">
-        <button onclick="switchTab('tab-geral')" id="btn-tab-geral" class="atlas-tab active">
+        <button onclick="switchTab('tab-geral')" id="btn-tab-geral" class="horus-tab active">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
           Configurações Gerais
         </button>
-        <button onclick="switchTab('tab-gerenciamento')" id="btn-tab-gerenciamento" class="atlas-tab">
+        <button onclick="switchTab('tab-gerenciamento')" id="btn-tab-gerenciamento" class="horus-tab">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           Gerenciamento de Ativos
         </button>
@@ -238,13 +238,13 @@
 
       <!-- TAB: Geral -->
       <div id="tab-geral" class="tab-content">
-        <div class="atlas-section" style="padding: 28px;">
+        <div class="horus-section" style="padding: 28px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom: 1px solid rgba(37,99,235,0.12);">
             <div>
               <h2 class="sora" style="font-size:15px; font-weight:600; color:#F8FAFC; margin-bottom:3px;">Integração IPAM & Regras Globais</h2>
               <p style="font-size:12px; color:#8FA4C2;">Configure o endpoint e credenciais para sincronização com o IPAM.</p>
             </div>
-            <button onclick="fetchRemoteData()" class="atlas-btn-ghost">
+            <button onclick="fetchRemoteData()" class="horus-btn-ghost">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:4px;"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
               Recarregar Listas do IPAM
             </button>
@@ -255,7 +255,7 @@
             <!-- Sistema IPAM -->
             <div>
               <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Sistema IPAM</label>
-              <select id="c_system" class="atlas-input" onchange="onSystemChange()" style="max-width:220px;">
+              <select id="c_system" class="horus-input" onchange="onSystemChange()" style="max-width:220px;">
                 <option value="phpIPAM">phpIPAM</option>
                 <option value="netbox">NetBox</option>
               </select>
@@ -264,21 +264,21 @@
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
               <div>
                 <label id="lbl_ip" style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">URL / IP do phpIPAM</label>
-                <input type="text" id="c_ip" class="atlas-input" placeholder="https://phpipam.minharede.com"/>
+                <input type="text" id="c_ip" class="horus-input" placeholder="https://phpipam.minharede.com"/>
                 <p style="font-size:11px; color:#4A5F7A; margin-top:5px;">⚠️ phpIPAM geralmente exige HTTPS com certificado SSL válido. Conexões com certificados auto-assinados serão rejeitadas.</p>
               </div>
               <!-- App ID — apenas phpIPAM -->
               <div id="row_token_name">
                 <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">App ID (Token Name)</label>
-                <input type="text" id="c_token_name" class="atlas-input"/>
+                <input type="text" id="c_token_name" class="horus-input"/>
               </div>
             </div>
 
             <div>
               <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Token de API</label>
               <div style="display:flex; gap:8px; align-items:center;">
-                <input type="password" id="c_token" class="atlas-input" style="flex:1;"/>
-                <button type="button" id="btn_probe" onclick="probeIPAM()" class="atlas-btn-ghost" style="white-space:nowrap; flex-shrink:0;">
+                <input type="password" id="c_token" class="horus-input" style="flex:1;"/>
+                <button type="button" id="btn_probe" onclick="probeIPAM()" class="horus-btn-ghost" style="white-space:nowrap; flex-shrink:0;">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                   Testar Conexão
                 </button>
@@ -296,11 +296,11 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                   <div>
                     <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Usuário</label>
-                    <input type="text" id="c_phpipam_user" class="atlas-input" placeholder="admin"/>
+                    <input type="text" id="c_phpipam_user" class="horus-input" placeholder="admin"/>
                   </div>
                   <div>
                     <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Senha</label>
-                    <input type="password" id="c_phpipam_pass" class="atlas-input" placeholder="••••••••"/>
+                    <input type="password" id="c_phpipam_pass" class="horus-input" placeholder="••••••••"/>
                   </div>
                 </div>
               </div>
@@ -310,10 +310,10 @@
               <div>
                 <label id="lbl_l2" style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">L2 Domain (Onde as VLANs vão)</label>
                 <div style="display:flex; gap:8px; align-items:center;">
-                  <select id="c_l2_domain" class="atlas-input" style="flex:1;">
+                  <select id="c_l2_domain" class="horus-input" style="flex:1;">
                     <option value="1">Padrão (ID: 1)</option>
                   </select>
-                  <button type="button" onclick="promptCreateL2Domain()" class="atlas-btn-ghost" style="padding:9px 11px; flex-shrink:0;" title="Criar novo L2 Domain / VLAN Group">+</button>
+                  <button type="button" onclick="promptCreateL2Domain()" class="horus-btn-ghost" style="padding:9px 11px; flex-shrink:0;" title="Criar novo L2 Domain / VLAN Group">+</button>
                 </div>
                 <!-- Banner: phpIPAM virgem -->
                 <div id="l2_virgin_banner" style="display:none; margin-top:8px; padding:10px 14px; background:rgba(34,211,238,0.07); border:1px solid rgba(34,211,238,0.22); border-radius:8px;">
@@ -327,7 +327,7 @@
               </div>
               <div>
                 <label id="lbl_section" style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Section (Onde as Subnets vão)</label>
-                <select id="c_section_id" class="atlas-input">
+                <select id="c_section_id" class="horus-input">
                   <option value="1">Padrão (ID: 1)</option>
                 </select>
               </div>
@@ -335,7 +335,7 @@
 
             <div>
               <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Prefixo Automático</label>
-              <input type="text" id="c_vlan_prefix" class="atlas-input" placeholder="Ex: [Provedor X]"/>
+              <input type="text" id="c_vlan_prefix" class="horus-input" placeholder="Ex: [Provedor X]"/>
               <p style="font-size:11px; color:rgba(143,164,194,0.6); margin-top:5px;">Será adicionado no início da descrição das VLANs e Subnets.</p>
             </div>
 
@@ -350,21 +350,21 @@
                 <div style="display:grid; grid-template-columns:2fr 1fr; gap:12px;">
                   <div>
                     <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Host VPN</label>
-                    <input type="text" id="c_vpn_host" class="atlas-input" placeholder="192.168.1.1"/>
+                    <input type="text" id="c_vpn_host" class="horus-input" placeholder="192.168.1.1"/>
                   </div>
                   <div>
                     <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Porta</label>
-                    <input type="number" id="c_vpn_port" class="atlas-input" value="22"/>
+                    <input type="number" id="c_vpn_port" class="horus-input" value="22"/>
                   </div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                   <div>
                     <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Usuário VPN</label>
-                    <input type="text" id="c_vpn_user" class="atlas-input" placeholder="admin"/>
+                    <input type="text" id="c_vpn_user" class="horus-input" placeholder="admin"/>
                   </div>
                   <div>
                     <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Senha VPN</label>
-                    <input type="password" id="c_vpn_pass" class="atlas-input" placeholder="••••••••"/>
+                    <input type="password" id="c_vpn_pass" class="horus-input" placeholder="••••••••"/>
                   </div>
                 </div>
               </div>
@@ -380,18 +380,18 @@
                 <p style="font-size:11px; color:#8FA4C2;">URL e token de API <strong>read-only</strong> do Zabbix do provedor. Usado para saúde dos ativos e para popular IPs no phpIPAM automaticamente.</p>
                 <div>
                   <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">URL do Zabbix</label>
-                  <input type="text" id="c_zabbix_url" class="atlas-input" placeholder="https://zabbix.provedor.com"/>
+                  <input type="text" id="c_zabbix_url" class="horus-input" placeholder="https://zabbix.provedor.com"/>
                 </div>
                 <div>
                   <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Token de API (read-only)</label>
-                  <input type="password" id="c_zabbix_token" class="atlas-input" placeholder="••••••••"/>
+                  <input type="password" id="c_zabbix_token" class="horus-input" placeholder="••••••••"/>
                 </div>
                 <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#8FA4C2; cursor:pointer;">
                   <input type="checkbox" id="c_zabbix_verify_tls" checked/>
                   Verificar certificado TLS (desmarque para Zabbix interno com certificado self-signed)
                 </label>
                 <div>
-                  <button type="button" id="btn_test_zabbix" onclick="testZabbix()" class="atlas-btn-ghost" style="padding:9px 14px;">
+                  <button type="button" id="btn_test_zabbix" onclick="testZabbix()" class="horus-btn-ghost" style="padding:9px 14px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:6px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                     Testar conexão Zabbix
                   </button>
@@ -410,7 +410,7 @@
                   </div>
                 </div>
               </div>
-              <button type="submit" id="phpipam_cfg_submit_btn" class="atlas-btn-primary">
+              <button type="submit" id="phpipam_cfg_submit_btn" class="horus-btn-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:6px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 Salvar Configurações
               </button>
@@ -440,8 +440,8 @@
     // --- CONFIGURAÇÃO UNIVERSAL DO IP ---
     const currentHost = window.location.hostname;
     const API_BASE = `http://${currentHost}:${window.API_PORT || '8000'}/api`;
-    AtlasAPI.requireSession();
-    AtlasAPI.installAuthFetch();
+    HorusAPI.requireSession();
+    HorusAPI.installAuthFetch();
 
     // Escapa dados externos (hostnames/nomes vindos de equipamento, phpIPAM,
     // NetBox) antes de interpolar em innerHTML — evita XSS armazenado.
@@ -452,7 +452,7 @@
         const html = document.documentElement;
         html.classList.toggle('dark');
         const isDark = html.classList.contains('dark');
-        localStorage.setItem('atlas-theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('horus-theme', isDark ? 'dark' : 'light');
         document.getElementById('themeLabel').textContent = isDark ? 'Tema Claro' : 'Tema Escuro';
     }
     // ---------------------
@@ -932,7 +932,7 @@
                             <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.15); border-radius:8px;">
                                 <div>
                                     <p style="font-size:13px; font-weight:600; color:#F8FAFC; margin-bottom:3px;">Sincronização Automática</p>
-                                    <p style="font-size:11px; color:#8FA4C2;">Usa a API do BackupCenter. Desative para SSH.</p>
+                                    <p style="font-size:11px; color:#8FA4C2;">Usa a API da Backup API. Desative para SSH.</p>
                                 </div>
                                 <div class="relative inline-block w-10 align-middle select-none" style="flex-shrink:0;">
                                     <input type="checkbox" id="mode_${a.id}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10" style="top:0; left:0;" ${a.sync_mode === 'auto' ? 'checked' : ''}/>
@@ -957,11 +957,11 @@
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div>
                                         <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px;">Usuário</label>
-                                        <input type="text" id="ssh_user_${a.id}" value="${esc(a.ssh_user || '')}" class="atlas-input" placeholder="admin" style="font-size:12px; padding:7px 10px;"/>
+                                        <input type="text" id="ssh_user_${a.id}" value="${esc(a.ssh_user || '')}" class="horus-input" placeholder="admin" style="font-size:12px; padding:7px 10px;"/>
                                     </div>
                                     <div>
                                         <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px;">Senha</label>
-                                        <input type="password" id="ssh_pass_${a.id}" value="${esc(a.ssh_pass || '')}" class="atlas-input" placeholder="••••" style="font-size:12px; padding:7px 10px;"/>
+                                        <input type="password" id="ssh_pass_${a.id}" value="${esc(a.ssh_pass || '')}" class="horus-input" placeholder="••••" style="font-size:12px; padding:7px 10px;"/>
                                     </div>
                                 </div>
                             </div>
@@ -970,16 +970,16 @@
                         <div style="display:flex; flex-direction:column; gap:12px;">
                             <div>
                                 <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Domínio L2 Específico (VLANs)</label>
-                                <select id="l2_${a.id}" class="atlas-input">${optionsHtml}</select>
+                                <select id="l2_${a.id}" class="horus-input">${optionsHtml}</select>
                             </div>
 
                             <div style="display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:end;">
                                 <div>
                                     <label style="display:block; font-size:11px; font-weight:600; color:#8FA4C2; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">IP (Para modo Manual)</label>
-                                    <input type="text" id="ip_${a.id}" value="${esc(a.ip_address || '')}" class="atlas-input"/>
+                                    <input type="text" id="ip_${a.id}" value="${esc(a.ip_address || '')}" class="horus-input"/>
                                 </div>
-                                <button type="button" onclick="testAssetSSH(${a.id}, event)" class="atlas-btn-ghost" style="white-space:nowrap;">Testar SSH</button>
-                                <button type="submit" class="atlas-btn-primary" style="white-space:nowrap;">Salvar Ajustes</button>
+                                <button type="button" onclick="testAssetSSH(${a.id}, event)" class="horus-btn-ghost" style="white-space:nowrap;">Testar SSH</button>
+                                <button type="submit" class="horus-btn-primary" style="white-space:nowrap;">Salvar Ajustes</button>
                             </div>
 
                             <!-- VPN Override -->
@@ -988,21 +988,21 @@
                                 <div style="margin-top:10px; display:grid; grid-template-columns:2fr 1fr; gap:8px;">
                                     <div>
                                         <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; margin-bottom:4px;">Host VPN</label>
-                                        <input type="text" id="ovpn_host_${a.id}" value="${esc(a.override_vpn_host || '')}" class="atlas-input" placeholder="Usar global" style="font-size:12px; padding:6px 8px;"/>
+                                        <input type="text" id="ovpn_host_${a.id}" value="${esc(a.override_vpn_host || '')}" class="horus-input" placeholder="Usar global" style="font-size:12px; padding:6px 8px;"/>
                                     </div>
                                     <div>
                                         <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; margin-bottom:4px;">Porta</label>
-                                        <input type="number" id="ovpn_port_${a.id}" value="${esc(a.override_vpn_port || '')}" class="atlas-input" placeholder="22" style="font-size:12px; padding:6px 8px;"/>
+                                        <input type="number" id="ovpn_port_${a.id}" value="${esc(a.override_vpn_port || '')}" class="horus-input" placeholder="22" style="font-size:12px; padding:6px 8px;"/>
                                     </div>
                                 </div>
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
                                     <div>
                                         <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; margin-bottom:4px;">Usuário</label>
-                                        <input type="text" id="ovpn_user_${a.id}" value="${esc(a.override_vpn_user || '')}" class="atlas-input" placeholder="Usar global" style="font-size:12px; padding:6px 8px;"/>
+                                        <input type="text" id="ovpn_user_${a.id}" value="${esc(a.override_vpn_user || '')}" class="horus-input" placeholder="Usar global" style="font-size:12px; padding:6px 8px;"/>
                                     </div>
                                     <div>
                                         <label style="display:block; font-size:10px; font-weight:600; color:#8FA4C2; margin-bottom:4px;">Senha</label>
-                                        <input type="password" id="ovpn_pass_${a.id}" value="${esc(a.override_vpn_pass || '')}" class="atlas-input" placeholder="Usar global" style="font-size:12px; padding:6px 8px;"/>
+                                        <input type="password" id="ovpn_pass_${a.id}" value="${esc(a.override_vpn_pass || '')}" class="horus-input" placeholder="Usar global" style="font-size:12px; padding:6px 8px;"/>
                                     </div>
                                 </div>
                             </details>
@@ -1250,9 +1250,9 @@
                         <span style="font-size:12px; font-weight:600; color:#F8FAFC;">Criar / vincular outro ${l2Label}</span>
                     </label>
                     <div id="cc_l2_${idx}" style="display:none; margin-left:24px;">
-                        <select id="cc_l2_sel_${idx}" class="atlas-input" style="margin-bottom:6px;" onchange="document.getElementById('cc_l2_name_d_${idx}').style.display=this.value?'none':'block'">${l2Opts}</select>
+                        <select id="cc_l2_sel_${idx}" class="horus-input" style="margin-bottom:6px;" onchange="document.getElementById('cc_l2_name_d_${idx}').style.display=this.value?'none':'block'">${l2Opts}</select>
                         <div id="cc_l2_name_d_${idx}">
-                            <input type="text" id="cc_l2_name_${idx}" class="atlas-input" value="${esc(c.asset_hostname || '')}" placeholder="Nome do ${l2Label}" />
+                            <input type="text" id="cc_l2_name_${idx}" class="horus-input" value="${esc(c.asset_hostname || '')}" placeholder="Nome do ${l2Label}" />
                         </div>
                     </div>
                 </div>`}
@@ -1319,7 +1319,7 @@
       <div id="conflictsList" style="padding:20px 24px; overflow-y:auto; flex:1;"></div>
       <div style="padding:12px 24px 20px; border-top:1px solid rgba(255,255,255,0.07); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
         <button onclick="closeVlanConflictModal()" style="font-size:12px; color:#8FA4C2; background:none; border:none; cursor:pointer;">Cancelar</button>
-        <button onclick="applyConflictResolutions()" class="atlas-btn-primary">Aplicar Resoluções</button>
+        <button onclick="applyConflictResolutions()" class="horus-btn-primary">Aplicar Resoluções</button>
       </div>
     </div>
   </div>

@@ -40,7 +40,7 @@ def test_api_error_without_hint():
 
 @pytest.mark.parametrize("path,limite", [
     ("/api/login", 5),
-    ("/api/backupcenter/servers/test", 10),
+    ("/api/backup/servers/test", 10),
     ("/api/netbox/probe", 10),
     ("/api/phpipam/probe", 10),
     ("/api/clients/1/discover-assets", 2),

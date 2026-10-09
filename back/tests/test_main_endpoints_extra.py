@@ -264,14 +264,14 @@ def test_logs_endpoints_filter_global_and_client_logs(client):
     assert {log["client_id"] for log in client_logs.json()} == {1}
 
 
-def test_backupcenter_discover_all_groups_success_and_error(client, monkeypatch):
+def test_backup_discover_all_groups_success_and_error(client, monkeypatch):
     c, h = client
 
     async def ok(db, *, extract_configs=False, job=None):
         return {"status": "success", "groups_created": 1}
 
     monkeypatch.setattr(main, "_sync_bc_groups_and_assets", ok)
-    r1 = c.post("/api/backupcenter/discover-all-groups", headers=h)
+    r1 = c.post("/api/backup/discover-all-groups", headers=h)
     assert r1.status_code == 200
     assert r1.json()["groups_created"] == 1
 
@@ -279,7 +279,7 @@ def test_backupcenter_discover_all_groups_success_and_error(client, monkeypatch)
         return {"status": "error", "message": "BC offline"}
 
     monkeypatch.setattr(main, "_sync_bc_groups_and_assets", err)
-    r2 = c.post("/api/backupcenter/discover-all-groups", headers=h)
+    r2 = c.post("/api/backup/discover-all-groups", headers=h)
     assert r2.status_code == 502
     assert r2.json()["message"] == "BC offline"
 
@@ -292,7 +292,7 @@ def test_global_extract_job_endpoint_creates_reuses_and_fetches_job(client, monk
 
     monkeypatch.setattr(main, "_run_global_extract_job", no_op_job)
 
-    created = c.post("/api/backupcenter/extract-all", headers=h)
+    created = c.post("/api/backup/extract-all", headers=h)
     assert created.status_code == 200
     job_id = created.json()["job_id"]
     assert main.GLOBAL_JOBS[job_id]["status"] == "queued"
@@ -301,7 +301,7 @@ def test_global_extract_job_endpoint_creates_reuses_and_fetches_job(client, monk
     assert fetched.status_code == 200
     assert fetched.json()["id"] == job_id
 
-    duplicate = c.post("/api/backupcenter/extract-all", headers=h)
+    duplicate = c.post("/api/backup/extract-all", headers=h)
     assert duplicate.status_code == 200
     assert duplicate.json()["job_id"] == job_id
 
@@ -414,10 +414,10 @@ def test_extract_configs_manual_endpoint_success_and_error(client, monkeypatch):
     assert r.json()["detail"]["code"] == "ssh_extract_failed"
 
 
-def test_backupcenter_remote_group_and_asset_routes_cover_success_and_errors(client, monkeypatch):
+def test_backup_remote_group_and_asset_routes_cover_success_and_errors(client, monkeypatch):
     c, h = client
     server = c.post(
-        "/api/backupcenter/servers",
+        "/api/backup/servers",
         headers=h,
         json={"name": "BC-remote", "url": "https://bc.remote/api/v1/external", "token": "tok"},
     ).json()
@@ -439,11 +439,11 @@ def test_backupcenter_remote_group_and_asset_routes_cover_success_and_errors(cli
     )
     monkeypatch.setattr(main.httpx, "AsyncClient", lambda *args, **kwargs: http_client)
 
-    groups = c.get(f"/api/backupcenter/servers/{server['id']}/groups", headers=h)
-    assets = c.get("/api/backupcenter/groups/grp-remote/assets", headers=h)
-    missing_server = c.get("/api/backupcenter/servers/999999/groups", headers=h)
-    failed_groups = c.get(f"/api/backupcenter/servers/{server['id']}/groups", headers=h)
-    missing_group = c.get("/api/backupcenter/groups/grp-missing/assets", headers=h)
+    groups = c.get(f"/api/backup/servers/{server['id']}/groups", headers=h)
+    assets = c.get("/api/backup/groups/grp-remote/assets", headers=h)
+    missing_server = c.get("/api/backup/servers/999999/groups", headers=h)
+    failed_groups = c.get(f"/api/backup/servers/{server['id']}/groups", headers=h)
+    missing_group = c.get("/api/backup/groups/grp-missing/assets", headers=h)
 
     assert group["external_group_id"] == "grp-remote"
     assert groups.status_code == 200
@@ -482,7 +482,7 @@ def test_phpipam_probe_and_remote_lookup_routes(client, monkeypatch):
         headers=h,
         json={
             "ip": "https://example.com",
-            "token_name": "atlas",
+            "token_name": "horus",
             "token": "stale-token",
             "phpipam_user": "svc",
             "phpipam_pass": "secret",
@@ -494,7 +494,7 @@ def test_phpipam_probe_and_remote_lookup_routes(client, monkeypatch):
         json={
             "name": "Grupo phpIPAM remoto",
             "ip": "https://example.com",
-            "token_name": "atlas",
+            "token_name": "horus",
             "token": "stored-token",
             "phpipam_user": "svc",
             "phpipam_pass": "secret",
@@ -509,7 +509,7 @@ def test_phpipam_probe_and_remote_lookup_routes(client, monkeypatch):
     assert probe.json()["sections"][0]["name"] == "Secao"
     assert l2_domains.json()[0]["name"] == "L2 Remoto"
     assert sections.json()[0]["name"] == "Secao Remota"
-    assert token_calls[0] == ("https://example.com", "atlas", "svc", "secret")
+    assert token_calls[0] == ("https://example.com", "horus", "svc", "secret")
 
 
 def test_phpipam_probe_error_branches(client, monkeypatch):
@@ -520,7 +520,7 @@ def test_phpipam_probe_error_branches(client, monkeypatch):
     bad_status = c.post(
         "/api/phpipam/probe",
         headers=h,
-        json={"ip": "https://example.com", "token_name": "atlas", "token": "tok"},
+        json={"ip": "https://example.com", "token_name": "horus", "token": "tok"},
     )
     assert bad_status.status_code == 200
     assert bad_status.json()["error"] == "phpIPAM retornou 500"
@@ -531,7 +531,7 @@ def test_phpipam_probe_error_branches(client, monkeypatch):
     failed = c.post(
         "/api/phpipam/probe",
         headers=h,
-        json={"ip": "https://example.com", "token_name": "atlas", "token": "tok"},
+        json={"ip": "https://example.com", "token_name": "horus", "token": "tok"},
     )
     assert failed.status_code == 200
     assert failed.json()["error"] == "sem rota"

@@ -1,4 +1,4 @@
-"""Helpers para chamadas ao BackupCenter.
+"""Helpers para chamadas à Backup API.
 
 Contrato: ``BCServer.url`` deve ser a URL base completa da API externa,
 incluindo o prefixo ``/api/v1/external``.
@@ -18,11 +18,11 @@ BC_API_PREFIX = "/api/v1/external"
 
 
 def bc_url(server: Any, *parts: str) -> str:
-    """Monta URLs do BackupCenter a partir da base persistida em ``BCServer.url``."""
+    """Monta URLs da Backup API a partir da base persistida em ``BCServer.url``."""
     base = (server.url or "").rstrip("/")
     if not base.endswith(BC_API_PREFIX):
         logger.warning(
-            "[BackupCenter] Configuracao suspeita para servidor %s: "
+            "[Backup API] Configuracao suspeita para servidor %s: "
             "BCServer.url deve terminar com %s. URL atual: %s",
             getattr(server, "id", "?"),
             BC_API_PREFIX,
@@ -63,13 +63,13 @@ async def get_json(
             timeout=timeout,
         )
     except httpx.TimeoutException as exc:
-        raise BCAPIError("Timeout ao contatar BackupCenter", url) from exc
+        raise BCAPIError("Timeout ao contatar Backup API", url) from exc
     except httpx.HTTPError as exc:
-        raise BCAPIError(f"Falha ao contatar BackupCenter: {exc}", url) from exc
+        raise BCAPIError(f"Falha ao contatar Backup API: {exc}", url) from exc
 
     if res.status_code != 200:
         raise BCAPIError(
-            "BackupCenter respondeu com erro",
+            "Backup API respondeu com erro",
             str(res.url),
             status_code=res.status_code,
             response_text=res.text,

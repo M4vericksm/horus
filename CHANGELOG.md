@@ -5,9 +5,9 @@
 ### Fixed
 
 - Corrige a lentidao da listagem de clientes proporcional ao numero de VLANs: `GET /api/clients` e `GET /api/clients/{id}` carregavam assets, VLANs e subnets de todos os clientes apenas para contar em Python. As contagens passam a ser subqueries no banco (61,3ms -> 26,6ms e 4.043 -> 0 linhas filhas em base de teste; em producao o ganho escala porque a consulta deixa de crescer com o volume de VLANs).
-- Corrige a montagem de URLs do BackupCenter para respeitar o contrato de que `BCServer.url` ja inclui `/api/v1/external`. O discover via `ClientBCLink` e o download de backups agora usam um helper centralizado, evitando URLs duplicadas como `/api/v1/external/api/v1/external/...`.
-- Torna falhas da API BackupCenter visiveis no discover: respostas HTTP 4xx/5xx e timeouts agora gravam `execution_logs.status = "error"` com URL mascarada e a rota de discover por vinculo retorna erro claro, em vez de informar que todos os equipamentos ja estavam sincronizados.
-- Preserva a paginacao do endpoint de backups do BackupCenter, percorrendo todas as paginas retornadas por `pages`.
+- Corrige a montagem de URLs da Backup API para respeitar o contrato de que `BCServer.url` ja inclui `/api/v1/external`. O discover via `ClientBCLink` e o download de backups agora usam um helper centralizado, evitando URLs duplicadas como `/api/v1/external/api/v1/external/...`.
+- Torna falhas da API Backup API visiveis no discover: respostas HTTP 4xx/5xx e timeouts agora gravam `execution_logs.status = "error"` com URL mascarada e a rota de discover por vinculo retorna erro claro, em vez de informar que todos os equipamentos ja estavam sincronizados.
+- Preserva a paginacao do endpoint de backups da Backup API, percorrendo todas as paginas retornadas por `pages`.
 
 ### Added
 

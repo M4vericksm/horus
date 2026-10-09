@@ -1,7 +1,7 @@
 services:
   backend:
     build: .
-    container_name: networkatlas_backend
+    container_name: horus_backend
     restart: always
     depends_on:
       db:
@@ -13,7 +13,7 @@ services:
 
   db:
     image: postgres:15
-    container_name: networkatlas_db
+    container_name: horus_db
     restart: always
     env_file: .env
     volumes:
@@ -33,7 +33,7 @@ services:
 
   frontend:
     image: nginx:stable
-    container_name: networkatlas_frontend
+    container_name: horus_frontend
     restart: always
     env_file: .env
     volumes:
@@ -44,4 +44,4 @@ services:
 
 volumes:
   postgres_data:
-    name: networkatlas_postgres_data
+    name: horus_postgres_data

@@ -1,1 +1,1 @@
-# Pacote de testes do backend NetworkAtlas
+# Pacote de testes do backend Horus

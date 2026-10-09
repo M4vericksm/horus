@@ -107,7 +107,7 @@ def test_update_with_empty_clears_secret(client):
 def test_bc_server_token_masked_and_kept_on_mask(client):
     c, h = client
     r = c.post(
-        "/api/backupcenter/servers",
+        "/api/backup/servers",
         headers=h,
         json={"name": "BC-Masc", "url": "https://203.0.113.9", "token": "bc-sekret"},
     )
@@ -115,12 +115,12 @@ def test_bc_server_token_masked_and_kept_on_mask(client):
     assert r.json()["token"] == SECRET_MASK
     sid = r.json()["id"]
 
-    r = c.get("/api/backupcenter/servers", headers=h)
+    r = c.get("/api/backup/servers", headers=h)
     assert next(s for s in r.json() if s["id"] == sid)["token"] == SECRET_MASK
 
     # PUT devolvendo a máscara não pode sobrescrever o token com "********"
     r = c.put(
-        f"/api/backupcenter/servers/{sid}",
+        f"/api/backup/servers/{sid}",
         headers=h,
         json={"name": "BC-Masc-2", "url": "https://203.0.113.9", "token": SECRET_MASK},
     )

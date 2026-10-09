@@ -1,4 +1,4 @@
-"""Adiciona bc_device_id (UUID imutável do equipamento no BackupCenter) ao Asset
+"""Adiciona bc_device_id (UUID imutável do equipamento na Backup API) ao Asset
 
 Revision ID: 007_bc_device_id
 Revises: 006_netbox_fields

@@ -1,10 +1,10 @@
 /**
- * AtlasPicker — combobox com busca para escolher provedor.
+ * HorusPicker — combobox com busca para escolher provedor.
  *
  * Com 104 provedores o <select> nativo obriga a rolar a lista inteira. Este
  * componente envolve o próprio <select> (que continua sendo a fonte de verdade:
  * `sel.value` e o evento `change` seguem funcionando), então as telas não
- * precisam mudar a lógica de carregamento — só chamar AtlasPicker.enhance().
+ * precisam mudar a lógica de carregamento — só chamar HorusPicker.enhance().
  *
  * Teclado: ↑/↓ navega, Enter escolhe, Esc fecha, digitar filtra.
  */
@@ -13,9 +13,9 @@
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   function ensureStyles() {
-    if (document.getElementById('atlas-picker-styles')) return;
+    if (document.getElementById('horus-picker-styles')) return;
     const s = document.createElement('style');
-    s.id = 'atlas-picker-styles';
+    s.id = 'horus-picker-styles';
     s.textContent = `
       .apk { position:relative; display:inline-block; }
       .apk-btn { display:flex; align-items:center; gap:8px; height:38px; padding:0 12px;
@@ -203,5 +203,5 @@
     syncButton();
   }
 
-  window.AtlasPicker = { enhance };
+  window.HorusPicker = { enhance };
 })();

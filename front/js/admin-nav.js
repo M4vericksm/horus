@@ -7,7 +7,7 @@
   const API_BASE = `http://${window.location.hostname}:${window.API_PORT || '8000'}/api`;
 
   function injectLink() {
-    if (localStorage.getItem('atlas-is-admin') !== '1') return;
+    if (localStorage.getItem('horus-is-admin') !== '1') return;
     const active = /usuarios\.html$/.test(window.location.pathname);
     document.querySelectorAll('aside.sidebar nav, #sidebar nav').forEach((nav) => {
       if (nav.querySelector('[data-navkey="users"]')) return;
@@ -22,15 +22,15 @@
   }
 
   function probe() {
-    const tok = (window.AtlasAPI && AtlasAPI.getSessionToken && AtlasAPI.getSessionToken())
-      || localStorage.getItem('atlas-api-key') || '';
+    const tok = (window.HorusAPI && HorusAPI.getSessionToken && HorusAPI.getSessionToken())
+      || localStorage.getItem('horus-api-key') || '';
     if (!tok) return;
     fetch(`${API_BASE}/me`, { headers: { 'X-API-Key': tok } })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!d) return;
-        localStorage.setItem('atlas-is-admin', d.is_admin ? '1' : '0');
-        window.AtlasIsAdmin = !!d.is_admin;
+        localStorage.setItem('horus-is-admin', d.is_admin ? '1' : '0');
+        window.HorusIsAdmin = !!d.is_admin;
         if (d.is_admin) injectLink();
       })
       .catch(() => {});

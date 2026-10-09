@@ -1,4 +1,4 @@
-# Contribuindo com o NetworkAtlas
+# Contribuindo com o Horus
 
 Obrigado por contribuir. Este guia cobre a estrutura do projeto, como rodar
 tudo localmente e o caminho para adicionar suporte a um novo fabricante.
