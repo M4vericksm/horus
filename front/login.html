@@ -384,8 +384,8 @@
       if (p1 !== p2) { UI.showToast('As senhas não conferem.', 'warning'); return; }
       const { ok, d } = await apiPost('/register', { email, password: p1 });
       if (!ok) { fail(d, 'Não foi possível cadastrar.'); return; }
-      // Cadastro self-service: conta já criada ativa; segue direto para o QR do
-      // MFA e o 1º código conclui o enrolamento e autentica (via /login/mfa).
+      // Cadastro self-service nasce pendente de aprovação (resposta pending_approval);
+      // o ramo abaixo cobre um backend que devolva o enrolamento do MFA direto.
       if (d.mfa_enrollment_required) {
         preAuth = d.pre_auth; confirmVia = 'login';
         const el = document.getElementById('qrcode'); el.innerHTML = '';

@@ -1001,7 +1001,7 @@ async def login_mfa(data: MfaRequest, db: AsyncSession = Depends(database.get_db
 
 @app.post("/api/register")
 async def register(data: RegisterRequest, db: AsyncSession = Depends(database.get_db)):
-    """Auto-cadastro: e-mail corporativo + senha forte → devolve o QR (otpauth) do MFA."""
+    """Auto-cadastro: e-mail do domínio autorizado + senha forte → conta inativa até a aprovação."""
     email = (data.email or "").strip().lower()
     if not _valid_email(email):
         raise HTTPException(status_code=400, detail=api_error("email_invalid", "E-mail inválido.", "Use seu e-mail corporativo."))
@@ -1023,24 +1023,19 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(database.ge
             "email_taken", "Já existe conta com esse e-mail.",
             "Faça login. Se esqueceu a senha, use 'Esqueci minha senha'."))
 
-    # Auto-cadastro do domínio corporativo entra ATIVO e segue direto para o
-    # enrolamento do MFA — sem aprovação manual. A barreira é: domínio restrito
-    # (@example.com) + senha forte + segundo fator obrigatório.
+    # Auto-cadastro entra INATIVO e sem segredo de MFA: pertencer ao domínio
+    # prova pouco (basta conhecê-lo). Um administrador libera a conta em
+    # /api/users, e o enrolamento do MFA acontece no primeiro login aprovado.
     username = email.split("@", 1)[0] + "_" + secrets.token_hex(3)
-    secret = _totp_new_secret()
     user = models.User(username=username, email=email, full_name=email.split("@", 1)[0],
                        password_hash=_hash_password(data.password),
-                       mfa_secret=secret, mfa_enabled=False, is_active=True)
+                       mfa_secret=None, mfa_enabled=False, is_active=False)
     db.add(user)
     await db.commit()
-    logger.info("Cadastro self-service ativo: %s (%s)", username, email)
-    # Mesmo payload do login para conta sem MFA: o front mostra o QR e o 1º código
-    # válido conclui o enrolamento e já emite a sessão (via /login/mfa).
+    logger.info("Cadastro self-service pendente de aprovação: %s (%s)", username, email)
     return {
-        "mfa_enrollment_required": True,
-        "pre_auth": _create_preauth(username),
-        "otpauth_uri": _otpauth_uri(email, secret),
-        "secret": secret,
+        "pending_approval": True,
+        "message": "Cadastro recebido. Um administrador precisa liberar o acesso.",
     }
 
 
